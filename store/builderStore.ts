@@ -23,8 +23,10 @@ interface BuilderState {
   resetSectionToDefault: (id: string) => void;
   replaceSection: (id: string, type: string, variantId: string) => void;
   updateNavigation: (navigation: NavigationConfig) => void;
+  patchNavigation: (partial: Record<string, unknown>) => void;
   updateNavigationSettings: (partialSettings: Record<string, unknown>) => void;
   updateFooter: (footer: FooterConfig) => void;
+  patchFooterProps: (partial: Record<string, unknown>) => void;
   updateFooterSettings: (partialSettings: Record<string, unknown>) => void;
   replaceHeaderVariant: (variantId: string) => void;
   replaceFooterVariant: (variantId: string) => void;
@@ -268,6 +270,15 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     }));
   },
 
+  patchNavigation: (partial) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        navigation: { ...state.site.navigation, ...partial },
+      },
+    }));
+  },
+
   updateNavigationSettings: (partialSettings) => {
     set((state) => ({
       site: {
@@ -283,6 +294,18 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   updateFooter: (footer) => {
     set((state) => ({
       site: { ...state.site, footer },
+    }));
+  },
+
+  patchFooterProps: (partial) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        footer: {
+          ...state.site.footer,
+          props: { ...state.site.footer.props, ...partial },
+        },
+      },
     }));
   },
 

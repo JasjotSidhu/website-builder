@@ -5,6 +5,7 @@ import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
 import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
 import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import EditableText from "@/lib/editor/EditableText";
+import { applyItemPatch } from "@/lib/editor/apply-item-patch";
 import {
   SectionDataProvider,
   useSectionData,
@@ -38,26 +39,16 @@ export default function FeaturesAlternating() {
           {items.map((item, index) => {
             const imageFirst = index % 2 === 0;
 
-            const applyItemPatch = (partial: Record<string, unknown>) => {
-              const next = [...items];
-              const itemData = { ...next[index] };
-              for (const [key, value] of Object.entries(partial)) {
-                if (value === undefined || value === "") {
-                  delete itemData[key as keyof typeof itemData];
-                } else {
-                  itemData[key as keyof typeof itemData] = value as never;
-                }
-              }
-              next[index] = itemData;
-              updateField("items", next);
+            const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
+              updateField("items", applyItemPatch(items, index, partial));
             };
 
             return (
               <SectionDataProvider
                 key={`alt-feature-${index}`}
                 data={item as unknown as Record<string, unknown>}
-                updateField={(key, value) => applyItemPatch({ [key]: value })}
-                updateFields={applyItemPatch}
+                updateField={(key, value) => applyItemPatchForIndex({ [key]: value })}
+                updateFields={applyItemPatchForIndex}
               >
                 <div className="relative grid items-center gap-10 overflow-visible md:grid-cols-2 md:gap-14">
                   {isEditing ? (

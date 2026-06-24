@@ -24,6 +24,7 @@ export default function ButtonToolbar({
             pages={settings.pages}
             onVariantChange={settings.onVariantChange}
             onLinkChange={settings.onLinkChange}
+            showVariant={settings.showVariant}
           />
         </div>
       </div>

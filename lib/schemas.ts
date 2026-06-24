@@ -42,13 +42,14 @@ export const navigationConfigSchema = z.object({
   links: z.array(
     z.object({
       label: z.string().min(1),
-      href: z.string().min(1),
+      link: linkValueSchema,
     }),
   ),
   cta: z
     .object({
       label: z.string().min(1),
-      href: z.string().min(1),
+      link: linkValueSchema,
+      variant: z.enum(["primary", "secondary"]).optional(),
     })
     .optional(),
   settings: z.record(z.string(), z.unknown()).optional(),

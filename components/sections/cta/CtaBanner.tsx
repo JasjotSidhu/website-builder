@@ -1,21 +1,13 @@
 "use client";
 
-import EditableLink from "@/lib/editor/EditableLink";
-import EditableText from "@/lib/editor/EditableText";
-import { SectionDataProvider, useSectionData } from "@/lib/editor/SectionDataContext";
+import { SectionHeader } from "../shared/SectionHeader";
+import { SectionButtons } from "../shared/SectionContent";
 import { SectionShell } from "../shared/SectionShell";
-import { SectionEyebrow } from "../shared/SectionEyebrow";
 
 export { ctaBannerSchema } from "./schema";
 export type { CtaBannerProps } from "./schema";
 
 export default function CtaBanner() {
-  const { data, updateField } = useSectionData();
-  const button = (data.button as Record<string, unknown> | undefined) ?? {
-    label: "",
-    link: { type: "page", pageId: "home" },
-  };
-
   return (
     <SectionShell className="cta-banner text-white">
       <div
@@ -26,35 +18,19 @@ export default function CtaBanner() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-        <SectionEyebrow fallback="Get started" light />
-        <EditableText
-          as="h2"
-          dataKey="heading"
-          maxLength={100}
-          className="mt-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
+        <SectionHeader
+          align="center"
+          eyebrowFallback="Get started"
+          size="cta"
+          className="mx-auto max-w-3xl"
         />
-        <EditableText
-          as="p"
-          dataKey="subheading"
-          maxLength={200}
-          required={false}
-          className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/85"
+        <SectionButtons
+          appearance="cta"
+          maxButtons={1}
+          showAdd={false}
+          showRemove={false}
+          showVariant={false}
         />
-        <SectionDataProvider
-          data={button}
-          updateField={(key, value) =>
-            updateField("button", { ...button, [key]: value })
-          }
-          updateFields={(partial) =>
-            updateField("button", { ...button, ...partial })
-          }
-        >
-          <EditableLink dataKey="link">
-            <span className="cta-button mt-10 inline-block">
-              <EditableText as="span" dataKey="label" maxLength={40} inheritSectionColor={false} />
-            </span>
-          </EditableLink>
-        </SectionDataProvider>
       </div>
     </SectionShell>
   );

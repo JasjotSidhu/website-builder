@@ -7,4 +7,5 @@ export interface ButtonToolbarSettings {
   pages: SitePageSummary[];
   onVariantChange: (variant: "primary" | "secondary") => void;
   onLinkChange: (link: LinkValue) => void;
+  showVariant?: boolean;
 }

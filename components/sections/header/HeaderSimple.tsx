@@ -1,35 +1,100 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import type { HeaderSimpleProps } from "./schema";
+import EditableLogo from "@/lib/editor/EditableLogo";
+import EditableNavLink from "@/lib/editor/EditableNavLink";
+import { useEditMode } from "@/lib/editor/EditModeContext";
+import {
+  SectionDataProvider,
+  useSectionData,
+} from "@/lib/editor/SectionDataContext";
+import type { LinkValue } from "@/lib/types";
+import { EditableButton } from "../shared/SectionContent";
 
 export { headerSimpleSchema } from "./schema";
 export type { HeaderSimpleProps } from "./schema";
 
-function Logo({ logo }: Pick<HeaderSimpleProps, "logo">) {
-  if (logo.type === "image") {
-    return (
-      <Image
-        src={logo.value}
-        alt=""
-        width={140}
-        height={40}
-        className="h-10 w-auto object-contain"
-      />
-    );
-  }
+interface HeaderLink {
+  label: string;
+  link: LinkValue;
+}
+
+interface HeaderCta {
+  label: string;
+  link: LinkValue;
+  variant?: "primary" | "secondary";
+}
+
+interface HeaderLogo {
+  type: "text" | "image";
+  value: string;
+}
+
+function HeaderNavLinks({
+  links,
+  className,
+  onNavigate,
+}: {
+  links: HeaderLink[];
+  className: string;
+  onNavigate?: () => void;
+}) {
+  const { updateField } = useSectionData();
 
   return (
-    <span className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
-      {logo.value}
-    </span>
+    <>
+      {links.map((link, index) => (
+        <SectionDataProvider
+          key={`header-link-${index}`}
+          data={link as unknown as Record<string, unknown>}
+          updateField={(key, value) => {
+            const next = [...links];
+            next[index] = { ...next[index], [key]: value };
+            updateField("links", next);
+          }}
+          updateFields={(partial) => {
+            const next = [...links];
+            next[index] = { ...next[index], ...partial };
+            updateField("links", next);
+          }}
+        >
+          <EditableNavLink className={className} onNavigate={onNavigate} />
+        </SectionDataProvider>
+      ))}
+    </>
   );
 }
 
-export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
+export default function HeaderSimple() {
+  const { isEditing } = useEditMode();
+  const { data, updateField } = useSectionData();
+  const logo = (data.logo as HeaderLogo | undefined) ?? { type: "text", value: "" };
+  const links = (data.links as HeaderLink[] | undefined) ?? [];
+  const cta = data.cta as HeaderCta | undefined;
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  const logoNode = (
+    <SectionDataProvider
+      data={logo as unknown as Record<string, unknown>}
+      updateField={(key, value) => updateField("logo", { ...logo, [key]: value })}
+      updateFields={(partial) => updateField("logo", { ...logo, ...partial })}
+    >
+      <EditableLogo />
+    </SectionDataProvider>
+  );
+
+  const ctaNode = cta ? (
+    <SectionDataProvider
+      data={cta as unknown as Record<string, unknown>}
+      updateField={(key, value) => updateField("cta", { ...cta, [key]: value })}
+      updateFields={(partial) => updateField("cta", { ...cta, ...partial })}
+    >
+      <EditableButton appearance="header" showVariant={false} onNavigate={closeMenu} />
+    </SectionDataProvider>
+  ) : null;
 
   return (
     <header
@@ -39,28 +104,14 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
       }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/">
-          <Logo logo={logo} />
-        </Link>
+        {isEditing ? <div className="inline-flex">{logoNode}</div> : <Link href="/">{logoNode}</Link>}
 
         <nav className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium transition hover:text-[var(--color-primary)]"
-            >
-              {link.label}
-            </Link>
-          ))}
-          {cta ? (
-            <Link
-              href={cta.href}
-              className="rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95"
-            >
-              {cta.label}
-            </Link>
-          ) : null}
+          <HeaderNavLinks
+            links={links}
+            className="text-sm font-medium transition hover:text-[var(--color-primary)]"
+          />
+          {ctaNode}
         </nav>
 
         <button
@@ -87,7 +138,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
             type="button"
             className="absolute inset-0 bg-black/40"
             aria-label="Close navigation menu"
-            onClick={() => setMenuOpen(false)}
+            onClick={closeMenu}
           />
           <div className="absolute right-0 top-0 flex h-full w-72 flex-col bg-[var(--color-background)] p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
@@ -96,7 +147,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
                 type="button"
                 aria-label="Close menu"
                 className="rounded-md p-2"
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path
@@ -109,24 +160,15 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
               </button>
             </div>
             <nav className="flex flex-col gap-4">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-base font-medium"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <HeaderNavLinks
+                links={links}
+                className="text-base font-medium"
+                onNavigate={closeMenu}
+              />
               {cta ? (
-                <Link
-                  href={cta.href}
-                  className="mt-2 rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-3 text-center text-sm font-medium text-white"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {cta.label}
-                </Link>
+                <div className="mt-2 text-center [&_.button-item-trigger]:w-full [&_a]:block [&_a]:w-full [&_a]:px-4 [&_a]:py-3">
+                  {ctaNode}
+                </div>
               ) : null}
             </nav>
           </div>

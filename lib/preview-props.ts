@@ -11,11 +11,15 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
     props: {
       logo: { type: "text", value: "Atelier" },
       links: [
-        { label: "Work", href: "#" },
-        { label: "Services", href: "#" },
-        { label: "About", href: "#" },
+        { label: "Work", link: { type: "url", href: "#" } },
+        { label: "Services", link: { type: "url", href: "#" } },
+        { label: "About", link: { type: "url", href: "#" } },
       ],
-      cta: { label: "Get started", href: "#" },
+      cta: {
+        label: "Get started",
+        link: { type: "url", href: "#" },
+        variant: "primary",
+      },
     },
   },
   "hero-centered": {
@@ -161,10 +165,13 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
     props: {
       heading: "Ready to build something distinctive?",
       subheading: "Tell us about your project — we reply within two business days.",
-      button: {
-        label: "Start a project",
-        link: { type: "url", href: "#" },
-      },
+      buttons: [
+        {
+          label: "Start a project",
+          link: { type: "url", href: "#" },
+          variant: "primary",
+        },
+      ],
     },
     settings: {
       overlayColor: "#000000",
@@ -181,15 +188,15 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
         {
           title: "Studio",
           links: [
-            { label: "Work", href: "#" },
-            { label: "Services", href: "#" },
+            { label: "Work", link: { type: "url", href: "#" } },
+            { label: "Services", link: { type: "url", href: "#" } },
           ],
         },
         {
           title: "Connect",
           links: [
-            { label: "Contact", href: "#" },
-            { label: "Instagram", href: "#" },
+            { label: "Contact", link: { type: "url", href: "#" } },
+            { label: "Instagram", link: { type: "url", href: "#" } },
           ],
         },
       ],

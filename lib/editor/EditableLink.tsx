@@ -14,12 +14,14 @@ interface EditableLinkProps {
   dataKey: string;
   children: React.ReactNode;
   className?: string;
+  onNavigate?: () => void;
 }
 
 export default function EditableLink({
   dataKey,
   children,
   className,
+  onNavigate,
 }: EditableLinkProps) {
   const { isEditing } = useEditMode();
   const pages = useSitePages();
@@ -30,7 +32,7 @@ export default function EditableLink({
   if (!isEditing) {
     const href = resolveLink(link, pages);
     return (
-      <a href={href} className={className}>
+      <a href={href} className={className} onClick={onNavigate}>
         {children}
       </a>
     );

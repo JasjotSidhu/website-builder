@@ -50,7 +50,12 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         traits: [],
         defaultProps: {
           logo: { type: "text", value: "Brand" },
-          links: [{ label: "Home", href: "/" }],
+          links: [{ label: "Home", link: { type: "page", pageId: "home" } }],
+          cta: {
+            label: "Get started",
+            link: { type: "page", pageId: "home" },
+            variant: "primary",
+          },
         },
       },
     ],
@@ -182,10 +187,13 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
           eyebrow: "Get started",
           heading: "Ready to get started?",
           subheading: "Let's talk about your project.",
-          button: {
-            label: "Contact us",
-            link: { type: "url", href: "#contact" },
-          },
+          buttons: [
+            {
+              label: "Contact us",
+              link: { type: "url", href: "#contact" },
+              variant: "primary",
+            },
+          ],
         },
       },
     ],
@@ -208,11 +216,11 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
           columns: [
             {
               title: "Company",
-              links: [{ label: "About", href: "/about" }],
+              links: [{ label: "About", link: { type: "url", href: "/about" } }],
             },
             {
               title: "Legal",
-              links: [{ label: "Privacy", href: "/privacy" }],
+              links: [{ label: "Privacy", link: { type: "url", href: "/privacy" } }],
             },
           ],
           copyright: "© 2026 Brand. All rights reserved.",

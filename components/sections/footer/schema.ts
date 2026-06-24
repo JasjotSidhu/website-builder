@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { linkValueSchema } from "@/lib/schemas";
 
 export const footerSimpleSchema = z.object({
   logo: z.object({
@@ -13,7 +14,7 @@ export const footerSimpleSchema = z.object({
         links: z.array(
           z.object({
             label: z.string().min(1),
-            href: z.string().min(1),
+            link: linkValueSchema,
           }),
         ),
       }),

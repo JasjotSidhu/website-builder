@@ -10,7 +10,7 @@ export const featuresGrid3Schema = z.object({
   eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().optional(),
-  items: z.array(featureItemSchema).length(3),
+  items: z.array(featureItemSchema).min(1).max(6),
 });
 
 export type FeaturesGrid3Props = z.infer<typeof featuresGrid3Schema>;

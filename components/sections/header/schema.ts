@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { linkValueSchema } from "@/lib/schemas";
 
 export const headerSimpleSchema = z.object({
   logo: z.object({
@@ -8,13 +9,14 @@ export const headerSimpleSchema = z.object({
   links: z.array(
     z.object({
       label: z.string().min(1),
-      href: z.string().min(1),
+      link: linkValueSchema,
     }),
   ),
   cta: z
     .object({
       label: z.string().min(1),
-      href: z.string().min(1),
+      link: linkValueSchema,
+      variant: z.enum(["primary", "secondary"]).optional(),
     })
     .optional(),
 });

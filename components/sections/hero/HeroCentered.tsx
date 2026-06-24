@@ -3,8 +3,8 @@
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
 import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import { SectionShell } from "../shared/SectionShell";
-import { SectionEyebrow } from "../shared/SectionEyebrow";
-import { SectionButtons, SectionHeading } from "../shared/SectionContent";
+import { SectionHeader } from "../shared/SectionHeader";
+import { SectionButtons } from "../shared/SectionContent";
 
 export { heroCenteredSchema } from "./schema-centered";
 export type { HeroCenteredProps } from "./schema-centered";
@@ -14,8 +14,13 @@ export default function HeroCentered() {
     <SectionShell>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-6">
         <div className="flex flex-col items-center gap-6">
-          <SectionEyebrow fallback="Welcome" />
-          <SectionHeading align="center" />
+          <SectionHeader
+            align="center"
+            eyebrowFallback="Welcome"
+            headingAs="h1"
+            size="hero"
+            className="max-w-none"
+          />
           <SectionButtons />
         </div>
 

@@ -4,8 +4,8 @@ import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
 import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import { useReversedLayout } from "@/lib/traits/hooks";
 import { SectionShell } from "../shared/SectionShell";
-import { SectionEyebrow } from "../shared/SectionEyebrow";
-import { SectionButtons, SectionHeading } from "../shared/SectionContent";
+import { SectionHeader } from "../shared/SectionHeader";
+import { SectionButtons } from "../shared/SectionContent";
 
 export { heroSplitSchema } from "./schema-split";
 export type { HeroSplitProps } from "./schema-split";
@@ -21,8 +21,13 @@ export default function HeroSplit() {
         }`}
       >
         <div className="flex flex-1 flex-col gap-6">
-          <SectionEyebrow fallback="Our studio" className="w-fit" />
-          <SectionHeading align="left" />
+          <SectionHeader
+            align="left"
+            eyebrowFallback="Our studio"
+            headingAs="h1"
+            size="hero"
+            className="max-w-none"
+          />
           <SectionButtons align="left" />
         </div>
 

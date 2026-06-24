@@ -1,5 +1,6 @@
 import { findSectionVariant } from "@/lib/registry";
 import { getHeaderVariantId } from "@/lib/header-utils";
+import { migrateFooterProps, migrateNavigation, migrateSectionProps } from "@/lib/migrate-content";
 import { isFixedSlotType } from "@/lib/section-placement";
 import type { SectionInstance, WebsiteData } from "@/lib/types";
 import { buildVariantSettings } from "./registry";
@@ -63,7 +64,7 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
   const headerVariant = findSectionVariant("header", getHeaderVariantId(site.navigation));
   const footerVariant = findSectionVariant("footer", site.footer.variant);
 
-  const navigation = {
+  const navigation = migrateNavigation({
     ...site.navigation,
     settings: headerVariant
       ? resolveFixedSlotSettings(
@@ -72,10 +73,11 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
           headerVariant.settingsDefaults,
         )
       : site.navigation.settings,
-  };
+  });
 
   const footer = {
     ...site.footer,
+    props: migrateFooterProps(site.footer.props),
     settings: footerVariant
       ? resolveFixedSlotSettings(
           site.footer.settings,
@@ -101,6 +103,7 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
 
           return {
             ...section,
+            props: migrateSectionProps(section.type, section.variant, section.props),
             settings: resolveSectionSettings(
               section,
               variant.traits,

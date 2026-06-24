@@ -2,7 +2,9 @@
 
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
+import EditableIconPicker from "@/lib/editor/EditableIconPicker";
 import EditableText from "@/lib/editor/EditableText";
+import { applyItemPatch } from "@/lib/editor/apply-item-patch";
 import {
   SectionDataProvider,
   useSectionData,
@@ -10,7 +12,6 @@ import {
 import { useGridStyle } from "@/lib/traits/hooks";
 import { SectionHeader } from "../shared/SectionHeader";
 import { SectionShell } from "../shared/SectionShell";
-import { FeatureIcon } from "./FeatureIcon";
 
 export { featuresGrid3Schema } from "./schema-grid";
 export type { FeaturesGrid3Props } from "./schema-grid";
@@ -36,26 +37,16 @@ export default function FeaturesGrid3() {
 
         <div style={gridStyle}>
           {items.map((item, index) => {
-            const applyItemPatch = (partial: Record<string, unknown>) => {
-              const next = [...items];
-              const itemData = { ...next[index] };
-              for (const [key, value] of Object.entries(partial)) {
-                if (value === undefined || value === "") {
-                  delete itemData[key as keyof typeof itemData];
-                } else {
-                  itemData[key as keyof typeof itemData] = value as never;
-                }
-              }
-              next[index] = itemData;
-              updateField("items", next);
+            const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
+              updateField("items", applyItemPatch(items, index, partial));
             };
 
             return (
             <SectionDataProvider
               key={`feature-${index}`}
               data={item as unknown as Record<string, unknown>}
-              updateField={(key, value) => applyItemPatch({ [key]: value })}
-              updateFields={applyItemPatch}
+              updateField={(key, value) => applyItemPatchForIndex({ [key]: value })}
+              updateFields={applyItemPatchForIndex}
             >
               <article className="feature-card group relative">
                 {isEditing ? (
@@ -69,9 +60,7 @@ export default function FeaturesGrid3() {
                     }
                   />
                 ) : null}
-                <div className="feature-icon-wrap">
-                  <FeatureIcon name={item.icon} />
-                </div>
+                <EditableIconPicker />
                 <EditableText
                   as="h3"
                   dataKey="title"

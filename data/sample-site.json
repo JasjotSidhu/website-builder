@@ -30,14 +30,15 @@
       "value": "Atelier Luma"
     },
     "links": [
-      { "label": "Work", "href": "#work" },
-      { "label": "Services", "href": "#services" },
-      { "label": "About", "href": "#about" },
-      { "label": "Contact", "href": "#contact" }
+      { "label": "Work", "link": { "type": "url", "href": "#work" } },
+      { "label": "Services", "link": { "type": "url", "href": "#services" } },
+      { "label": "About", "link": { "type": "url", "href": "#about" } },
+      { "label": "Contact", "link": { "type": "url", "href": "#contact" } }
     ],
     "cta": {
       "label": "Start a project",
-      "href": "#contact"
+      "link": { "type": "url", "href": "#contact" },
+      "variant": "primary"
     }
   },
   "pages": [
@@ -186,10 +187,13 @@
           "props": {
             "heading": "Ready to build something distinctive?",
             "subheading": "Tell us about your project — we reply within two business days with next steps.",
-            "button": {
-              "label": "Start a project",
-              "link": { "type": "url", "href": "#contact" }
-            }
+            "buttons": [
+              {
+                "label": "Start a project",
+                "link": { "type": "url", "href": "#contact" },
+                "variant": "primary"
+              }
+            ]
           },
           "settings": {
             "overlayColor": "#000000",
@@ -213,24 +217,24 @@
         {
           "title": "Studio",
           "links": [
-            { "label": "Work", "href": "#work" },
-            { "label": "Services", "href": "#services" },
-            { "label": "About", "href": "#about" }
+            { "label": "Work", "link": { "type": "url", "href": "#work" } },
+            { "label": "Services", "link": { "type": "url", "href": "#services" } },
+            { "label": "About", "link": { "type": "url", "href": "#about" } }
           ]
         },
         {
           "title": "Connect",
           "links": [
-            { "label": "Contact", "href": "#contact" },
-            { "label": "Instagram", "href": "https://instagram.com" },
-            { "label": "LinkedIn", "href": "https://linkedin.com" }
+            { "label": "Contact", "link": { "type": "url", "href": "#contact" } },
+            { "label": "Instagram", "link": { "type": "url", "href": "https://instagram.com" } },
+            { "label": "LinkedIn", "link": { "type": "url", "href": "https://linkedin.com" } }
           ]
         },
         {
           "title": "Legal",
           "links": [
-            { "label": "Privacy", "href": "/privacy" },
-            { "label": "Terms", "href": "/terms" }
+            { "label": "Privacy", "link": { "type": "url", "href": "/privacy" } },
+            { "label": "Terms", "link": { "type": "url", "href": "/terms" } }
           ]
         }
       ],

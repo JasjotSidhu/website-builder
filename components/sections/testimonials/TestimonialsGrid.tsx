@@ -5,6 +5,7 @@ import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
 import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
 import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import EditableText from "@/lib/editor/EditableText";
+import { applyItemPatch } from "@/lib/editor/apply-item-patch";
 import {
   SectionDataProvider,
   useSectionData,
@@ -50,26 +51,16 @@ export default function TestimonialsGrid() {
 
         <div style={gridStyle}>
           {testimonials.map((item, index) => {
-            const applyItemPatch = (partial: Record<string, unknown>) => {
-              const next = [...testimonials];
-              const itemData = { ...next[index] };
-              for (const [key, value] of Object.entries(partial)) {
-                if (value === undefined || value === "") {
-                  delete itemData[key as keyof typeof itemData];
-                } else {
-                  itemData[key as keyof typeof itemData] = value as never;
-                }
-              }
-              next[index] = itemData;
-              updateField("testimonials", next);
+            const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
+              updateField("testimonials", applyItemPatch(testimonials, index, partial));
             };
 
             return (
             <SectionDataProvider
               key={`testimonial-${index}`}
               data={item as unknown as Record<string, unknown>}
-              updateField={(key, value) => applyItemPatch({ [key]: value })}
-              updateFields={applyItemPatch}
+              updateField={(key, value) => applyItemPatchForIndex({ [key]: value })}
+              updateFields={applyItemPatchForIndex}
             >
               <article className="testimonial-card group relative flex h-full flex-col">
                 {isEditing ? (

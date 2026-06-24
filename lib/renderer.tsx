@@ -86,7 +86,7 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
   return (
     <SectionSettingsProvider settings={settings}>
       <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
-        <Component {...props} />
+        <Component />
       </SectionDataProvider>
     </SectionSettingsProvider>
   );
@@ -106,7 +106,13 @@ function renderNavigation(navigation: NavigationConfig, strict: boolean) {
     throw new Error(`Navigation failed validation: ${issues}`);
   }
 
-  return <HeaderSimple {...result.data} />;
+  const props = result.data as Record<string, unknown>;
+
+  return (
+    <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
+      <HeaderSimple />
+    </SectionDataProvider>
+  );
 }
 
 export function PageRenderer({
@@ -144,7 +150,7 @@ export function PageRenderer({
           <div key={section.id}>
             <SectionSettingsProvider settings={settings}>
               <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
-                <Component {...props} />
+                <Component />
               </SectionDataProvider>
             </SectionSettingsProvider>
           </div>

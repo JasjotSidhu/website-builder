@@ -11,8 +11,9 @@ import {
 import { useSitePages } from "@/lib/editor/SiteContext";
 import { resolveLink } from "@/lib/links";
 import type { LinkValue } from "@/lib/types";
+import { SectionHeader } from "./SectionHeader";
 
-const MAX_BUTTONS = 6;
+const DEFAULT_MAX_BUTTONS = 6;
 
 interface ButtonItem {
   label: string;
@@ -20,40 +21,39 @@ interface ButtonItem {
   variant?: "primary" | "secondary";
 }
 
-function buttonClassName(variant: ButtonItem["variant"]) {
-  return variant === "secondary" ? "hero-button hero-button--secondary" : "hero-button hero-button--primary";
+function buttonClassName(
+  variant: ButtonItem["variant"],
+  appearance: "hero" | "cta" | "header",
+) {
+  if (appearance === "cta") {
+    return "cta-button mt-10 inline-block";
+  }
+
+  if (appearance === "header") {
+    return "rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95";
+  }
+
+  return variant === "secondary"
+    ? "hero-button hero-button--secondary"
+    : "hero-button hero-button--primary";
 }
 
-export function SectionHeading({ align = "center" }: { align?: "center" | "left" }) {
-  const alignClass = align === "center" ? "text-center items-center" : "text-left items-start";
-
-  return (
-    <div className={`flex flex-col gap-4 ${alignClass}`}>
-      <EditableText
-        as="h1"
-        dataKey="heading"
-        maxLength={120}
-        className={`max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl ${align === "center" ? "text-center" : "text-left"}`}
-      />
-      <EditableText
-        as="p"
-        dataKey="subheading"
-        maxLength={300}
-        required={false}
-        className={`max-w-xl text-lg leading-relaxed opacity-90 ${align === "center" ? "text-center" : "text-left"}`}
-      />
-    </div>
-  );
-}
-
-function HeroButtonItem({
+function SectionButtonItem({
   button,
   onUpdate,
   onRemove,
+  appearance,
+  showVariant,
+  showRemove,
+  onNavigate,
 }: {
   button: ButtonItem;
   onUpdate: (patch: Partial<ButtonItem>) => void;
   onRemove: () => void;
+  appearance: "hero" | "cta" | "header";
+  showVariant: boolean;
+  showRemove: boolean;
+  onNavigate?: () => void;
 }) {
   const { isEditing } = useEditMode();
   const pages = useSitePages();
@@ -62,7 +62,7 @@ function HeroButtonItem({
   if (!isEditing) {
     const href = resolveLink(button.link, pages);
     return (
-      <a href={href} className={buttonClassName(button.variant)}>
+      <a href={href} className={buttonClassName(button.variant, appearance)} onClick={onNavigate}>
         {button.label}
       </a>
     );
@@ -70,19 +70,22 @@ function HeroButtonItem({
 
   return (
     <div className="button-item-wrapper">
-      <EditorRemoveButton label="Remove button" compact onClick={onRemove} />
-      <div ref={triggerRef} className={`${buttonClassName(button.variant)} button-item-trigger`}>
+      {showRemove ? (
+        <EditorRemoveButton label="Remove button" compact onClick={onRemove} />
+      ) : null}
+      <div ref={triggerRef} className={`${buttonClassName(button.variant, appearance)} button-item-trigger`}>
         <EditableText
           as="span"
           dataKey="label"
           maxLength={40}
-          inheritSectionColor={false}
+          inheritSectionColor={appearance === "hero"}
           colorSourceRef={triggerRef}
           toolbarAnchorRef={triggerRef}
           buttonSettings={{
             variant: button.variant ?? "primary",
             link: button.link,
             pages,
+            showVariant,
             onVariantChange: (variant) => onUpdate({ variant }),
             onLinkChange: (link) => onUpdate({ link }),
           }}
@@ -92,30 +95,88 @@ function HeroButtonItem({
   );
 }
 
-export function SectionButtons({ align = "center" }: { align?: "center" | "left" }) {
+export function EditableButton({
+  appearance = "hero",
+  showVariant = true,
+  onNavigate,
+}: {
+  appearance?: "hero" | "cta" | "header";
+  showVariant?: boolean;
+  onNavigate?: () => void;
+}) {
+  const { data, updateFields } = useSectionData();
+  const button: ButtonItem = {
+    label: String(data.label ?? ""),
+    link: (data.link as LinkValue | undefined) ?? { type: "page", pageId: "home" },
+    variant: (data.variant as ButtonItem["variant"]) ?? "primary",
+  };
+
+  return (
+    <SectionButtonItem
+      button={button}
+      onUpdate={(patch) => updateFields(patch)}
+      onRemove={() => {}}
+      appearance={appearance}
+      showVariant={showVariant}
+      showRemove={false}
+      onNavigate={onNavigate}
+    />
+  );
+}
+
+export function SectionHeading({ align = "center" }: { align?: "center" | "left" }) {
+  return (
+    <SectionHeader
+      align={align}
+      headingAs="h1"
+      size="hero"
+      className={align === "center" ? "max-w-none" : ""}
+    />
+  );
+}
+
+export function SectionButtons({
+  align = "center",
+  appearance = "hero",
+  maxButtons = DEFAULT_MAX_BUTTONS,
+  showVariant = true,
+  showAdd = true,
+  showRemove = true,
+  dataKey = "buttons",
+  onNavigate,
+}: {
+  align?: "center" | "left";
+  appearance?: "hero" | "cta" | "header";
+  maxButtons?: number;
+  showVariant?: boolean;
+  showAdd?: boolean;
+  showRemove?: boolean;
+  dataKey?: string;
+  onNavigate?: () => void;
+}) {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
-  const buttons = (data.buttons as ButtonItem[] | undefined) ?? [];
+  const buttons = (data[dataKey] as ButtonItem[] | undefined) ?? [];
 
   const updateButton = (index: number, patch: Partial<ButtonItem>) => {
     const next = [...buttons];
     next[index] = { ...next[index], ...patch };
-    updateField("buttons", next);
+    updateField(dataKey, next);
   };
 
   const removeButton = (index: number) => {
     updateField(
-      "buttons",
+      dataKey,
       buttons.filter((_, itemIndex) => itemIndex !== index),
     );
   };
 
   const addButton = () => {
-    if (buttons.length >= MAX_BUTTONS) {
+    if (buttons.length >= maxButtons) {
       return;
     }
 
-    updateField("buttons", [
+    updateField(dataKey, [
       ...buttons,
       {
         label: "New button",
@@ -127,7 +188,9 @@ export function SectionButtons({ align = "center" }: { align?: "center" | "left"
 
   return (
     <div
-      className={`flex flex-wrap gap-4 ${align === "left" ? "justify-start" : "justify-center"}`}
+      className={`flex flex-wrap gap-4 ${
+        align === "left" ? "justify-start" : "justify-center"
+      }${appearance === "cta" ? " mt-0" : ""}`}
     >
       {buttons.map((button, index) => (
         <SectionDataProvider
@@ -136,14 +199,18 @@ export function SectionButtons({ align = "center" }: { align?: "center" | "left"
           updateField={(key, value) => updateButton(index, { [key]: value })}
           updateFields={(partial) => updateButton(index, partial)}
         >
-          <HeroButtonItem
+          <SectionButtonItem
             button={button}
             onUpdate={(patch) => updateButton(index, patch)}
             onRemove={() => removeButton(index)}
+            appearance={appearance}
+            showVariant={showVariant}
+            showRemove={showRemove}
+            onNavigate={onNavigate}
           />
         </SectionDataProvider>
       ))}
-      {isEditing && buttons.length < MAX_BUTTONS ? (
+      {isEditing && showAdd && buttons.length < maxButtons ? (
         <button type="button" className="button-item-add" onClick={addButton}>
           + Add button
         </button>

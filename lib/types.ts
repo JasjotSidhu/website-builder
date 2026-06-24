@@ -41,8 +41,8 @@ export interface ThemeConfig {
 export interface NavigationConfig {
   variant?: string;
   logo: { type: "text" | "image"; value: string };
-  links: { label: string; href: string }[];
-  cta?: { label: string; href: string };
+  links: { label: string; link: LinkValue }[];
+  cta?: { label: string; link: LinkValue; variant?: "primary" | "secondary" };
   settings?: Record<string, unknown>;
 }
 

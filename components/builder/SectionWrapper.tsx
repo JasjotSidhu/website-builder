@@ -160,7 +160,7 @@ export default function SectionWrapper({
             </>
           ) : null}
           {section.hidden ? <span className="hidden-badge">Hidden</span> : null}
-          <Component {...section.props} />
+          <Component />
         </div>
       </SectionDataProvider>
     </SectionSettingsProvider>

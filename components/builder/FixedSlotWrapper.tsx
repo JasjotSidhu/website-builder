@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import FooterSimple from "@/components/sections/footer/FooterSimple";
-import type { FooterSimpleProps } from "@/components/sections/footer/schema";
 import HeaderSimple from "@/components/sections/header/HeaderSimple";
 import { getHeaderProps, getHeaderVariantId } from "@/lib/header-utils";
+import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { findSectionVariant } from "@/lib/registry";
 import { SectionSettingsProvider } from "@/lib/traits/context";
 import { resolveFixedSlotSettings } from "@/lib/traits/normalize";
@@ -15,6 +15,22 @@ import { IconReplace, IconSettings, SectionToolbarButton } from "./SectionToolba
 function HeaderSlot({ onReplace }: { onReplace: () => void }) {
   const [hovered, setHovered] = useState(false);
   const navigation = useBuilderStore((state) => state.site.navigation);
+  const patchNavigation = useBuilderStore((state) => state.patchNavigation);
+  const headerProps = getHeaderProps(navigation);
+
+  const updateField = useCallback(
+    (key: string, value: unknown) => {
+      patchNavigation({ [key]: value });
+    },
+    [patchNavigation],
+  );
+
+  const updateFields = useCallback(
+    (partial: Record<string, unknown>) => {
+      patchNavigation(partial);
+    },
+    [patchNavigation],
+  );
 
   return (
     <div
@@ -32,7 +48,13 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
           </div>
         </>
       ) : null}
-      <HeaderSimple {...getHeaderProps(navigation)} />
+      <SectionDataProvider
+        data={headerProps as Record<string, unknown>}
+        updateField={updateField}
+        updateFields={updateFields}
+      >
+        <HeaderSimple />
+      </SectionDataProvider>
     </div>
   );
 }
@@ -41,8 +63,23 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const footer = useBuilderStore((state) => state.site.footer);
+  const patchFooterProps = useBuilderStore((state) => state.patchFooterProps);
   const updateFooterSettings = useBuilderStore((state) => state.updateFooterSettings);
   const variant = findSectionVariant("footer", footer.variant);
+
+  const updateField = useCallback(
+    (key: string, value: unknown) => {
+      patchFooterProps({ [key]: value });
+    },
+    [patchFooterProps],
+  );
+
+  const updateFields = useCallback(
+    (partial: Record<string, unknown>) => {
+      patchFooterProps(partial);
+    },
+    [patchFooterProps],
+  );
 
   if (!variant) {
     return null;
@@ -88,7 +125,13 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
             </div>
           </>
         ) : null}
-        <FooterSimple {...(footer.props as FooterSimpleProps)} />
+        <SectionDataProvider
+          data={footer.props}
+          updateField={updateField}
+          updateFields={updateFields}
+        >
+          <FooterSimple />
+        </SectionDataProvider>
       </div>
     </SectionSettingsProvider>
   );

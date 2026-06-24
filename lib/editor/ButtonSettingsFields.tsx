@@ -11,6 +11,7 @@ export interface ButtonSettingsFieldsProps {
   pages: SitePageSummary[];
   onVariantChange: (variant: "primary" | "secondary") => void;
   onLinkChange: (link: LinkValue) => void;
+  showVariant?: boolean;
 }
 
 export default function ButtonSettingsFields({
@@ -19,6 +20,7 @@ export default function ButtonSettingsFields({
   pages,
   onVariantChange,
   onLinkChange,
+  showVariant = true,
 }: ButtonSettingsFieldsProps) {
   const navType = link.type;
   const pageId = link.type === "page" ? link.pageId : pages[0]?.id ?? "";
@@ -26,15 +28,17 @@ export default function ButtonSettingsFields({
 
   return (
     <div className="popover-toolbar-stack">
-      <PopoverSegmented
-        label="Style"
-        value={variant}
-        options={[
-          { value: "primary", label: "Primary" },
-          { value: "secondary", label: "Secondary" },
-        ]}
-        onChange={(value) => onVariantChange(value as "primary" | "secondary")}
-      />
+      {showVariant !== false ? (
+        <PopoverSegmented
+          label="Style"
+          value={variant}
+          options={[
+            { value: "primary", label: "Primary" },
+            { value: "secondary", label: "Secondary" },
+          ]}
+          onChange={(value) => onVariantChange(value as "primary" | "secondary")}
+        />
+      ) : null}
 
       <PopoverSegmented
         label="Link type"
