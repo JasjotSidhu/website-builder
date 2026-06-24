@@ -1,0 +1,18 @@
+import { z } from "zod";
+import { linkValueSchema } from "@/lib/schemas";
+
+export const heroButtonSchema = z.object({
+  label: z.string().min(1),
+  link: linkValueSchema,
+  variant: z.enum(["primary", "secondary"]).default("primary"),
+});
+
+export const heroCenteredSchema = z.object({
+  heading: z.string().min(1),
+  subheading: z.string().min(1),
+  image: z.string().min(1),
+  imageAlt: z.string().min(1),
+  buttons: z.array(heroButtonSchema).min(0).max(6),
+});
+
+export type HeroCenteredProps = z.infer<typeof heroCenteredSchema>;

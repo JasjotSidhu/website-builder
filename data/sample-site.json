@@ -1,0 +1,239 @@
+{
+  "siteId": "atelier-luma",
+  "meta": {
+    "name": "Atelier Luma",
+    "domain": "atelierluma.studio",
+    "seo": {
+      "title": "Atelier Luma — Brand & Digital Design Studio",
+      "description": "We craft distinctive brand identities and digital experiences for ambitious small businesses."
+    }
+  },
+  "theme": {
+    "colors": {
+      "primary": "#5B4B8A",
+      "secondary": "#E8A598",
+      "background": "#FFFBF7",
+      "text": "#2D2640",
+      "accent": "#7CB69D"
+    },
+    "fonts": {
+      "heading": "Georgia, 'Times New Roman', serif",
+      "body": "'Helvetica Neue', Arial, sans-serif"
+    },
+    "borderRadius": "md",
+    "spacing": "comfortable"
+  },
+  "navigation": {
+    "logo": {
+      "type": "text",
+      "value": "Atelier Luma"
+    },
+    "links": [
+      { "label": "Work", "href": "#work" },
+      { "label": "Services", "href": "#services" },
+      { "label": "About", "href": "#about" },
+      { "label": "Contact", "href": "#contact" }
+    ],
+    "cta": {
+      "label": "Start a project",
+      "href": "#contact"
+    }
+  },
+  "pages": [
+    {
+      "id": "home",
+      "slug": "/",
+      "title": "Home",
+      "seo": {
+        "title": "Atelier Luma — Brand & Digital Design Studio",
+        "description": "We craft distinctive brand identities and digital experiences for ambitious small businesses."
+      },
+      "sections": [
+        {
+          "id": "hero-main",
+          "type": "hero",
+          "variant": "hero-centered",
+          "props": {
+            "heading": "Design that feels unmistakably yours",
+            "subheading": "Atelier Luma partners with founders and small teams to build brand systems and websites that turn first impressions into lasting trust.",
+            "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=960&h=540&fit=crop",
+            "imageAlt": "Abstract brand design mood board with soft gradients",
+            "buttons": [
+              {
+                "label": "View our work",
+                "link": { "type": "url", "href": "#work" },
+                "variant": "primary"
+              },
+              {
+                "label": "Book a discovery call",
+                "link": { "type": "url", "href": "#contact" },
+                "variant": "secondary"
+              }
+            ]
+          },
+          "settings": {
+            "overlayColor": "#000000",
+            "opacity": 0.35,
+            "backgroundColor": "#FFFBF7",
+            "paddingY": "lg"
+          }
+        },
+        {
+          "id": "features-services",
+          "type": "features",
+          "variant": "features-grid-3",
+          "props": {
+            "heading": "What we do",
+            "subheading": "Strategy, identity, and digital design — delivered as one cohesive studio partnership.",
+            "items": [
+              {
+                "icon": "palette",
+                "title": "Brand identity",
+                "description": "Logos, color systems, typography, and guidelines that keep your brand consistent everywhere."
+              },
+              {
+                "icon": "layers",
+                "title": "Web design",
+                "description": "Conversion-focused layouts built on a component library so your site stays flexible as you grow."
+              },
+              {
+                "icon": "sparkle",
+                "title": "Launch support",
+                "description": "From asset handoff to go-live, we stay close so your launch feels smooth — not stressful."
+              }
+            ]
+          },
+          "settings": {
+            "columns": 3,
+            "gap": "md",
+            "backgroundColor": "#F5F0EB",
+            "paddingY": "lg"
+          }
+        },
+        {
+          "id": "features-process",
+          "type": "features",
+          "variant": "features-alternating",
+          "props": {
+            "heading": "Our process",
+            "subheading": "A clear, collaborative path from first conversation to shipped brand.",
+            "items": [
+              {
+                "title": "Discover",
+                "description": "We map your audience, competitors, and goals so every design decision ties back to business outcomes.",
+                "image": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=560&h=360&fit=crop",
+                "imageAlt": "Team collaborating around a table with notebooks"
+              },
+              {
+                "title": "Design",
+                "description": "We explore visual directions quickly, refine the strongest concept, and build a system — not just a one-off page.",
+                "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=560&h=360&fit=crop",
+                "imageAlt": "Designer working on color swatches and typography"
+              },
+              {
+                "title": "Deliver",
+                "description": "You receive production-ready files, component specs, and a site structure your team can evolve without us.",
+                "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=560&h=360&fit=crop",
+                "imageAlt": "Laptop showing a polished website design mockup"
+              }
+            ]
+          },
+          "settings": {
+            "backgroundColor": "#FFFBF7",
+            "paddingY": "lg"
+          }
+        },
+        {
+          "id": "testimonials-clients",
+          "type": "testimonials",
+          "variant": "testimonials-grid",
+          "props": {
+            "heading": "Trusted by growing brands",
+            "subheading": "Founders and marketing leads who wanted design that finally matched their ambition.",
+            "testimonials": [
+              {
+                "quote": "Atelier Luma translated our messy ideas into a brand we are proud to put on every touchpoint.",
+                "name": "Maya Chen",
+                "role": "Founder, Northline Coffee",
+                "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop"
+              },
+              {
+                "quote": "The new site doubled our inbound leads in six weeks. The design feels premium without being pretentious.",
+                "name": "Daniel Ortiz",
+                "role": "Marketing Director, Harbor Health",
+                "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop"
+              },
+              {
+                "quote": "They think in systems, not screens. Our team can update pages confidently because everything is structured.",
+                "name": "Priya Nair",
+                "role": "COO, Fieldstone Legal",
+                "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=96&h=96&fit=crop"
+              }
+            ]
+          },
+          "settings": {
+            "columns": 3,
+            "gap": "md",
+            "backgroundColor": "#F5F0EB",
+            "paddingY": "lg"
+          }
+        },
+        {
+          "id": "cta-contact",
+          "type": "cta",
+          "variant": "cta-banner",
+          "props": {
+            "heading": "Ready to build something distinctive?",
+            "subheading": "Tell us about your project — we reply within two business days with next steps.",
+            "button": {
+              "label": "Start a project",
+              "link": { "type": "url", "href": "#contact" }
+            }
+          },
+          "settings": {
+            "overlayColor": "#000000",
+            "opacity": 0,
+            "backgroundColor": "#5B4B8A",
+            "paddingY": "md"
+          }
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "variant": "footer-simple",
+    "props": {
+      "logo": {
+        "type": "text",
+        "value": "Atelier Luma"
+      },
+      "blurb": "A boutique design studio helping small businesses look as polished as the work they do.",
+      "columns": [
+        {
+          "title": "Studio",
+          "links": [
+            { "label": "Work", "href": "#work" },
+            { "label": "Services", "href": "#services" },
+            { "label": "About", "href": "#about" }
+          ]
+        },
+        {
+          "title": "Connect",
+          "links": [
+            { "label": "Contact", "href": "#contact" },
+            { "label": "Instagram", "href": "https://instagram.com" },
+            { "label": "LinkedIn", "href": "https://linkedin.com" }
+          ]
+        },
+        {
+          "title": "Legal",
+          "links": [
+            { "label": "Privacy", "href": "/privacy" },
+            { "label": "Terms", "href": "/terms" }
+          ]
+        }
+      ],
+      "copyright": "© 2026 Atelier Luma. All rights reserved."
+    }
+  }
+}
