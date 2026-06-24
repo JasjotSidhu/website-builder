@@ -47,8 +47,8 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Simple header",
         component: HeaderSimple as ComponentType<Record<string, unknown>>,
         propsSchema: headerSimpleSchema,
-        traits: ["background"],
-        settingsDefaults: { backgroundColor: "var(--color-background)" },
+        traits: ["background", "textColor"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           logo: { type: "text", value: "Brand" },
           links: [{ label: "Home", href: "/" }],
@@ -66,8 +66,8 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Centered hero",
         component: HeroCentered as ComponentType<Record<string, unknown>>,
         propsSchema: heroCenteredSchema,
-        traits: ["overlay", "background", "spacing"],
-        settingsDefaults: { backgroundColor: "var(--color-background)" },
+        traits: ["background", "textColor", "spacing"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           heading: "Welcome",
           subheading: "Your subheading here",
@@ -81,8 +81,8 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Split hero",
         component: HeroSplit as ComponentType<Record<string, unknown>>,
         propsSchema: heroSplitSchema,
-        traits: ["background", "spacing"],
-        settingsDefaults: { backgroundColor: "var(--color-background)" },
+        traits: ["background", "textColor", "spacing", "reversible"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           heading: "Welcome",
           subheading: "Your subheading here",
@@ -103,7 +103,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "3-column features grid",
         component: FeaturesGrid3 as ComponentType<Record<string, unknown>>,
         propsSchema: featuresGrid3Schema,
-        traits: ["grid", "background", "spacing"],
+        traits: ["grid", "background", "textColor", "spacing"],
         defaultProps: {
           heading: "Features",
           subheading: "What we offer",
@@ -119,7 +119,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Alternating features",
         component: FeaturesAlternating as ComponentType<Record<string, unknown>>,
         propsSchema: featuresAlternatingSchema,
-        traits: ["background", "spacing"],
+        traits: ["background", "textColor", "spacing"],
         defaultProps: {
           heading: "How it works",
           subheading: "Our process",
@@ -145,7 +145,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Testimonials grid",
         component: TestimonialsGrid as ComponentType<Record<string, unknown>>,
         propsSchema: testimonialsGridSchema,
-        traits: ["grid", "background", "spacing"],
+        traits: ["grid", "background", "textColor", "spacing"],
         defaultProps: {
           heading: "What clients say",
           subheading: "Trusted by teams everywhere",
@@ -168,8 +168,12 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "CTA banner",
         component: CtaBanner as ComponentType<Record<string, unknown>>,
         propsSchema: ctaBannerSchema,
-        traits: ["overlay", "background", "spacing"],
-        settingsDefaults: { backgroundColor: "var(--color-primary)" },
+        traits: ["background", "textColor", "spacing"],
+        settingsDefaults: {
+          type: "solid",
+          color: "var(--color-primary)",
+          textColor: "#ffffff",
+        },
         defaultProps: {
           heading: "Ready to get started?",
           subheading: "Let's talk about your project.",
@@ -191,8 +195,8 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Simple footer",
         component: FooterSimple as ComponentType<Record<string, unknown>>,
         propsSchema: footerSimpleSchema,
-        traits: ["background"],
-        settingsDefaults: { backgroundColor: "var(--color-background)" },
+        traits: ["background", "textColor"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           logo: { type: "text", value: "Brand" },
           blurb: "A short description of your business.",

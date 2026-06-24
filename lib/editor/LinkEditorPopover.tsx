@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { LinkValue } from "@/lib/types";
+import PopoverSegmented from "./PopoverSegmented";
 import type { SitePageSummary } from "./SiteContext";
+import { PopoverActions, PopoverField, PopoverShell } from "./PopoverShell";
 
 interface LinkEditorPopoverProps {
   value: LinkValue;
@@ -35,24 +37,39 @@ export default function LinkEditorPopover({
   }, [onCancel]);
 
   return (
-    <div ref={ref} className="editor-popover" role="dialog" aria-label="Edit link">
-      <label className="editor-popover-label">
-        On click navigate to
-        <select
-          className="editor-popover-input"
-          value={navType}
-          onChange={(event) => setNavType(event.target.value as "page" | "url")}
-        >
-          <option value="page">Another page</option>
-          <option value="url">External URL</option>
-        </select>
-      </label>
+    <PopoverShell
+      ref={ref}
+      title="Link"
+      variant="editor"
+      compact
+      onClose={onCancel}
+      footer={
+        <PopoverActions
+          onCancel={onCancel}
+          onSave={() =>
+            onSave(
+              navType === "page"
+                ? { type: "page", pageId }
+                : { type: "url", href },
+            )
+          }
+        />
+      }
+    >
+      <PopoverSegmented
+        label="Link type"
+        value={navType}
+        options={[
+          { value: "page", label: "Page" },
+          { value: "url", label: "URL" },
+        ]}
+        onChange={(value) => setNavType(value as "page" | "url")}
+      />
 
       {navType === "page" ? (
-        <label className="editor-popover-label">
-          Select page
+        <PopoverField label="Page" inline>
           <select
-            className="editor-popover-input"
+            className="popover-input popover-input--inline-select"
             value={pageId}
             onChange={(event) => setPageId(event.target.value)}
           >
@@ -62,38 +79,18 @@ export default function LinkEditorPopover({
               </option>
             ))}
           </select>
-        </label>
+        </PopoverField>
       ) : (
-        <label className="editor-popover-label">
-          URL
+        <PopoverField label="URL">
           <input
             type="url"
-            className="editor-popover-input"
+            className="popover-input"
             value={href}
             onChange={(event) => setHref(event.target.value)}
             placeholder="https://..."
           />
-        </label>
+        </PopoverField>
       )}
-
-      <div className="editor-popover-actions">
-        <button type="button" className="editor-popover-btn" onClick={onCancel}>
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="editor-popover-btn editor-popover-btn--primary"
-          onClick={() =>
-            onSave(
-              navType === "page"
-                ? { type: "page", pageId }
-                : { type: "url", href },
-            )
-          }
-        >
-          Save
-        </button>
-      </div>
-    </div>
+    </PopoverShell>
   );
 }

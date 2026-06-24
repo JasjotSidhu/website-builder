@@ -6,6 +6,11 @@ import { useSectionSettings } from "./context";
 const GAP_MAP = { sm: "1rem", md: "1.5rem", lg: "2.5rem" } as const;
 const SPACING_MAP = { sm: "2rem", md: "4rem", lg: "6rem", xl: "8rem" } as const;
 
+export interface BackgroundStyles {
+  containerStyle: CSSProperties;
+  overlayStyle?: CSSProperties;
+}
+
 export function useGridStyle(): CSSProperties {
   const settings = useSectionSettings();
   const columns = Number(settings.columns ?? 3);
@@ -18,21 +23,56 @@ export function useGridStyle(): CSSProperties {
   };
 }
 
-export function useOverlayStyle(): CSSProperties {
+export function useBackgroundStyle(): BackgroundStyles {
   const settings = useSectionSettings();
+  const type = String(settings.type ?? "solid");
+
+  if (type === "gradient") {
+    const angle = Number(settings.gradientAngle ?? 135);
+    const from = String(settings.gradientFrom ?? "#ffffff");
+    const to = String(settings.gradientTo ?? "#f0f0f0");
+
+    return {
+      containerStyle: {
+        background: `linear-gradient(${angle}deg, ${from}, ${to})`,
+      },
+    };
+  }
+
+  if (type === "image") {
+    const image = String(settings.image ?? "");
+    const overlayColor = String(settings.overlayColor ?? "#000000");
+    const overlayOpacity = Number(settings.overlayOpacity ?? 0.4);
+
+    return {
+      containerStyle: {
+        backgroundImage: image ? `url(${image})` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      },
+      overlayStyle: image
+        ? {
+            backgroundColor: overlayColor,
+            opacity: overlayOpacity,
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+          }
+        : undefined,
+    };
+  }
 
   return {
-    backgroundColor: String(settings.overlayColor ?? "#000000"),
-    opacity: Number(settings.opacity ?? 0.4),
+    containerStyle: {
+      backgroundColor: String(settings.color ?? "#ffffff"),
+    },
   };
 }
 
-export function useBackgroundStyle(): CSSProperties {
+export function useTextColorStyle(): string {
   const settings = useSectionSettings();
 
-  return {
-    backgroundColor: String(settings.backgroundColor ?? "#ffffff"),
-  };
+  return String(settings.textColor ?? "#111111");
 }
 
 export function useSpacingStyle(): CSSProperties {
@@ -43,4 +83,10 @@ export function useSpacingStyle(): CSSProperties {
     paddingTop: py,
     paddingBottom: py,
   };
+}
+
+export function useReversedLayout(): boolean {
+  const settings = useSectionSettings();
+
+  return Boolean(settings.reversed);
 }

@@ -1,13 +1,16 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
 import EditableText from "@/lib/editor/EditableText";
+import Tooltip from "@/lib/editor/Tooltip";
 import {
   SectionDataProvider,
   useSectionData,
 } from "@/lib/editor/SectionDataContext";
-import { useBackgroundStyle, useSpacingStyle } from "@/lib/traits/hooks";
+import { SectionHeader } from "../shared/SectionHeader";
+import { SectionShell } from "../shared/SectionShell";
 
 export { featuresAlternatingSchema } from "./schema-alternating";
 export type { FeaturesAlternatingProps } from "./schema-alternating";
@@ -23,25 +26,15 @@ export default function FeaturesAlternating() {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
   const items = (data.items as AlternatingItem[] | undefined) ?? [];
-  const bgStyle = useBackgroundStyle();
-  const spacingStyle = useSpacingStyle();
 
   return (
-    <section style={{ ...bgStyle, ...spacingStyle }}>
+    <SectionShell>
       <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2
-            className="text-3xl font-bold text-[var(--color-text)] md:text-4xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            <EditableText as="span" dataKey="heading" maxLength={80} />
-          </h2>
-          <p className="mt-4 text-lg text-[var(--color-text)] opacity-85">
-            <EditableText as="span" dataKey="subheading" maxLength={200} required={false} />
-          </p>
+        <div className="mb-16 flex justify-center">
+          <SectionHeader align="center" eyebrow="Process" />
         </div>
 
-        <div className="flex flex-col gap-16">
+        <div className="flex flex-col gap-20">
           {items.map((item, index) => {
             const imageFirst = index % 2 === 0;
 
@@ -51,33 +44,42 @@ export default function FeaturesAlternating() {
                 data={item as unknown as Record<string, unknown>}
                 updateField={(key, value) => {
                   const next = [...items];
-                  next[index] = { ...next[index], [key]: value };
+                  const itemData = { ...next[index] };
+                  if (value === undefined || value === "") {
+                    delete itemData[key as keyof typeof itemData];
+                  } else {
+                    itemData[key as keyof typeof itemData] = value as never;
+                  }
+                  next[index] = itemData;
                   updateField("items", next);
                 }}
               >
-                <div className="relative grid items-center gap-8 md:grid-cols-2 md:gap-12">
+                <div className="relative grid items-center gap-10 md:grid-cols-2 md:gap-14">
                   {isEditing ? (
-                    <button
-                      type="button"
-                      className="absolute -top-2 right-0 z-10 rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                      onClick={() =>
-                        updateField(
-                          "items",
-                          items.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }
-                    >
-                      Remove
-                    </button>
+                    <Tooltip label="Remove item" side="left">
+                      <button
+                        type="button"
+                        className="absolute -top-3 right-0 z-10 flex items-center justify-center rounded-full bg-white px-2 py-1 text-xs text-red-600 shadow-sm hover:bg-red-50"
+                        aria-label="Remove item"
+                        onClick={() =>
+                          updateField(
+                            "items",
+                            items.filter((_, itemIndex) => itemIndex !== index),
+                          )
+                        }
+                      >
+                        <X size={12} strokeWidth={2} aria-hidden />
+                      </button>
+                    </Tooltip>
                   ) : null}
                   {imageFirst ? (
                     <>
                       <FeatureImage />
-                      <FeatureText />
+                      <FeatureText step={index + 1} />
                     </>
                   ) : (
                     <>
-                      <FeatureText />
+                      <FeatureText step={index + 1} />
                       <FeatureImage />
                     </>
                   )}
@@ -90,7 +92,7 @@ export default function FeaturesAlternating() {
         {isEditing ? (
           <button
             type="button"
-            className="mt-8 rounded-[var(--radius)] border border-dashed border-gray-300 px-4 py-2 text-sm text-gray-600 hover:border-gray-400"
+            className="button-item-add mx-auto mt-10 block"
             onClick={() =>
               updateField("items", [
                 ...items,
@@ -102,40 +104,52 @@ export default function FeaturesAlternating() {
           </button>
         ) : null}
       </div>
-    </section>
+    </SectionShell>
   );
 }
 
-function FeatureText() {
+function FeatureText({ step }: { step: number }) {
   return (
-    <div className="flex flex-col gap-4">
-      <h3
-        className="text-2xl font-semibold text-[var(--color-text)]"
-        style={{ fontFamily: "var(--font-heading)" }}
-      >
-        <EditableText as="span" dataKey="title" maxLength={60} />
-      </h3>
-      <p className="text-lg text-[var(--color-text)] opacity-85">
-        <EditableText as="span" dataKey="description" maxLength={250} />
-      </p>
+    <div className="flex flex-col gap-5">
+      <span className="step-badge">Step {String(step).padStart(2, "0")}</span>
+      <EditableText
+        as="h3"
+        dataKey="title"
+        maxLength={60}
+        className="text-2xl font-semibold tracking-tight md:text-3xl"
+      />
+      <EditableText
+        as="p"
+        dataKey="description"
+        maxLength={250}
+        className="text-lg leading-relaxed opacity-80"
+      />
     </div>
   );
 }
 
 function FeatureImage() {
   return (
-    <EditableImage
-      dataKey="image"
-      altKey="imageAlt"
-      renderChildren={(image, uploadBtn, altText) => (
-        <RenderDivImage
-          image={image}
-          altText={altText}
-          className="aspect-[14/9] w-full rounded-[var(--radius)] bg-gray-100"
-        >
-          {uploadBtn}
-        </RenderDivImage>
-      )}
-    />
+    <div className="relative">
+      <div
+        className="absolute -right-3 -top-3 z-0 h-full w-full rounded-[var(--radius)]"
+        style={{ background: "color-mix(in srgb, var(--color-primary) 12%, transparent)" }}
+        aria-hidden
+      />
+      <EditableImage
+        dataKey="image"
+        altKey="imageAlt"
+        renderChildren={(image, uploadBtn, altText, titleText) => (
+          <RenderDivImage
+            image={image}
+            altText={altText}
+            titleText={titleText}
+            className="relative z-10 aspect-[14/9] w-full rounded-[var(--radius)] bg-gray-100 object-cover shadow-xl ring-1 ring-black/10"
+          >
+            {uploadBtn}
+          </RenderDivImage>
+        )}
+      />
+    </div>
   );
 }

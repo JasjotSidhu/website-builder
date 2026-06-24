@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Settings } from "lucide-react";
+import { useState } from "react";
 import type { LinkValue } from "@/lib/types";
-import { defaultLink } from "@/lib/links";
+import { defaultLink, resolveLink } from "@/lib/links";
+import Tooltip from "./Tooltip";
 import { useEditMode } from "./EditModeContext";
 import { useSectionData } from "./SectionDataContext";
 import { useSitePages } from "./SiteContext";
 import LinkEditorPopover from "./LinkEditorPopover";
-import { resolveLink } from "@/lib/links";
 
 interface EditableLinkProps {
   dataKey: string;
@@ -36,10 +37,18 @@ export default function EditableLink({
   }
 
   return (
-    <span className={`editable-link ${className ?? ""}`.trim()} role="presentation">
-      <button type="button" className="editable-link-trigger" onClick={() => setOpen(true)}>
-        {children}
-      </button>
+    <span className={`editable-link ${className ?? ""}`.trim()}>
+      {children}
+      <Tooltip label="Edit link" side="top">
+        <button
+          type="button"
+          className="editable-link-configure"
+          aria-label="Edit link"
+          onClick={() => setOpen(true)}
+        >
+          <Settings size={10} strokeWidth={2} aria-hidden />
+        </button>
+      </Tooltip>
       {open ? (
         <LinkEditorPopover
           value={link}

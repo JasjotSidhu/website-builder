@@ -5,6 +5,7 @@ export const alternatingFeatureSchema = z.object({
   description: z.string().min(1),
   image: z.string().min(1),
   imageAlt: z.string().min(1),
+  imageTitle: z.string().optional(),
 });
 
 export const featuresAlternatingSchema = z.object({

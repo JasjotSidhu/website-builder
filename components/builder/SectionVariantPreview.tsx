@@ -1,0 +1,50 @@
+"use client";
+
+import { EditModeContext } from "@/lib/editor/EditModeContext";
+import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
+import { SiteProvider } from "@/lib/editor/SiteContext";
+import type { SectionVariant } from "@/lib/registry";
+import { getVariantPreview } from "@/lib/preview-props";
+import { buildThemeCssVariables } from "@/lib/theme-utils";
+import type { ThemeConfig } from "@/lib/types";
+import { SectionSettingsProvider } from "@/lib/traits/context";
+
+interface SectionVariantPreviewProps {
+  type: string;
+  variant: SectionVariant;
+  theme: ThemeConfig;
+}
+
+export default function SectionVariantPreview({
+  type,
+  variant,
+  theme,
+}: SectionVariantPreviewProps) {
+  const PreviewComponent = variant.component;
+  const { props, settings } = getVariantPreview(type, variant.id);
+  const usesContext = type !== "header" && type !== "footer";
+  const themeStyle = buildThemeCssVariables(theme);
+  const { minHeight: _minHeight, ...previewThemeStyle } = themeStyle;
+
+  const content = usesContext ? (
+    <SectionSettingsProvider settings={settings}>
+      <SectionDataProvider data={props} updateField={() => {}}>
+        <PreviewComponent {...props} />
+      </SectionDataProvider>
+    </SectionSettingsProvider>
+  ) : (
+    <SectionSettingsProvider settings={settings}>
+      <PreviewComponent {...props} />
+    </SectionSettingsProvider>
+  );
+
+  return (
+    <div className="variant-preview-theme" style={previewThemeStyle}>
+      <EditModeContext.Provider value={{ isEditing: false }}>
+        <SiteProvider pages={[{ id: "home", title: "Home", slug: "/" }]}>
+          {content}
+        </SiteProvider>
+      </EditModeContext.Provider>
+    </div>
+  );
+}

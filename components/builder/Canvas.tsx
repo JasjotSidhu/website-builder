@@ -1,23 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { EditModeContext } from "@/lib/editor/EditModeContext";
+import { EditModeProvider } from "@/lib/editor/EditModeContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
+import { getHeaderVariantId } from "@/lib/header-utils";
+import { isFixedSlotType } from "@/lib/section-placement";
 import { buildThemeCssVariables } from "@/lib/theme-utils";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
-import SectionLibraryModal, {
-  type SectionLibraryMode,
-} from "./SectionLibraryModal";
+import FixedSlotWrapper from "./FixedSlotWrapper";
+import type { SectionLibraryMode } from "./SectionLibraryModal.types";
 import SectionWrapper from "./SectionWrapper";
 
-export default function Canvas() {
+interface CanvasProps {
+  onOpenSectionLibrary: (config: SectionLibraryMode) => void;
+}
+
+export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   const site = useBuilderStore((state) => state.site);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
   const page = site.pages[0];
-  const sections = page.sections;
+  const sections = page.sections.filter((section) => !isFixedSlotType(section.type));
   const pages = site.pages.map((entry) => ({
     id: entry.id,
     title: entry.title,
@@ -25,8 +27,7 @@ export default function Canvas() {
   }));
 
   const openAddModal = (atIndex: number) => {
-    setModalConfig({ mode: "add", insertAtIndex: atIndex });
-    setModalOpen(true);
+    onOpenSectionLibrary({ mode: "add", insertAtIndex: atIndex });
   };
 
   const openReplaceModal = (
@@ -34,26 +35,36 @@ export default function Canvas() {
     sectionType: string,
     currentVariantId: string,
   ) => {
-    setModalConfig({
+    onOpenSectionLibrary({
       mode: "replace",
       sectionId,
       sectionType,
       currentVariantId,
     });
-    setModalOpen(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalConfig(null);
+  const openReplaceHeaderModal = () => {
+    onOpenSectionLibrary({
+      mode: "replace-header",
+      currentVariantId: getHeaderVariantId(site.navigation),
+    });
+  };
+
+  const openReplaceFooterModal = () => {
+    onOpenSectionLibrary({
+      mode: "replace-footer",
+      currentVariantId: site.footer.variant,
+    });
   };
 
   return (
-    <EditModeContext.Provider value={{ isEditing: true }}>
+    <EditModeProvider>
       <SiteProvider pages={pages}>
         <div className="h-full overflow-y-auto bg-gray-100 p-6">
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5">
+          <div className="mx-auto max-w-5xl rounded-xl bg-white shadow-sm ring-1 ring-black/5">
             <div style={buildThemeCssVariables(site.theme)}>
+              <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />
+
               <main>
                 {sections.length === 0 ? (
                   <div className="relative py-16 text-center">
@@ -79,12 +90,12 @@ export default function Canvas() {
                   </div>
                 ) : null}
               </main>
+
+              <FixedSlotWrapper slot="footer" onReplace={openReplaceFooterModal} />
             </div>
           </div>
         </div>
-
-        <SectionLibraryModal open={modalOpen} config={modalConfig} onClose={closeModal} />
       </SiteProvider>
-    </EditModeContext.Provider>
+    </EditModeProvider>
   );
 }

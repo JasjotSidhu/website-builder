@@ -6,7 +6,8 @@ import { findSectionVariant } from "@/lib/registry";
 import { websiteSchema } from "@/lib/schemas";
 import { buildVariantSettings } from "@/lib/traits/registry";
 import { normalizeSiteSections } from "@/lib/traits/normalize";
-import type { SectionInstance, ThemeConfig, WebsiteData } from "@/lib/types";
+import type { FooterConfig, NavigationConfig, SectionInstance, ThemeConfig, WebsiteData } from "@/lib/types";
+import { isFixedSlotType } from "@/lib/section-placement";
 
 interface BuilderState {
   site: WebsiteData;
@@ -20,6 +21,12 @@ interface BuilderState {
   toggleSectionHidden: (id: string) => void;
   resetSectionToDefault: (id: string) => void;
   replaceSection: (id: string, type: string, variantId: string) => void;
+  updateNavigation: (navigation: NavigationConfig) => void;
+  updateNavigationSettings: (partialSettings: Record<string, unknown>) => void;
+  updateFooter: (footer: FooterConfig) => void;
+  updateFooterSettings: (partialSettings: Record<string, unknown>) => void;
+  replaceHeaderVariant: (variantId: string) => void;
+  replaceFooterVariant: (variantId: string) => void;
 }
 
 function createSectionId() {
@@ -48,6 +55,10 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   site: initialSite,
 
   addSection: (type, variantId, atIndex) => {
+    if (isFixedSlotType(type)) {
+      return;
+    }
+
     const variant = findSectionVariant(type, variantId);
     if (!variant) {
       return;
@@ -70,19 +81,26 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   },
 
   removeSection: (id) => {
-    set((state) => ({
-      site: updateHomepageSections(
-        state.site,
-        getHomepage(state).sections.filter((section) => section.id !== id),
-      ),
-    }));
+    set((state) => {
+      const section = getHomepage(state).sections.find((entry) => entry.id === id);
+      if (section && isFixedSlotType(section.type)) {
+        return state;
+      }
+
+      return {
+        site: updateHomepageSections(
+          state.site,
+          getHomepage(state).sections.filter((entry) => entry.id !== id),
+        ),
+      };
+    });
   },
 
   duplicateSection: (id) => {
     set((state) => {
       const sections = [...getHomepage(state).sections];
       const index = sections.findIndex((section) => section.id === id);
-      if (index === -1) {
+      if (index === -1 || isFixedSlotType(sections[index].type)) {
         return state;
       }
 
@@ -99,6 +117,13 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   reorderSections: (fromIndex, toIndex) => {
     set((state) => {
       const sections = [...getHomepage(state).sections];
+      if (
+        isFixedSlotType(sections[fromIndex]?.type ?? "") ||
+        isFixedSlotType(sections[toIndex]?.type ?? "")
+      ) {
+        return state;
+      }
+
       const [moved] = sections.splice(fromIndex, 1);
       sections.splice(toIndex, 0, moved);
       return { site: updateHomepageSections(state.site, sections) };
@@ -184,6 +209,10 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   },
 
   replaceSection: (id, type, variantId) => {
+    if (isFixedSlotType(type)) {
+      return;
+    }
+
     const variant = findSectionVariant(type, variantId);
     if (!variant) {
       return;
@@ -206,5 +235,77 @@ export const useBuilderStore = create<BuilderState>((set) => ({
 
       return { site: updateHomepageSections(state.site, sections) };
     });
+  },
+
+  updateNavigation: (navigation) => {
+    set((state) => ({
+      site: { ...state.site, navigation },
+    }));
+  },
+
+  updateNavigationSettings: (partialSettings) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        navigation: {
+          ...state.site.navigation,
+          settings: { ...(state.site.navigation.settings ?? {}), ...partialSettings },
+        },
+      },
+    }));
+  },
+
+  updateFooter: (footer) => {
+    set((state) => ({
+      site: { ...state.site, footer },
+    }));
+  },
+
+  updateFooterSettings: (partialSettings) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        footer: {
+          ...state.site.footer,
+          settings: { ...(state.site.footer.settings ?? {}), ...partialSettings },
+        },
+      },
+    }));
+  },
+
+  replaceHeaderVariant: (variantId) => {
+    const variant = findSectionVariant("header", variantId);
+    if (!variant) {
+      return;
+    }
+
+    set((state) => ({
+      site: {
+        ...state.site,
+        navigation: {
+          ...(structuredClone(variant.defaultProps) as unknown as NavigationConfig),
+          variant: variantId,
+          settings: buildVariantSettings(variant.traits, variant.settingsDefaults),
+        },
+      },
+    }));
+  },
+
+  replaceFooterVariant: (variantId) => {
+    const variant = findSectionVariant("footer", variantId);
+    if (!variant) {
+      return;
+    }
+
+    set((state) => ({
+      site: {
+        ...state.site,
+        footer: {
+          variant: variantId,
+          props: structuredClone(variant.defaultProps),
+          settings: buildVariantSettings(variant.traits, variant.settingsDefaults),
+        },
+      },
+    }));
   },
 }));

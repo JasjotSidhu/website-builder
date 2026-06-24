@@ -1,16 +1,16 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableText from "@/lib/editor/EditableText";
+import Tooltip from "@/lib/editor/Tooltip";
 import {
   SectionDataProvider,
   useSectionData,
 } from "@/lib/editor/SectionDataContext";
-import {
-  useBackgroundStyle,
-  useGridStyle,
-  useSpacingStyle,
-} from "@/lib/traits/hooks";
+import { useGridStyle } from "@/lib/traits/hooks";
+import { SectionHeader } from "../shared/SectionHeader";
+import { SectionShell } from "../shared/SectionShell";
 import { FeatureIcon } from "./FeatureIcon";
 
 export { featuresGrid3Schema } from "./schema-grid";
@@ -27,22 +27,12 @@ export default function FeaturesGrid3() {
   const { data, updateField } = useSectionData();
   const items = (data.items as FeatureItem[] | undefined) ?? [];
   const gridStyle = useGridStyle();
-  const bgStyle = useBackgroundStyle();
-  const spacingStyle = useSpacingStyle();
 
   return (
-    <section style={{ ...bgStyle, ...spacingStyle }}>
+    <SectionShell>
       <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto mb-12 max-w-2xl text-center">
-          <h2
-            className="text-3xl font-bold text-[var(--color-text)] md:text-4xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            <EditableText as="span" dataKey="heading" maxLength={80} />
-          </h2>
-          <p className="mt-4 text-lg text-[var(--color-text)] opacity-85">
-            <EditableText as="span" dataKey="subheading" maxLength={200} required={false} />
-          </p>
+        <div className="mb-14 flex justify-center">
+          <SectionHeader align="center" eyebrow="Features" />
         </div>
 
         <div style={gridStyle}>
@@ -52,35 +42,49 @@ export default function FeaturesGrid3() {
               data={item as unknown as Record<string, unknown>}
               updateField={(key, value) => {
                 const next = [...items];
-                next[index] = { ...next[index], [key]: value };
+                const itemData = { ...next[index] };
+                if (value === undefined || value === "") {
+                  delete itemData[key as keyof typeof itemData];
+                } else {
+                  itemData[key as keyof typeof itemData] = value as never;
+                }
+                next[index] = itemData;
                 updateField("items", next);
               }}
             >
-              <article className="relative rounded-[var(--radius)] bg-[var(--color-background)] p-6 shadow-sm ring-1 ring-black/5">
+              <article className="feature-card group relative">
                 {isEditing ? (
-                  <button
-                    type="button"
-                    className="absolute right-2 top-2 rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                    onClick={() =>
-                      updateField(
-                        "items",
-                        items.filter((_, itemIndex) => itemIndex !== index),
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
+                  <Tooltip label="Remove item" side="left">
+                    <button
+                      type="button"
+                      className="absolute right-3 top-3 z-10 flex items-center justify-center rounded-full bg-white/90 px-2 py-1 text-xs text-red-600 shadow-sm hover:bg-red-50"
+                      aria-label="Remove item"
+                      onClick={() =>
+                        updateField(
+                          "items",
+                          items.filter((_, itemIndex) => itemIndex !== index),
+                        )
+                      }
+                    >
+                      <X size={12} strokeWidth={2} aria-hidden />
+                    </button>
+                  </Tooltip>
                 ) : null}
-                <FeatureIcon name={item.icon} />
-                <h3
-                  className="mt-4 text-xl font-semibold text-[var(--color-text)]"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
-                  <EditableText as="span" dataKey="title" maxLength={40} />
-                </h3>
-                <p className="mt-2 text-[var(--color-text)] opacity-85">
-                  <EditableText as="span" dataKey="description" maxLength={150} />
-                </p>
+                <div className="feature-icon-wrap">
+                  <FeatureIcon name={item.icon} />
+                </div>
+                <EditableText
+                  as="h3"
+                  dataKey="title"
+                  maxLength={40}
+                  className="mt-5 text-xl font-semibold"
+                />
+                <EditableText
+                  as="p"
+                  dataKey="description"
+                  maxLength={150}
+                  className="mt-3 text-[15px] leading-relaxed opacity-80"
+                />
               </article>
             </SectionDataProvider>
           ))}
@@ -89,7 +93,7 @@ export default function FeaturesGrid3() {
         {isEditing ? (
           <button
             type="button"
-            className="mt-6 rounded-[var(--radius)] border border-dashed border-gray-300 px-4 py-2 text-sm text-gray-600 hover:border-gray-400"
+            className="button-item-add mx-auto mt-8 block"
             onClick={() =>
               updateField("items", [
                 ...items,
@@ -101,6 +105,6 @@ export default function FeaturesGrid3() {
           </button>
         ) : null}
       </div>
-    </section>
+    </SectionShell>
   );
 }

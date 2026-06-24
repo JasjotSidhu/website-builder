@@ -1,17 +1,41 @@
+export type TraitCategory = "background" | "typography" | "layout";
+
+export interface ShowIfRule {
+  key: string;
+  equals: unknown;
+}
+
+type TraitFieldBase = {
+  key: string;
+  label: string;
+  showIf?: ShowIfRule;
+};
+
 export type TraitFieldConfig =
-  | { key: string; label: string; type: "number"; min?: number; max?: number; step?: number }
-  | {
-      key: string;
-      label: string;
+  | (TraitFieldBase & {
+      type: "number";
+      min?: number;
+      max?: number;
+      step?: number;
+    })
+  | (TraitFieldBase & {
       type: "select";
       options: { value: string; label: string }[];
-    }
-  | { key: string; label: string; type: "color" }
-  | { key: string; label: string; type: "slider"; min: number; max: number; step?: number };
+    })
+  | (TraitFieldBase & { type: "color" })
+  | (TraitFieldBase & {
+      type: "slider";
+      min: number;
+      max: number;
+      step?: number;
+    })
+  | (TraitFieldBase & { type: "toggle" })
+  | (TraitFieldBase & { type: "image" });
 
 export interface TraitDefinition {
   id: string;
   label: string;
+  category: TraitCategory;
   fields: TraitFieldConfig[];
   defaultValues: Record<string, unknown>;
 }

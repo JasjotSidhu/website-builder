@@ -34,6 +34,7 @@ export const themeConfigSchema = z.object({
 });
 
 export const navigationConfigSchema = z.object({
+  variant: z.string().optional(),
   logo: z.object({
     type: z.enum(["text", "image"]),
     value: z.string().min(1),
@@ -50,6 +51,7 @@ export const navigationConfigSchema = z.object({
       href: z.string().min(1),
     })
     .optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const sectionStyleSchema = z
@@ -86,6 +88,7 @@ export const pageDataSchema = z.object({
 export const footerConfigSchema = z.object({
   variant: z.string().min(1),
   props: z.record(z.string(), z.unknown()),
+  settings: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const websiteSchema = z.object({

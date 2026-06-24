@@ -12,6 +12,7 @@ export const heroCenteredSchema = z.object({
   subheading: z.string().min(1),
   image: z.string().min(1),
   imageAlt: z.string().min(1),
+  imageTitle: z.string().optional(),
   buttons: z.array(heroButtonSchema).min(0).max(6),
 });
 

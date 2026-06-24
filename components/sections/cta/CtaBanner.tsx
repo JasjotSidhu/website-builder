@@ -3,11 +3,7 @@
 import EditableLink from "@/lib/editor/EditableLink";
 import EditableText from "@/lib/editor/EditableText";
 import { SectionDataProvider, useSectionData } from "@/lib/editor/SectionDataContext";
-import {
-  useBackgroundStyle,
-  useOverlayStyle,
-  useSpacingStyle,
-} from "@/lib/traits/hooks";
+import { SectionShell } from "../shared/SectionShell";
 
 export { ctaBannerSchema } from "./schema";
 export type { CtaBannerProps } from "./schema";
@@ -18,26 +14,31 @@ export default function CtaBanner() {
     label: "",
     link: { type: "page", pageId: "home" },
   };
-  const bgStyle = useBackgroundStyle();
-  const spacingStyle = useSpacingStyle();
-  const overlayStyle = useOverlayStyle();
 
   return (
-    <section
-      className="relative text-white"
-      style={{ ...bgStyle, ...spacingStyle }}
-    >
-      <div className="pointer-events-none absolute inset-0" style={overlayStyle} />
+    <SectionShell className="cta-banner text-white">
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] opacity-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 40%)",
+        }}
+      />
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-        <h2
-          className="text-3xl font-bold md:text-4xl"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
-          <EditableText as="span" dataKey="heading" maxLength={100} />
-        </h2>
-        <p className="mt-4 text-lg text-white/90">
-          <EditableText as="span" dataKey="subheading" maxLength={200} required={false} />
-        </p>
+        <span className="section-eyebrow section-eyebrow--light">Get started</span>
+        <EditableText
+          as="h2"
+          dataKey="heading"
+          maxLength={100}
+          className="mt-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
+        />
+        <EditableText
+          as="p"
+          dataKey="subheading"
+          maxLength={200}
+          required={false}
+          className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/85"
+        />
         <SectionDataProvider
           data={button}
           updateField={(key, value) =>
@@ -45,12 +46,12 @@ export default function CtaBanner() {
           }
         >
           <EditableLink dataKey="link">
-            <span className="mt-8 inline-block rounded-[var(--radius)] bg-white px-6 py-3 text-sm font-medium text-[var(--color-primary)] transition hover:opacity-90">
-              <EditableText as="span" dataKey="label" maxLength={40} />
+            <span className="cta-button mt-10 inline-block">
+              <EditableText as="span" dataKey="label" maxLength={40} inheritSectionColor={false} />
             </span>
           </EditableLink>
         </SectionDataProvider>
       </div>
-    </section>
+    </SectionShell>
   );
 }

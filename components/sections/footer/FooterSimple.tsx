@@ -22,10 +22,7 @@ function FooterLogo({ logo }: Pick<FooterSimpleProps, "logo">) {
   }
 
   return (
-    <span
-      className="text-lg font-semibold text-[var(--color-text)]"
-      style={{ fontFamily: "var(--font-heading)" }}
-    >
+    <span className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
       {logo.value}
     </span>
   );
@@ -37,25 +34,31 @@ export default function FooterSimple({
   columns,
   copyright,
 }: FooterSimpleProps) {
-  const bgStyle = useBackgroundStyle();
+  const { containerStyle, overlayStyle } = useBackgroundStyle();
 
   return (
-    <footer className="border-t border-black/5 px-6 py-12" style={bgStyle}>
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-10 md:grid-cols-12">
+    <footer
+      className="site-footer relative border-t border-black/[0.06] px-6 py-16"
+      style={containerStyle}
+    >
+      {overlayStyle ? <div style={overlayStyle} /> : null}
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
             <FooterLogo logo={logo} />
-            <p className="mt-4 max-w-sm text-[var(--color-text)] opacity-85">{blurb}</p>
+            <p className="mt-5 max-w-sm text-[15px] leading-relaxed opacity-70">{blurb}</p>
           </div>
           {columns.map((column) => (
             <div key={column.title} className="md:col-span-2">
-              <p className="font-semibold text-[var(--color-text)]">{column.title}</p>
-              <ul className="mt-3 space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-wider opacity-50">
+                {column.title}
+              </p>
+              <ul className="mt-4 space-y-3">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[var(--color-text)] opacity-85 transition hover:text-[var(--color-primary)]"
+                      className="text-sm opacity-85 transition hover:text-[var(--color-primary)]"
                     >
                       {link.label}
                     </Link>
@@ -65,8 +68,8 @@ export default function FooterSimple({
             </div>
           ))}
         </div>
-        <div className="mt-10 border-t border-black/5 pt-6">
-          <p className="text-sm text-[var(--color-text)] opacity-70">{copyright}</p>
+        <div className="mt-12 border-t border-black/[0.06] pt-8">
+          <p className="text-sm opacity-50">{copyright}</p>
         </div>
       </div>
     </footer>

@@ -5,33 +5,20 @@ import { sectionRegistry } from "@/lib/registry";
 import type { SectionInstance } from "@/lib/types";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
+import { resolveSectionSettings } from "@/lib/traits/normalize";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
 import SectionSettingsPanel from "./SectionSettingsPanel";
-
-function ToolbarButton({
-  title,
-  onClick,
-  disabled,
-  children,
-}: {
-  title: string;
-  onClick: () => void;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      title={title}
-      disabled={disabled}
-      className="section-toolbar-btn"
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-}
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconDelete,
+  IconDuplicate,
+  IconHide,
+  IconReplace,
+  IconSettings,
+  SectionToolbarButton,
+} from "./SectionToolbarButton";
 
 export default function SectionWrapper({
   section,
@@ -54,6 +41,7 @@ export default function SectionWrapper({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const {
     updateSectionProps,
+    updateSectionSettings,
     duplicateSection,
     removeSection,
     toggleSectionHidden,
@@ -62,6 +50,7 @@ export default function SectionWrapper({
 
   const definition = sectionRegistry[section.type];
   const variant = definition?.variants.find((entry) => entry.id === section.variant);
+  const isFixed = section.type === "header" || section.type === "footer";
 
   if (!definition || !variant) {
     return null;
@@ -70,19 +59,28 @@ export default function SectionWrapper({
   const Component = variant.component;
 
   const updateField = (key: string, value: unknown) => {
-    updateSectionProps(section.id, { ...section.props, [key]: value });
+    const next = { ...section.props };
+    if (value === undefined || value === "") {
+      delete next[key];
+    } else {
+      next[key] = value;
+    }
+    updateSectionProps(section.id, next);
   };
 
+  const resolvedSettings = resolveSectionSettings(
+    section,
+    variant.traits,
+    variant.settingsDefaults,
+  );
+
   return (
-    <SectionSettingsProvider settings={section.settings}>
+    <SectionSettingsProvider settings={resolvedSettings}>
       <SectionDataProvider data={section.props} updateField={updateField}>
         <div
           className="section-wrapper"
           onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => {
-            setHovered(false);
-            setSettingsOpen(false);
-          }}
+          onMouseLeave={() => setHovered(false)}
           style={{ opacity: section.hidden ? 0.4 : 1, position: "relative" }}
         >
           {hovered ? <AddSectionButton onClick={() => onAddSection(index)} /> : null}
@@ -91,57 +89,65 @@ export default function SectionWrapper({
               <span className="section-label-badge">{variant.label}</span>
               <div className="section-toolbar">
                 <div className="relative">
-                  <ToolbarButton
+                  <SectionToolbarButton
                     title="Section settings"
                     onClick={() => setSettingsOpen((open) => !open)}
                   >
-                    ⚙
-                  </ToolbarButton>
+                    <IconSettings />
+                  </SectionToolbarButton>
                   {settingsOpen ? (
                     <SectionSettingsPanel
-                      section={section}
+                      settings={resolvedSettings}
                       variant={variant}
+                      onUpdate={(partial) => updateSectionSettings(section.id, partial)}
                       onClose={() => setSettingsOpen(false)}
                     />
                   ) : null}
                 </div>
-                <ToolbarButton
+                <SectionToolbarButton
                   title="Replace section"
                   onClick={() =>
                     onReplaceSection(section.id, section.type, section.variant)
                   }
                 >
-                  ⇄
-                </ToolbarButton>
-                <ToolbarButton
+                  <IconReplace />
+                </SectionToolbarButton>
+                <SectionToolbarButton
                   title="Duplicate"
+                  disabled={isFixed}
                   onClick={() => duplicateSection(section.id)}
                 >
-                  ⧉
-                </ToolbarButton>
-                <ToolbarButton
+                  <IconDuplicate />
+                </SectionToolbarButton>
+                <SectionToolbarButton
                   title="Hide"
+                  disabled={isFixed}
                   onClick={() => toggleSectionHidden(section.id)}
                 >
-                  ◌
-                </ToolbarButton>
-                <ToolbarButton
+                  <IconHide />
+                </SectionToolbarButton>
+                <SectionToolbarButton
                   title="Move up"
-                  disabled={index === 0}
+                  disabled={index === 0 || isFixed}
                   onClick={() => reorderSections(index, index - 1)}
                 >
-                  ↑
-                </ToolbarButton>
-                <ToolbarButton
+                  <IconArrowUp />
+                </SectionToolbarButton>
+                <SectionToolbarButton
                   title="Move down"
-                  disabled={index === totalSections - 1}
+                  disabled={index === totalSections - 1 || isFixed}
                   onClick={() => reorderSections(index, index + 1)}
                 >
-                  ↓
-                </ToolbarButton>
-                <ToolbarButton title="Delete" onClick={() => removeSection(section.id)}>
-                  ✕
-                </ToolbarButton>
+                  <IconArrowDown />
+                </SectionToolbarButton>
+                <SectionToolbarButton
+                  title="Delete"
+                  variant="danger"
+                  disabled={isFixed}
+                  onClick={() => removeSection(section.id)}
+                >
+                  <IconDelete />
+                </SectionToolbarButton>
               </div>
             </>
           ) : null}

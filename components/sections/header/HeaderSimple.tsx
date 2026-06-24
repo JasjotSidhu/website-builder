@@ -23,10 +23,7 @@ function Logo({ logo }: Pick<HeaderSimpleProps, "logo">) {
   }
 
   return (
-    <span
-      className="text-lg font-semibold text-[var(--color-text)]"
-      style={{ fontFamily: "var(--font-heading)" }}
-    >
+    <span className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading)" }}>
       {logo.value}
     </span>
   );
@@ -34,12 +31,17 @@ function Logo({ logo }: Pick<HeaderSimpleProps, "logo">) {
 
 export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const bgStyle = useBackgroundStyle();
+  const { containerStyle } = useBackgroundStyle();
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b border-black/5"
-      style={bgStyle}
+      className="site-header sticky top-0 z-50 w-full border-b border-black/[0.06] backdrop-blur-md"
+      style={{
+        ...containerStyle,
+        backgroundColor:
+          containerStyle.backgroundColor ??
+          "color-mix(in srgb, var(--color-background) 85%, transparent)",
+      }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/">
@@ -51,7 +53,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-[var(--color-text)] transition hover:text-[var(--color-primary)]"
+              className="text-sm font-medium transition hover:text-[var(--color-primary)]"
             >
               {link.label}
             </Link>
@@ -59,7 +61,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
           {cta ? (
             <Link
               href={cta.href}
-              className="rounded-[var(--radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+              className="rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95"
             >
               {cta.label}
             </Link>
@@ -68,7 +70,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-[var(--color-text)] md:hidden"
+          className="inline-flex items-center justify-center rounded-md p-2 md:hidden"
           aria-label="Open navigation menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
@@ -116,7 +118,7 @@ export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-base font-medium text-[var(--color-text)]"
+                  className="text-base font-medium"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}

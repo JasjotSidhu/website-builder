@@ -39,9 +39,11 @@ export interface ThemeConfig {
 }
 
 export interface NavigationConfig {
+  variant?: string;
   logo: { type: "text" | "image"; value: string };
   links: { label: string; href: string }[];
   cta?: { label: string; href: string };
+  settings?: Record<string, unknown>;
 }
 
 export interface PageData {
@@ -69,4 +71,5 @@ export interface SectionInstance {
 export interface FooterConfig {
   variant: string;
   props: Record<string, unknown>;
+  settings?: Record<string, unknown>;
 }

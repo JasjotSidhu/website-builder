@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { X } from "lucide-react";
+import { useRef } from "react";
+import Tooltip from "@/lib/editor/Tooltip";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableText from "@/lib/editor/EditableText";
-import ButtonEditorPopover from "@/lib/editor/ButtonEditorPopover";
 import {
   SectionDataProvider,
   useSectionData,
@@ -21,9 +22,7 @@ interface ButtonItem {
 }
 
 function buttonClassName(variant: ButtonItem["variant"]) {
-  return variant === "secondary"
-    ? "inline-block rounded-[var(--radius)] border border-[var(--color-primary)] px-6 py-3 text-sm font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-primary)] hover:text-white"
-    : "inline-block rounded-[var(--radius)] bg-[var(--color-primary)] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90";
+  return variant === "secondary" ? "hero-button hero-button--secondary" : "hero-button hero-button--primary";
 }
 
 export function SectionHeading({ align = "center" }: { align?: "center" | "left" }) {
@@ -31,17 +30,19 @@ export function SectionHeading({ align = "center" }: { align?: "center" | "left"
 
   return (
     <div className={`flex flex-col gap-4 ${alignClass}`}>
-      <h1
-        className={`max-w-3xl text-4xl font-bold leading-tight text-[var(--color-text)] md:text-5xl ${align === "center" ? "text-center" : "text-left"}`}
-        style={{ fontFamily: "var(--font-heading)" }}
-      >
-        <EditableText as="span" dataKey="heading" maxLength={120} />
-      </h1>
-      <p
-        className={`max-w-xl text-lg text-[var(--color-text)] opacity-85 ${align === "center" ? "text-center" : "text-left"}`}
-      >
-        <EditableText as="span" dataKey="subheading" maxLength={300} required={false} />
-      </p>
+      <EditableText
+        as="h1"
+        dataKey="heading"
+        maxLength={120}
+        className={`max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl ${align === "center" ? "text-center" : "text-left"}`}
+      />
+      <EditableText
+        as="p"
+        dataKey="subheading"
+        maxLength={300}
+        required={false}
+        className={`max-w-xl text-lg leading-relaxed opacity-90 ${align === "center" ? "text-center" : "text-left"}`}
+      />
     </div>
   );
 }
@@ -57,7 +58,7 @@ function HeroButtonItem({
 }) {
   const { isEditing } = useEditMode();
   const pages = useSitePages();
-  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   if (!isEditing) {
     const href = resolveLink(button.link, pages);
@@ -70,42 +71,33 @@ function HeroButtonItem({
 
   return (
     <div className="button-item-wrapper">
-      <button
-        type="button"
-        className="button-item-remove"
-        aria-label="Remove button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onRemove();
-        }}
-      >
-        ✕
-      </button>
-      <button
-        type="button"
-        className={`${buttonClassName(button.variant)} button-item-trigger`}
-        onClick={() => setOpen(true)}
-      >
-        <span
-          className="button-item-label"
-          onMouseDown={(event) => event.stopPropagation()}
-          onClick={(event) => event.stopPropagation()}
+      <Tooltip label="Remove button" side="top">
+        <button
+          type="button"
+          className="button-item-remove"
+          aria-label="Remove button"
+          onClick={onRemove}
         >
-          <EditableText as="span" dataKey="label" maxLength={40} />
-        </span>
-      </button>
-      {open ? (
-        <ButtonEditorPopover
-          variant={button.variant ?? "primary"}
-          link={button.link}
-          pages={pages}
-          onSave={({ variant, link }) => {
-            onUpdate({ variant, link });
-            setOpen(false);
+          <X size={12} strokeWidth={2} aria-hidden />
+        </button>
+      </Tooltip>
+      <div ref={triggerRef} className={`${buttonClassName(button.variant)} button-item-trigger`}>
+        <EditableText
+          as="span"
+          dataKey="label"
+          maxLength={40}
+          inheritSectionColor={false}
+          colorSourceRef={triggerRef}
+          toolbarAnchorRef={triggerRef}
+          buttonSettings={{
+            variant: button.variant ?? "primary",
+            link: button.link,
+            pages,
+            onVariantChange: (variant) => onUpdate({ variant }),
+            onLinkChange: (link) => onUpdate({ link }),
           }}
-          onCancel={() => setOpen(false)}
         />
-      ) : null}
+      </div>
     </div>
   );
 }

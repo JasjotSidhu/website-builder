@@ -1,4 +1,6 @@
 import { findSectionVariant } from "@/lib/registry";
+import { getHeaderVariantId } from "@/lib/header-utils";
+import { isFixedSlotType } from "@/lib/section-placement";
 import type { SectionInstance, WebsiteData } from "@/lib/types";
 import { buildVariantSettings } from "./registry";
 
@@ -6,7 +8,8 @@ function migrateLegacyStyle(section: SectionInstance): Record<string, unknown> {
   const legacy: Record<string, unknown> = {};
 
   if (section.style?.background) {
-    legacy.backgroundColor = section.style.background;
+    legacy.type = "solid";
+    legacy.color = section.style.background;
   }
 
   if (section.style?.paddingY) {
@@ -16,38 +19,95 @@ function migrateLegacyStyle(section: SectionInstance): Record<string, unknown> {
   return legacy;
 }
 
+function migrateTraitSettings(settings: Record<string, unknown>): Record<string, unknown> {
+  const migrated = { ...settings };
+
+  if (!migrated.type && migrated.backgroundColor) {
+    migrated.type = "solid";
+    migrated.color = migrated.backgroundColor;
+    delete migrated.backgroundColor;
+  }
+
+  if (migrated.overlayColor !== undefined && migrated.opacity !== undefined && !migrated.overlayOpacity) {
+    migrated.overlayOpacity = migrated.opacity;
+    delete migrated.opacity;
+  }
+
+  return migrated;
+}
+
 export function resolveSectionSettings(
   section: SectionInstance,
   traitIds: string[],
   settingsDefaults?: Record<string, unknown>,
 ): Record<string, unknown> {
-  return {
+  return migrateTraitSettings({
     ...buildVariantSettings(traitIds, settingsDefaults),
     ...migrateLegacyStyle(section),
     ...(section.settings ?? {}),
-  };
+  });
+}
+
+export function resolveFixedSlotSettings(
+  storedSettings: Record<string, unknown> | undefined,
+  traitIds: string[],
+  settingsDefaults?: Record<string, unknown>,
+): Record<string, unknown> {
+  return migrateTraitSettings({
+    ...buildVariantSettings(traitIds, settingsDefaults),
+    ...(storedSettings ?? {}),
+  });
 }
 
 export function normalizeSiteSections(site: WebsiteData): WebsiteData {
+  const headerVariant = findSectionVariant("header", getHeaderVariantId(site.navigation));
+  const footerVariant = findSectionVariant("footer", site.footer.variant);
+
+  const navigation = {
+    ...site.navigation,
+    settings: headerVariant
+      ? resolveFixedSlotSettings(
+          site.navigation.settings,
+          headerVariant.traits,
+          headerVariant.settingsDefaults,
+        )
+      : site.navigation.settings,
+  };
+
+  const footer = {
+    ...site.footer,
+    settings: footerVariant
+      ? resolveFixedSlotSettings(
+          site.footer.settings,
+          footerVariant.traits,
+          footerVariant.settingsDefaults,
+        )
+      : site.footer.settings,
+  };
+
   return {
     ...site,
+    navigation,
+    footer,
     pages: site.pages.map((page) => ({
       ...page,
-      sections: page.sections.map((section) => {
-        const variant = findSectionVariant(section.type, section.variant);
-        if (!variant) {
-          return { ...section, settings: section.settings ?? {} };
-        }
+      sections: page.sections
+        .filter((section) => !isFixedSlotType(section.type))
+        .map((section) => {
+          const variant = findSectionVariant(section.type, section.variant);
+          if (!variant) {
+            return { ...section, settings: migrateTraitSettings(section.settings ?? {}) };
+          }
 
-        return {
-          ...section,
-          settings: resolveSectionSettings(
-            section,
-            variant.traits,
-            variant.settingsDefaults,
-          ),
-        };
-      }),
+          return {
+            ...section,
+            settings: resolveSectionSettings(
+              section,
+              variant.traits,
+              variant.settingsDefaults,
+            ),
+          };
+        }),
     })),
   };
 }

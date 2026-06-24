@@ -9,14 +9,14 @@ import type {
   WebsiteData,
 } from "./types";
 import { findSectionVariant } from "./registry";
+import { getHeaderProps, getHeaderVariantId } from "./header-utils";
 import { buildThemeCssVariables } from "./theme-utils";
 import HeaderSimple from "@/components/sections/header/HeaderSimple";
 import { headerSimpleSchema } from "@/components/sections/header/schema";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
-import { buildVariantSettings } from "@/lib/traits/registry";
-import { resolveSectionSettings } from "@/lib/traits/normalize";
+import { resolveFixedSlotSettings, resolveSectionSettings } from "@/lib/traits/normalize";
 
 function validateSectionProps(section: SectionInstance, strict: boolean) {
   const match = findSectionVariant(section.type, section.variant);
@@ -77,7 +77,11 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
 
   const Component = match.component;
   const props = result.data as Record<string, unknown>;
-  const settings = buildVariantSettings(match.traits, match.settingsDefaults);
+  const settings = resolveFixedSlotSettings(
+    footer.settings,
+    match.traits,
+    match.settingsDefaults,
+  );
 
   return (
     <SectionSettingsProvider settings={settings}>
@@ -89,9 +93,11 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
 }
 
 function renderNavigation(navigation: NavigationConfig, strict: boolean) {
+  const variantId = getHeaderVariantId(navigation);
+  const navProps = getHeaderProps(navigation);
   const result = strict
-    ? headerSimpleSchema.safeParse(navigation)
-    : { success: true as const, data: navigation };
+    ? headerSimpleSchema.safeParse(navProps)
+    : { success: true as const, data: navProps };
 
   if (!result.success) {
     const issues = result.error.issues
@@ -101,9 +107,13 @@ function renderNavigation(navigation: NavigationConfig, strict: boolean) {
     throw new Error(`Navigation failed validation: ${issues}`);
   }
 
-  const headerVariant = findSectionVariant("header", "header-simple");
+  const headerVariant = findSectionVariant("header", variantId);
   const settings = headerVariant
-    ? buildVariantSettings(headerVariant.traits, headerVariant.settingsDefaults)
+    ? resolveFixedSlotSettings(
+        navigation.settings,
+        headerVariant.traits,
+        headerVariant.settingsDefaults,
+      )
     : {};
 
   return (
