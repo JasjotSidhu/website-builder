@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { sectionRegistry } from "@/lib/registry";
 import type { SectionInstance } from "@/lib/types";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
@@ -40,7 +40,7 @@ export default function SectionWrapper({
   const [hovered, setHovered] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const {
-    updateSectionProps,
+    patchSectionProps,
     updateSectionSettings,
     duplicateSection,
     removeSection,
@@ -58,15 +58,19 @@ export default function SectionWrapper({
 
   const Component = variant.component;
 
-  const updateField = (key: string, value: unknown) => {
-    const next = { ...section.props };
-    if (value === undefined || value === "") {
-      delete next[key];
-    } else {
-      next[key] = value;
-    }
-    updateSectionProps(section.id, next);
-  };
+  const updateField = useCallback(
+    (key: string, value: unknown) => {
+      patchSectionProps(section.id, { [key]: value });
+    },
+    [patchSectionProps, section.id],
+  );
+
+  const updateFields = useCallback(
+    (partial: Record<string, unknown>) => {
+      patchSectionProps(section.id, partial);
+    },
+    [patchSectionProps, section.id],
+  );
 
   const resolvedSettings = resolveSectionSettings(
     section,
@@ -76,7 +80,11 @@ export default function SectionWrapper({
 
   return (
     <SectionSettingsProvider settings={resolvedSettings}>
-      <SectionDataProvider data={section.props} updateField={updateField}>
+      <SectionDataProvider
+        data={section.props}
+        updateField={updateField}
+        updateFields={updateFields}
+      >
         <div
           className="section-wrapper"
           onMouseEnter={() => setHovered(true)}

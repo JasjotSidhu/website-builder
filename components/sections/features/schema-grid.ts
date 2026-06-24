@@ -7,6 +7,7 @@ export const featureItemSchema = z.object({
 });
 
 export const featuresGrid3Schema = z.object({
+  eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().optional(),
   items: z.array(featureItemSchema).length(3),

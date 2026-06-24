@@ -1,10 +1,10 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
+import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
+import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import EditableText from "@/lib/editor/EditableText";
-import Tooltip from "@/lib/editor/Tooltip";
 import {
   SectionDataProvider,
   useSectionData,
@@ -31,46 +31,45 @@ export default function FeaturesAlternating() {
     <SectionShell>
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-16 flex justify-center">
-          <SectionHeader align="center" eyebrow="Process" />
+          <SectionHeader align="center" eyebrowFallback="Process" />
         </div>
 
         <div className="flex flex-col gap-20">
           {items.map((item, index) => {
             const imageFirst = index % 2 === 0;
 
+            const applyItemPatch = (partial: Record<string, unknown>) => {
+              const next = [...items];
+              const itemData = { ...next[index] };
+              for (const [key, value] of Object.entries(partial)) {
+                if (value === undefined || value === "") {
+                  delete itemData[key as keyof typeof itemData];
+                } else {
+                  itemData[key as keyof typeof itemData] = value as never;
+                }
+              }
+              next[index] = itemData;
+              updateField("items", next);
+            };
+
             return (
               <SectionDataProvider
                 key={`alt-feature-${index}`}
                 data={item as unknown as Record<string, unknown>}
-                updateField={(key, value) => {
-                  const next = [...items];
-                  const itemData = { ...next[index] };
-                  if (value === undefined || value === "") {
-                    delete itemData[key as keyof typeof itemData];
-                  } else {
-                    itemData[key as keyof typeof itemData] = value as never;
-                  }
-                  next[index] = itemData;
-                  updateField("items", next);
-                }}
+                updateField={(key, value) => applyItemPatch({ [key]: value })}
+                updateFields={applyItemPatch}
               >
-                <div className="relative grid items-center gap-10 md:grid-cols-2 md:gap-14">
+                <div className="relative grid items-center gap-10 overflow-visible md:grid-cols-2 md:gap-14">
                   {isEditing ? (
-                    <Tooltip label="Remove item" side="left">
-                      <button
-                        type="button"
-                        className="absolute -top-3 right-0 z-10 flex items-center justify-center rounded-full bg-white px-2 py-1 text-xs text-red-600 shadow-sm hover:bg-red-50"
-                        aria-label="Remove item"
-                        onClick={() =>
-                          updateField(
-                            "items",
-                            items.filter((_, itemIndex) => itemIndex !== index),
-                          )
-                        }
-                      >
-                        <X size={12} strokeWidth={2} aria-hidden />
-                      </button>
-                    </Tooltip>
+                    <EditorRemoveButton
+                      label="Remove item"
+                      onClick={() =>
+                        updateField(
+                          "items",
+                          items.filter((_, itemIndex) => itemIndex !== index),
+                        )
+                      }
+                    />
                   ) : null}
                   {imageFirst ? (
                     <>
@@ -140,14 +139,17 @@ function FeatureImage() {
         dataKey="image"
         altKey="imageAlt"
         renderChildren={(image, uploadBtn, altText, titleText) => (
-          <RenderDivImage
-            image={image}
-            altText={altText}
-            titleText={titleText}
-            className="relative z-10 aspect-[14/9] w-full rounded-[var(--radius)] bg-gray-100 object-cover shadow-xl ring-1 ring-black/10"
+          <ImageEditSurface
+            uploadBtn={uploadBtn}
+            className="relative z-10 aspect-[14/9] w-full rounded-[var(--radius)] bg-gray-100 shadow-xl ring-1 ring-black/10"
           >
-            {uploadBtn}
-          </RenderDivImage>
+            <RenderDivImage
+              image={image}
+              altText={altText}
+              titleText={titleText}
+              className="h-full w-full"
+            />
+          </ImageEditSurface>
         )}
       />
     </div>

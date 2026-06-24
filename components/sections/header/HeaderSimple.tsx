@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useBackgroundStyle } from "@/lib/traits/hooks";
 import type { HeaderSimpleProps } from "./schema";
 
 export { headerSimpleSchema } from "./schema";
@@ -31,16 +30,12 @@ function Logo({ logo }: Pick<HeaderSimpleProps, "logo">) {
 
 export default function HeaderSimple({ logo, links, cta }: HeaderSimpleProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { containerStyle } = useBackgroundStyle();
 
   return (
     <header
       className="site-header sticky top-0 z-50 w-full border-b border-black/[0.06] backdrop-blur-md"
       style={{
-        ...containerStyle,
-        backgroundColor:
-          containerStyle.backgroundColor ??
-          "color-mix(in srgb, var(--color-background) 85%, transparent)",
+        backgroundColor: "color-mix(in srgb, var(--color-background) 85%, transparent)",
       }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">

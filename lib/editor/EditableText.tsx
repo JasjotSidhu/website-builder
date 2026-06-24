@@ -28,6 +28,8 @@ interface EditableTextProps {
   toolbarAnchorRef?: RefObject<HTMLElement | null>;
   /** Merges button variant/link settings into the text toolbar. */
   buttonSettings?: ButtonToolbarSettings;
+  /** Shown when the stored value is empty (e.g. legacy sections without this field). */
+  fallback?: string;
 }
 
 function initializeEditorContent(
@@ -55,6 +57,7 @@ export default function EditableText({
   colorSourceRef,
   toolbarAnchorRef,
   buttonSettings,
+  fallback,
 }: EditableTextProps) {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
@@ -67,6 +70,7 @@ export default function EditableText({
   const contentReadyRef = useRef(false);
 
   const value = String(data[dataKey] ?? "");
+  const displayValue = value.trim() ? value : (fallback ?? "");
   const htmlOverride = data[`${dataKey}Html`];
   const htmlValue = typeof htmlOverride === "string" ? htmlOverride : undefined;
   const colorOverride = data[`${dataKey}Color`];
@@ -150,6 +154,10 @@ export default function EditableText({
   };
 
   if (!isEditing) {
+    if (!displayValue) {
+      return null;
+    }
+
     if (htmlValue && hasRichTextMarkup(htmlValue)) {
       return (
         <Tag
@@ -162,7 +170,7 @@ export default function EditableText({
 
     return (
       <Tag className={className} style={style}>
-        {value}
+        {displayValue}
       </Tag>
     );
   }
@@ -180,7 +188,7 @@ export default function EditableText({
     }
 
     if (!contentReadyRef.current) {
-      initializeEditorContent(element, value, htmlValue);
+      initializeEditorContent(element, displayValue, htmlValue);
       contentReadyRef.current = true;
     }
   };

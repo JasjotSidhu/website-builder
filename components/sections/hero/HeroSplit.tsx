@@ -1,8 +1,10 @@
 "use client";
 
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
+import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import { useReversedLayout } from "@/lib/traits/hooks";
 import { SectionShell } from "../shared/SectionShell";
+import { SectionEyebrow } from "../shared/SectionEyebrow";
 import { SectionButtons, SectionHeading } from "../shared/SectionContent";
 
 export { heroSplitSchema } from "./schema-split";
@@ -19,7 +21,7 @@ export default function HeroSplit() {
         }`}
       >
         <div className="flex flex-1 flex-col gap-6">
-          <span className="section-eyebrow w-fit">Our studio</span>
+          <SectionEyebrow fallback="Our studio" className="w-fit" />
           <SectionHeading align="left" />
           <SectionButtons align="left" />
         </div>
@@ -33,14 +35,17 @@ export default function HeroSplit() {
             dataKey="image"
             altKey="imageAlt"
             renderChildren={(image, uploadBtn, altText, titleText) => (
-              <RenderDivImage
-                image={image}
-                altText={altText}
-                titleText={titleText}
-                className="relative z-10 aspect-[4/3] w-full rounded-[var(--radius)] bg-gray-100 object-cover shadow-2xl ring-1 ring-black/10"
+              <ImageEditSurface
+                uploadBtn={uploadBtn}
+                className="relative z-10 aspect-[4/3] w-full rounded-[var(--radius)] bg-gray-100 shadow-2xl ring-1 ring-black/10"
               >
-                {uploadBtn}
-              </RenderDivImage>
+                <RenderDivImage
+                  image={image}
+                  altText={altText}
+                  titleText={titleText}
+                  className="h-full w-full"
+                />
+              </ImageEditSurface>
             )}
           />
         </div>

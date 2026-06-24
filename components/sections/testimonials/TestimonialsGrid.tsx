@@ -1,10 +1,10 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
+import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
+import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import EditableText from "@/lib/editor/EditableText";
-import Tooltip from "@/lib/editor/Tooltip";
 import {
   SectionDataProvider,
   useSectionData,
@@ -45,43 +45,43 @@ export default function TestimonialsGrid() {
     <SectionShell>
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-14 flex justify-center">
-          <SectionHeader align="center" eyebrow="Testimonials" />
+          <SectionHeader align="center" eyebrowFallback="Testimonials" />
         </div>
 
         <div style={gridStyle}>
-          {testimonials.map((item, index) => (
-            <SectionDataProvider
-              key={`testimonial-${index}`}
-              data={item as unknown as Record<string, unknown>}
-              updateField={(key, value) => {
-                const next = [...testimonials];
-                const itemData = { ...next[index] };
+          {testimonials.map((item, index) => {
+            const applyItemPatch = (partial: Record<string, unknown>) => {
+              const next = [...testimonials];
+              const itemData = { ...next[index] };
+              for (const [key, value] of Object.entries(partial)) {
                 if (value === undefined || value === "") {
                   delete itemData[key as keyof typeof itemData];
                 } else {
                   itemData[key as keyof typeof itemData] = value as never;
                 }
-                next[index] = itemData;
-                updateField("testimonials", next);
-              }}
+              }
+              next[index] = itemData;
+              updateField("testimonials", next);
+            };
+
+            return (
+            <SectionDataProvider
+              key={`testimonial-${index}`}
+              data={item as unknown as Record<string, unknown>}
+              updateField={(key, value) => applyItemPatch({ [key]: value })}
+              updateFields={applyItemPatch}
             >
               <article className="testimonial-card group relative flex h-full flex-col">
                 {isEditing ? (
-                  <Tooltip label="Remove testimonial" side="left">
-                    <button
-                      type="button"
-                      className="absolute right-3 top-3 z-10 flex items-center justify-center rounded-full bg-white/90 px-2 py-1 text-xs text-red-600 shadow-sm hover:bg-red-50"
-                      aria-label="Remove testimonial"
-                      onClick={() =>
-                        updateField(
-                          "testimonials",
-                          testimonials.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }
-                    >
-                      <X size={12} strokeWidth={2} aria-hidden />
-                    </button>
-                  </Tooltip>
+                  <EditorRemoveButton
+                    label="Remove testimonial"
+                    onClick={() =>
+                      updateField(
+                        "testimonials",
+                        testimonials.filter((_, itemIndex) => itemIndex !== index),
+                      )
+                    }
+                  />
                 ) : null}
                 <span className="testimonial-quote-mark" aria-hidden>
                   &ldquo;
@@ -93,21 +93,25 @@ export default function TestimonialsGrid() {
                 <div className="mt-6 flex items-center gap-3 border-t border-black/5 pt-5">
                   <EditableImage
                     dataKey="avatar"
+                    compact
                     renderChildren={(image, uploadBtn) => (
-                      <div className="relative h-11 w-11 shrink-0">
+                      <ImageEditSurface
+                        uploadBtn={uploadBtn}
+                        compact
+                        className="h-11 w-11 shrink-0 rounded-full"
+                      >
                         {image ? (
                           <RenderDivImage
                             image={image}
                             altText=""
-                            className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-md"
+                            className="h-full w-full rounded-full ring-2 ring-white shadow-md"
                           />
                         ) : (
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-semibold text-white shadow-md">
+                          <div className="flex h-full w-full items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-semibold text-white shadow-md ring-2 ring-white">
                             {(item.name ?? "?")[0]}
                           </div>
                         )}
-                        {uploadBtn}
-                      </div>
+                      </ImageEditSurface>
                     )}
                   />
                   <div>
@@ -121,7 +125,8 @@ export default function TestimonialsGrid() {
                 </div>
               </article>
             </SectionDataProvider>
-          ))}
+            );
+          })}
         </div>
 
         {isEditing ? (

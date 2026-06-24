@@ -1,9 +1,8 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
+import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
 import EditableText from "@/lib/editor/EditableText";
-import Tooltip from "@/lib/editor/Tooltip";
 import {
   SectionDataProvider,
   useSectionData,
@@ -32,43 +31,43 @@ export default function FeaturesGrid3() {
     <SectionShell>
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-14 flex justify-center">
-          <SectionHeader align="center" eyebrow="Features" />
+          <SectionHeader align="center" eyebrowFallback="Features" />
         </div>
 
         <div style={gridStyle}>
-          {items.map((item, index) => (
-            <SectionDataProvider
-              key={`feature-${index}`}
-              data={item as unknown as Record<string, unknown>}
-              updateField={(key, value) => {
-                const next = [...items];
-                const itemData = { ...next[index] };
+          {items.map((item, index) => {
+            const applyItemPatch = (partial: Record<string, unknown>) => {
+              const next = [...items];
+              const itemData = { ...next[index] };
+              for (const [key, value] of Object.entries(partial)) {
                 if (value === undefined || value === "") {
                   delete itemData[key as keyof typeof itemData];
                 } else {
                   itemData[key as keyof typeof itemData] = value as never;
                 }
-                next[index] = itemData;
-                updateField("items", next);
-              }}
+              }
+              next[index] = itemData;
+              updateField("items", next);
+            };
+
+            return (
+            <SectionDataProvider
+              key={`feature-${index}`}
+              data={item as unknown as Record<string, unknown>}
+              updateField={(key, value) => applyItemPatch({ [key]: value })}
+              updateFields={applyItemPatch}
             >
               <article className="feature-card group relative">
                 {isEditing ? (
-                  <Tooltip label="Remove item" side="left">
-                    <button
-                      type="button"
-                      className="absolute right-3 top-3 z-10 flex items-center justify-center rounded-full bg-white/90 px-2 py-1 text-xs text-red-600 shadow-sm hover:bg-red-50"
-                      aria-label="Remove item"
-                      onClick={() =>
-                        updateField(
-                          "items",
-                          items.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }
-                    >
-                      <X size={12} strokeWidth={2} aria-hidden />
-                    </button>
-                  </Tooltip>
+                  <EditorRemoveButton
+                    label="Remove item"
+                    onClick={() =>
+                      updateField(
+                        "items",
+                        items.filter((_, itemIndex) => itemIndex !== index),
+                      )
+                    }
+                  />
                 ) : null}
                 <div className="feature-icon-wrap">
                   <FeatureIcon name={item.icon} />
@@ -87,7 +86,8 @@ export default function FeaturesGrid3() {
                 />
               </article>
             </SectionDataProvider>
-          ))}
+            );
+          })}
         </div>
 
         {isEditing ? (

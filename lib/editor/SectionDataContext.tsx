@@ -5,6 +5,7 @@ import { createContext, useContext } from "react";
 export interface SectionDataContextValue {
   data: Record<string, unknown>;
   updateField: (key: string, value: unknown) => void;
+  updateFields: (partial: Record<string, unknown>) => void;
 }
 
 export const SectionDataContext = createContext<SectionDataContextValue | null>(
@@ -14,10 +15,11 @@ export const SectionDataContext = createContext<SectionDataContextValue | null>(
 export function SectionDataProvider({
   data,
   updateField,
+  updateFields,
   children,
 }: SectionDataContextValue & { children: React.ReactNode }) {
   return (
-    <SectionDataContext.Provider value={{ data, updateField }}>
+    <SectionDataContext.Provider value={{ data, updateField, updateFields }}>
       {children}
     </SectionDataContext.Provider>
   );

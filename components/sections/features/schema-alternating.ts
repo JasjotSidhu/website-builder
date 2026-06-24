@@ -9,6 +9,7 @@ export const alternatingFeatureSchema = z.object({
 });
 
 export const featuresAlternatingSchema = z.object({
+  eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().optional(),
   items: z.array(alternatingFeatureSchema).min(1),

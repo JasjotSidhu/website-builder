@@ -8,6 +8,7 @@ export const testimonialSchema = z.object({
 });
 
 export const testimonialsGridSchema = z.object({
+  eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().optional(),
   testimonials: z.array(testimonialSchema).length(3),

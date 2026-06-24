@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Website Builder
 
-## Getting Started
+A section-based visual website builder built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Zustand**. Compose pages from pre-built sections, edit text/images/buttons inline on the canvas, and customize section design settings.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| URL | Description |
+|-----|-------------|
+| http://localhost:3000 | Published site preview |
+| http://localhost:3000/builder | Visual page builder |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Section library** — hero, features, testimonials, CTA, header, footer variants
+- **Inline editing** — click text, images, buttons, and links directly on the canvas
+- **Floating toolbars** — text styling, partial highlights, button settings, image upload
+- **Section settings** — background, spacing, grid, colors via trait panel
+- **Theme panel** — global color and font tokens
+- **Image upload** — browse or drag-and-drop from your computer (client-side, no server required)
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+Next.js 14 · TypeScript · Tailwind CSS v3 · Zustand · Zod · Lucide React
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Full project documentation — architecture, editor features, data model, file structure, and session changelog:
 
-## Deploy on Vercel
+**[docs/PROJECT_DOCUMENTATION.md](./docs/PROJECT_DOCUMENTATION.md)**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev      # Development server
+npm run build    # Production build
+npm run start    # Production server
+npm run lint     # ESLint
+```
+
+## Project layout
+
+```
+app/              Next.js routes (/builder, /)
+components/
+  builder/        Canvas, outline, modals, section wrapper
+  sections/       Section components + Zod schemas
+lib/
+  editor/         Inline editing (text, image, button, link)
+  traits/         Section settings system
+  registry.ts     Section catalog
+store/            Zustand site state
+data/             Sample site JSON
+docs/             Project documentation
+```
+
+## License
+
+Private project.

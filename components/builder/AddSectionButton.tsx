@@ -6,8 +6,11 @@ interface AddSectionButtonProps {
 
 export default function AddSectionButton({ onClick }: AddSectionButtonProps) {
   return (
-    <button type="button" className="add-section-btn" onClick={onClick}>
-      + Add New Section
-    </button>
+    <div className="add-section-divider">
+      <span className="add-section-divider__line" aria-hidden />
+      <button type="button" className="add-section-divider__btn" onClick={onClick}>
+        ADD SECTION
+      </button>
+    </div>
   );
 }

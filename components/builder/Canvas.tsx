@@ -67,9 +67,11 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
 
               <main>
                 {sections.length === 0 ? (
-                  <div className="relative py-16 text-center">
-                    <p className="mb-4 text-sm text-gray-500">No sections yet.</p>
-                    <AddSectionButton onClick={() => openAddModal(0)} />
+                  <div className="py-12 text-center">
+                    <p className="mb-2 text-sm text-gray-500">No sections yet.</p>
+                    <div className="add-section-zone add-section-zone--empty">
+                      <AddSectionButton onClick={() => openAddModal(0)} />
+                    </div>
                   </div>
                 ) : (
                   sections.map((section, index) => (
@@ -85,7 +87,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
                   ))
                 )}
                 {sections.length > 0 ? (
-                  <div className="relative py-4">
+                  <div className="add-section-zone">
                     <AddSectionButton onClick={() => openAddModal(sections.length)} />
                   </div>
                 ) : null}

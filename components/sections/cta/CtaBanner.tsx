@@ -4,6 +4,7 @@ import EditableLink from "@/lib/editor/EditableLink";
 import EditableText from "@/lib/editor/EditableText";
 import { SectionDataProvider, useSectionData } from "@/lib/editor/SectionDataContext";
 import { SectionShell } from "../shared/SectionShell";
+import { SectionEyebrow } from "../shared/SectionEyebrow";
 
 export { ctaBannerSchema } from "./schema";
 export type { CtaBannerProps } from "./schema";
@@ -25,7 +26,7 @@ export default function CtaBanner() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-        <span className="section-eyebrow section-eyebrow--light">Get started</span>
+        <SectionEyebrow fallback="Get started" light />
         <EditableText
           as="h2"
           dataKey="heading"
@@ -43,6 +44,9 @@ export default function CtaBanner() {
           data={button}
           updateField={(key, value) =>
             updateField("button", { ...button, [key]: value })
+          }
+          updateFields={(partial) =>
+            updateField("button", { ...button, ...partial })
           }
         >
           <EditableLink dataKey="link">

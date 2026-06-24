@@ -47,8 +47,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Simple header",
         component: HeaderSimple as ComponentType<Record<string, unknown>>,
         propsSchema: headerSimpleSchema,
-        traits: ["background", "textColor"],
-        settingsDefaults: { type: "solid", color: "var(--color-background)" },
+        traits: [],
         defaultProps: {
           logo: { type: "text", value: "Brand" },
           links: [{ label: "Home", href: "/" }],
@@ -69,6 +68,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         traits: ["background", "textColor", "spacing"],
         settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
+          eyebrow: "Welcome",
           heading: "Welcome",
           subheading: "Your subheading here",
           image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=960&h=540&fit=crop",
@@ -84,6 +84,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         traits: ["background", "textColor", "spacing", "reversible"],
         settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
+          eyebrow: "Our studio",
           heading: "Welcome",
           subheading: "Your subheading here",
           image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=960&h=540&fit=crop",
@@ -105,6 +106,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         propsSchema: featuresGrid3Schema,
         traits: ["grid", "background", "textColor", "spacing"],
         defaultProps: {
+          eyebrow: "Features",
           heading: "Features",
           subheading: "What we offer",
           items: [
@@ -121,6 +123,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         propsSchema: featuresAlternatingSchema,
         traits: ["background", "textColor", "spacing"],
         defaultProps: {
+          eyebrow: "Process",
           heading: "How it works",
           subheading: "Our process",
           items: [
@@ -147,6 +150,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         propsSchema: testimonialsGridSchema,
         traits: ["grid", "background", "textColor", "spacing"],
         defaultProps: {
+          eyebrow: "Testimonials",
           heading: "What clients say",
           subheading: "Trusted by teams everywhere",
           testimonials: [
@@ -175,6 +179,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
           textColor: "#ffffff",
         },
         defaultProps: {
+          eyebrow: "Get started",
           heading: "Ready to get started?",
           subheading: "Let's talk about your project.",
           button: {

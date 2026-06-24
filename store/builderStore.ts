@@ -16,6 +16,7 @@ interface BuilderState {
   duplicateSection: (id: string) => void;
   reorderSections: (fromIndex: number, toIndex: number) => void;
   updateSectionProps: (id: string, props: Record<string, unknown>) => void;
+  patchSectionProps: (id: string, partial: Record<string, unknown>) => void;
   updateSectionSettings: (id: string, partialSettings: Record<string, unknown>) => void;
   updateTheme: (theme: Partial<ThemeConfig>) => void;
   toggleSectionHidden: (id: string) => void;
@@ -137,6 +138,30 @@ export const useBuilderStore = create<BuilderState>((set) => ({
         getHomepage(state).sections.map((section) =>
           section.id === id ? { ...section, props } : section,
         ),
+      ),
+    }));
+  },
+
+  patchSectionProps: (id, partial) => {
+    set((state) => ({
+      site: updateHomepageSections(
+        state.site,
+        getHomepage(state).sections.map((section) => {
+          if (section.id !== id) {
+            return section;
+          }
+
+          const next = { ...section.props };
+          for (const [key, value] of Object.entries(partial)) {
+            if (value === undefined || value === "") {
+              delete next[key];
+            } else {
+              next[key] = value;
+            }
+          }
+
+          return { ...section, props: next };
+        }),
       ),
     }));
   },

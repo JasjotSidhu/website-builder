@@ -28,7 +28,7 @@ export default function SectionVariantPreview({
 
   const content = usesContext ? (
     <SectionSettingsProvider settings={settings}>
-      <SectionDataProvider data={props} updateField={() => {}}>
+      <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
         <PreviewComponent {...props} />
       </SectionDataProvider>
     </SectionSettingsProvider>

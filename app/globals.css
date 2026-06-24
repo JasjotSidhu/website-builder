@@ -72,10 +72,6 @@
 }
 
 .image-upload-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,10 +82,92 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.08);
   cursor: pointer;
+  color: #374151;
+  padding: 0;
+}
+
+.image-upload-btn--sm {
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.14);
+}
+
+.image-upload-btn--sm svg {
+  width: 12px;
+  height: 12px;
+}
+
+.image-edit-surface__toolbar--compact {
+  top: 2px;
+  right: 2px;
 }
 
 .image-upload-btn:hover {
   background: #f4f4f5;
+}
+
+.image-edit-surface {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-edit-surface__toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.image-edit-surface__toolbar > * {
+  pointer-events: auto;
+}
+
+/* Nudge camera left/down when a remove badge shares the top-right corner */
+:has(> .editor-remove-btn-wrap) .image-edit-surface__toolbar:not(.image-edit-surface__toolbar--compact) {
+  top: 18px;
+  right: 46px;
+}
+
+.editor-remove-btn-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 21;
+  transform: translate(50%, -50%);
+}
+
+.editor-remove-btn-wrap--compact {
+  transform: translate(50%, -50%);
+}
+
+.editor-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #dc2626;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.editor-remove-btn-wrap--compact .editor-remove-btn {
+  width: 24px;
+  height: 24px;
+}
+
+.editor-remove-btn:hover {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 /* ─── Popover design system ─── */
@@ -704,11 +782,12 @@ select.popover-input--inline-select {
 .render-div-image {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .render-div-image__img {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1190,25 +1269,83 @@ select.popover-input--inline-select {
   pointer-events: none;
 }
 
-.add-section-btn {
+.add-section-divider {
+  --add-section-blue: #007bff;
   position: absolute;
-  top: -14px;
-  left: 50%;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 15;
-  transform: translateX(-50%);
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 9999px;
-  border: 1px dashed #a5b4fc;
-  background: white;
-  color: #4f46e5;
-  cursor: pointer;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-.add-section-btn:hover {
-  background: #eef2ff;
+.add-section-divider__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  background: var(--add-section-blue);
+  transform: translateY(-50%);
+}
+
+.add-section-divider__btn {
+  position: relative;
+  z-index: 1;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  border: none;
+  border-radius: 6px;
+  background: var(--add-section-blue);
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  pointer-events: auto;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.35);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.add-section-divider__btn:hover {
+  background: #0069d9;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.4);
+}
+
+.add-section-zone {
+  position: relative;
+  height: 36px;
+  z-index: 15;
+  flex-shrink: 0;
+}
+
+.add-section-zone .add-section-divider {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.add-section-zone:hover .add-section-divider,
+.add-section-zone:focus-within .add-section-divider {
+  opacity: 1;
+}
+
+.add-section-zone--empty {
+  height: auto;
+  padding: 2rem 0 1rem;
+}
+
+.add-section-zone--empty .add-section-divider {
+  position: relative;
+  transform: none;
+  height: auto;
+  opacity: 1;
 }
 
 .picker-layout {
@@ -1511,6 +1648,8 @@ select.popover-input--inline-select {
 }
 
 .feature-card {
+  position: relative;
+  overflow: visible;
   border-radius: var(--radius);
   background: var(--color-background);
   padding: 1.75rem;
@@ -1550,6 +1689,8 @@ select.popover-input--inline-select {
 }
 
 .testimonial-card {
+  position: relative;
+  overflow: visible;
   border-radius: var(--radius);
   background: var(--color-background);
   padding: 1.75rem;
@@ -1728,6 +1869,7 @@ select.popover-input--inline-select {
 .button-item-wrapper {
   position: relative;
   display: inline-flex;
+  overflow: visible;
 }
 
 .button-item-trigger {
@@ -1772,31 +1914,6 @@ select.popover-input--inline-select {
   background: #fff;
 }
 
-.button-item-remove {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: none;
-  border-radius: 9999px;
-  background: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  color: #6b7280;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.button-item-remove:hover {
-  background: #fef2f2;
-  color: #dc2626;
-}
 
 .button-item-add {
   align-self: center;

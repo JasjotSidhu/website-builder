@@ -1,7 +1,9 @@
 "use client";
 
 import EditableImage, { RenderDivImage } from "@/lib/editor/EditableImage";
+import ImageEditSurface from "@/lib/editor/ImageEditSurface";
 import { SectionShell } from "../shared/SectionShell";
+import { SectionEyebrow } from "../shared/SectionEyebrow";
 import { SectionButtons, SectionHeading } from "../shared/SectionContent";
 
 export { heroCenteredSchema } from "./schema-centered";
@@ -12,7 +14,7 @@ export default function HeroCentered() {
     <SectionShell>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-6">
         <div className="flex flex-col items-center gap-6">
-          <span className="section-eyebrow">Welcome</span>
+          <SectionEyebrow fallback="Welcome" />
           <SectionHeading align="center" />
           <SectionButtons />
         </div>
@@ -26,16 +28,18 @@ export default function HeroCentered() {
             dataKey="image"
             altKey="imageAlt"
             renderChildren={(image, uploadBtn, altText, titleText) => (
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[var(--radius)] bg-gray-100 shadow-2xl ring-1 ring-black/10">
+              <ImageEditSurface
+                uploadBtn={uploadBtn}
+                className="aspect-[16/9] w-full rounded-[var(--radius)] bg-gray-100 shadow-2xl ring-1 ring-black/10"
+              >
                 <RenderDivImage
                   image={image}
                   altText={altText}
                   titleText={titleText}
-                  className="h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-black/20" />
-                <div className="absolute right-3 top-3">{uploadBtn}</div>
-              </div>
+              </ImageEditSurface>
             )}
           />
         </div>

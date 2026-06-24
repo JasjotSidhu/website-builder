@@ -1,8 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useRef } from "react";
-import Tooltip from "@/lib/editor/Tooltip";
+import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import EditableText from "@/lib/editor/EditableText";
 import {
@@ -71,16 +70,7 @@ function HeroButtonItem({
 
   return (
     <div className="button-item-wrapper">
-      <Tooltip label="Remove button" side="top">
-        <button
-          type="button"
-          className="button-item-remove"
-          aria-label="Remove button"
-          onClick={onRemove}
-        >
-          <X size={12} strokeWidth={2} aria-hidden />
-        </button>
-      </Tooltip>
+      <EditorRemoveButton label="Remove button" compact onClick={onRemove} />
       <div ref={triggerRef} className={`${buttonClassName(button.variant)} button-item-trigger`}>
         <EditableText
           as="span"
@@ -144,6 +134,7 @@ export function SectionButtons({ align = "center" }: { align?: "center" | "left"
           key={`button-${index}`}
           data={button as unknown as Record<string, unknown>}
           updateField={(key, value) => updateButton(index, { [key]: value })}
+          updateFields={(partial) => updateButton(index, partial)}
         >
           <HeroButtonItem
             button={button}

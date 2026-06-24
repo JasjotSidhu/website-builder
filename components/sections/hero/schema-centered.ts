@@ -8,6 +8,7 @@ export const heroButtonSchema = z.object({
 });
 
 export const heroCenteredSchema = z.object({
+  eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().min(1),
   image: z.string().min(1),

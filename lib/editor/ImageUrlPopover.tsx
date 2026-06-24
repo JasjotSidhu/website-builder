@@ -4,7 +4,9 @@ import { Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPreviewObjectUrl,
-  readImageFileAsDataUrl,
+  isHeicFile,
+  optimizeImageDataUrl,
+  readFileAsDataUrl,
 } from "@/lib/image-upload";
 import FloatingPopover from "./FloatingPopover";
 import { PopoverActions, PopoverField, PopoverShell } from "./PopoverShell";
@@ -56,7 +58,7 @@ export default function ImageUrlPopover({
     isUploadingRef.current = isUploading;
   }, [isUploading]);
 
-  useEffect(() => clearPreviewObjectUrl, [clearPreviewObjectUrl]);
+  useEffect(() => () => clearPreviewObjectUrl(), [clearPreviewObjectUrl]);
 
   const handleCancel = useCallback(() => {
     clearPreviewObjectUrl();
@@ -104,7 +106,7 @@ export default function ImageUrlPopover({
       window.removeEventListener("focus", handleWindowFocus);
       window.setTimeout(() => {
         filePickerBusyRef.current = false;
-      }, 400);
+      }, 500);
     };
 
     window.addEventListener("focus", handleWindowFocus);
@@ -117,6 +119,13 @@ export default function ImageUrlPopover({
       return;
     }
 
+    if (isHeicFile(file)) {
+      setUploadError(
+        "HEIC images are not supported in this browser. Save as JPEG or PNG and try again.",
+      );
+      return;
+    }
+
     clearPreviewObjectUrl();
     setIsUploading(true);
     setUploadError(null);
@@ -126,13 +135,21 @@ export default function ImageUrlPopover({
     setPreviewSrc(objectUrl);
 
     try {
-      const dataUrl = await readImageFileAsDataUrl(file);
+      const raw = await readFileAsDataUrl(file);
       clearPreviewObjectUrl();
-      setUrl(dataUrl);
-      setPreviewSrc(dataUrl);
+      setUrl(raw);
+      setPreviewSrc(raw);
+
+      try {
+        const optimized = await optimizeImageDataUrl(raw, file);
+        setUrl(optimized);
+        setPreviewSrc(optimized);
+      } catch {
+        // Keep the raw data URL preview when compression is unavailable.
+      }
     } catch (error) {
       clearPreviewObjectUrl();
-      setPreviewSrc(url);
+      setPreviewSrc(value);
       setUploadError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
       setIsUploading(false);
@@ -171,6 +188,7 @@ export default function ImageUrlPopover({
           <div className="popover-image-preview popover-image-preview--xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
+              key={previewSrc.slice(0, 64)}
               src={previewSrc}
               alt=""
               className="popover-image-preview__img"

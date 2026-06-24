@@ -9,7 +9,7 @@ function isImageFile(file: File): boolean {
   return IMAGE_EXTENSIONS.test(file.name);
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
+export function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -68,9 +68,6 @@ function compressRasterImage(img: HTMLImageElement, usePng: boolean): string {
 }
 
 export function formatCssBackgroundUrl(url: string): string {
-  if (url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("http")) {
-    return `url("${url.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
-  }
   return `url("${url.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
 }
 
@@ -81,6 +78,19 @@ export function isHeicFile(file: File): boolean {
     /\.heic$/i.test(file.name) ||
     /\.heif$/i.test(file.name)
   );
+}
+
+export async function optimizeImageDataUrl(
+  rawDataUrl: string,
+  file: File,
+): Promise<string> {
+  if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) {
+    return rawDataUrl;
+  }
+
+  const img = await loadImage(rawDataUrl);
+  const usePng = file.type === "image/png" || rawDataUrl.startsWith("data:image/png");
+  return compressRasterImage(img, usePng);
 }
 
 export async function readImageFileAsDataUrl(file: File): Promise<string> {
@@ -100,14 +110,8 @@ export async function readImageFileAsDataUrl(file: File): Promise<string> {
 
   const raw = await readFileAsDataUrl(file);
 
-  if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) {
-    return raw;
-  }
-
   try {
-    const img = await loadImage(raw);
-    const usePng = file.type === "image/png" || raw.startsWith("data:image/png");
-    return compressRasterImage(img, usePng);
+    return await optimizeImageDataUrl(raw, file);
   } catch {
     return raw;
   }

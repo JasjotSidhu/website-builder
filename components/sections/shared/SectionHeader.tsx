@@ -1,10 +1,11 @@
 "use client";
 
 import EditableText from "@/lib/editor/EditableText";
+import { SectionEyebrow } from "./SectionEyebrow";
 
 interface SectionHeaderProps {
   align?: "center" | "left";
-  eyebrow?: string;
+  eyebrowFallback?: string;
   headingKey?: string;
   subheadingKey?: string;
   headingMaxLength?: number;
@@ -13,7 +14,7 @@ interface SectionHeaderProps {
 
 export function SectionHeader({
   align = "center",
-  eyebrow,
+  eyebrowFallback,
   headingKey = "heading",
   subheadingKey = "subheading",
   headingMaxLength = 80,
@@ -24,9 +25,7 @@ export function SectionHeader({
 
   return (
     <div className={`flex max-w-2xl flex-col gap-4 ${alignClass}`}>
-      {eyebrow ? (
-        <span className="section-eyebrow">{eyebrow}</span>
-      ) : null}
+      {eyebrowFallback ? <SectionEyebrow fallback={eyebrowFallback} /> : null}
       <EditableText
         as="h2"
         dataKey={headingKey}

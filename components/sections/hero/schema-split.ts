@@ -2,6 +2,7 @@ import { z } from "zod";
 import { heroButtonSchema } from "./schema-centered";
 
 export const heroSplitSchema = z.object({
+  eyebrow: z.string().optional(),
   heading: z.string().min(1),
   subheading: z.string().min(1),
   image: z.string().min(1),

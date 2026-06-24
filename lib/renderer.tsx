@@ -9,7 +9,7 @@ import type {
   WebsiteData,
 } from "./types";
 import { findSectionVariant } from "./registry";
-import { getHeaderProps, getHeaderVariantId } from "./header-utils";
+import { getHeaderProps } from "./header-utils";
 import { buildThemeCssVariables } from "./theme-utils";
 import HeaderSimple from "@/components/sections/header/HeaderSimple";
 import { headerSimpleSchema } from "@/components/sections/header/schema";
@@ -85,7 +85,7 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
 
   return (
     <SectionSettingsProvider settings={settings}>
-      <SectionDataProvider data={props} updateField={() => {}}>
+      <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
         <Component {...props} />
       </SectionDataProvider>
     </SectionSettingsProvider>
@@ -93,7 +93,6 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
 }
 
 function renderNavigation(navigation: NavigationConfig, strict: boolean) {
-  const variantId = getHeaderVariantId(navigation);
   const navProps = getHeaderProps(navigation);
   const result = strict
     ? headerSimpleSchema.safeParse(navProps)
@@ -107,20 +106,7 @@ function renderNavigation(navigation: NavigationConfig, strict: boolean) {
     throw new Error(`Navigation failed validation: ${issues}`);
   }
 
-  const headerVariant = findSectionVariant("header", variantId);
-  const settings = headerVariant
-    ? resolveFixedSlotSettings(
-        navigation.settings,
-        headerVariant.traits,
-        headerVariant.settingsDefaults,
-      )
-    : {};
-
-  return (
-    <SectionSettingsProvider settings={settings}>
-      <HeaderSimple {...result.data} />
-    </SectionSettingsProvider>
-  );
+  return <HeaderSimple {...result.data} />;
 }
 
 export function PageRenderer({
@@ -157,7 +143,7 @@ export function PageRenderer({
         return (
           <div key={section.id}>
             <SectionSettingsProvider settings={settings}>
-              <SectionDataProvider data={props} updateField={() => {}}>
+              <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
                 <Component {...props} />
               </SectionDataProvider>
             </SectionSettingsProvider>
