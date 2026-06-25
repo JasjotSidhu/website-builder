@@ -37,7 +37,9 @@ The builder lives at `/builder`. The public homepage at `/` renders the site fro
 - **Props** hold content (text, images, buttons).
 - **Settings** hold layout/visual traits (background, spacing, grid).
 - **Inline editing** — click text, images, buttons, and links directly on the canvas.
-- **Zustand store** holds the full site JSON in memory during editing.
+- **Zustand store** holds the full site JSON during editing; draft is persisted to SQLite via the API.
+
+**Draft vs published:** The builder edits a **draft** copy. Visitors see the **published** copy at `/` until you click **Publish** in the top bar.
 
 ---
 
@@ -49,6 +51,7 @@ The builder lives at `/builder`. The public homepage at `/` renders the site fro
 | Language | TypeScript |
 | Styling | Tailwind CSS v3 + custom CSS (`app/globals.css`) |
 | State | Zustand (`store/builderStore.ts`) |
+| Database | SQLite + Prisma 5 (`prisma/schema.prisma`) |
 | Validation | Zod (section props schemas, site schema) |
 | Icons | Lucide React |
 
@@ -58,6 +61,7 @@ The builder lives at `/builder`. The public homepage at `/` renders the site fro
 
 ```bash
 npm install
+npx prisma migrate deploy
 npm run dev
 ```
 
@@ -70,8 +74,9 @@ npm run dev
 
 **Key URLs:**
 
-- `/` — Published site preview (read-only render)
-- `/builder` — Visual page builder
+- `/` — Published site (read-only render from **published** data)
+- `/about`, etc. — Additional published pages by slug
+- `/builder` — Visual page builder (edits **draft** data)
 
 ---
 
@@ -79,8 +84,11 @@ npm run dev
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/` | `app/page.tsx` | Renders homepage from site data |
-| `/builder` | `app/builder/page.tsx` | Full builder UI |
+| `/`, `/about`, … | `app/[[...slug]]/page.tsx` | Renders **published** pages; `generateMetadata` for SEO |
+| `/builder` | `app/builder/page.tsx` | Full builder UI (draft editing) |
+| `GET/PUT /api/site` | `app/api/site/route.ts` | Load/save **draft** site JSON |
+| `POST /api/site/publish` | `app/api/site/publish/route.ts` | Copy draft → published |
+| `POST /api/upload` | `app/api/upload/route.ts` | Image upload to `public/uploads/` |
 
 Rendering logic is centralized in `lib/renderer.tsx`, which validates section props against Zod schemas and wraps sections in `SectionDataProvider` for consistent data access.
 
@@ -92,15 +100,20 @@ Rendering logic is centralized in `lib/renderer.tsx`, which validates section pr
 
 ```
 ┌──────────────┬────────────────────────────┬──────────────┐
-│ Section      │                            │ Theme        │
-│ Outline      │         Canvas             │ Panel        │
-│ (240px)      │         (fluid)            │ (300px)      │
+│ Pages +      │                            │ Theme /      │
+│ Section      │         Canvas             │ Settings     │
+│ Outline      │         (fluid)            │ (300px)      │
+│ (240px)      │                            │              │
 └──────────────┴────────────────────────────┴──────────────┘
 ```
 
-### Left sidebar — Section outline
+Top bar: **Save** (draft), **Publish** (draft → live), status text, **View live site**.
 
-`SectionOutline.tsx` lists all page sections. Supports:
+### Left sidebar — Pages & section outline
+
+`PagesList.tsx` — add, rename, delete, and switch between pages.
+
+`SectionOutline.tsx` lists sections on the **active page**. Supports:
 
 - Reordering awareness (sections managed on canvas)
 - Replace header / footer via section library modal
@@ -109,9 +122,12 @@ Rendering logic is centralized in `lib/renderer.tsx`, which validates section pr
 
 `Canvas.tsx` renders the live page with edit mode enabled. Each section is wrapped in `SectionWrapper` (or `FixedSlotWrapper` for header/footer).
 
-### Right sidebar — Theme panel
+### Right sidebar — Theme & settings
 
-`ThemePanel.tsx` edits global theme tokens (colors, fonts).
+`RightSidebar.tsx` tabs between:
+
+- **Theme** — `ThemePanel.tsx` edits global theme tokens (colors, fonts, spacing)
+- **Settings** — `SiteSettingsPanel.tsx` edits site name, global SEO, favicon, and per-page title/slug/SEO
 
 ### Section library modal
 
@@ -358,9 +374,23 @@ SectionInstance {
 | `resetSectionToDefault` | Reset props + settings |
 | `updateTheme` | Global theme tokens |
 | `updateNavigation` / `updateFooter` | Header/footer content |
-| `replaceHeaderVariant` / `replaceFooterVariant` | Swap header/footer variant |
+| `updateSiteMeta` | Site name, SEO, favicon |
+| `loadSite` / `saveSite` / `publishSite` | Draft load, save, publish workflow |
+| `activePageId`, `addPage`, `removePage`, `updatePageMeta` | Multi-page management |
 
-Initial data loads from `data/sample-site.json`.
+### Persistence & draft/publish
+
+| Field / API | Purpose |
+|-------------|---------|
+| `draftData` (Prisma) | Builder reads/writes this |
+| `publishedData` (Prisma) | Public routes render this |
+| `GET /api/site` | Returns draft + publish status |
+| `PUT /api/site` | Saves draft (Zod-validated) |
+| `POST /api/site/publish` | Copies draft → published |
+
+**Autosave:** Draft saves automatically ~2s after the last edit. Manual **Save** forces an immediate write. Failed saves show an error and keep `isDirty` true. The browser warns before closing a tab with unsaved local changes.
+
+Initial data lazy-seeds from `data/sample-site.json` when the database is empty (both draft and published).
 
 ### Context providers
 
@@ -403,7 +433,7 @@ Traits are defined in `lib/traits/registry.ts` and assigned per variant in the r
 
 ## Image upload
 
-Implementation: `lib/image-upload.ts` + `lib/editor/ImageUrlPopover.tsx`
+Implementation: `lib/image-upload.ts` + `lib/editor/ImageUrlPopover.tsx` + `POST /api/upload`
 
 ### Flow
 
@@ -411,7 +441,9 @@ Implementation: `lib/image-upload.ts` + `lib/editor/ImageUrlPopover.tsx`
 2. User drops file or clicks browse
 3. **Instant preview** via `URL.createObjectURL(file)` (blob URL)
 4. File is read, optionally compressed via canvas
-5. Final data URL stored in section props on Save
+5. Uploaded to `/api/upload` → stored under `public/uploads/`; URL saved in section props (or favicon in site meta)
+
+Legacy base64 data URLs in existing JSON still render.
 
 ### Processing rules
 
@@ -607,13 +639,12 @@ Everything implemented across the builder editing sessions:
 
 | Area | Limitation |
 |------|------------|
-| Image upload | No server storage — images stored as base64 data URLs in JSON |
 | HEIC | Not supported in most browsers; user must convert to JPEG/PNG |
-| Persistence | In-memory only (Zustand); no save-to-database or export yet |
-| Pages | Single homepage editing; multi-page builder UI not implemented |
 | Rich text | Only `<span>` highlights; no lists, links inside text, etc. |
 | Header/footer | Single variant each in registry (extensible) |
 | Image size | Large uploads increase JSON size; 8 MB upload cap, 1920px max dimension |
+| Accounts | Single site, no authentication or multi-tenancy |
+| Version history | No rollback beyond re-publishing draft |
 
 ---
 
@@ -636,4 +667,4 @@ Everything implemented across the builder editing sessions:
 
 ---
 
-*Last updated: June 2026 — reflects commit `6953f21` on `main`.*
+*Last updated: June 2026 — reflects Phase 4 (draft/publish, autosave, site settings) on `main`.*

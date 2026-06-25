@@ -1,0 +1,234 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { uploadImageFile } from "@/lib/image-upload";
+import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
+import { useBuilderStore } from "@/store/builderStore";
+
+type SettingsTab = "site" | "page";
+
+export default function SiteSettingsPanel() {
+  const siteMeta = useBuilderStore((state) => state.site.meta);
+  const activePageId = useBuilderStore((state) => state.activePageId);
+  const pages = useBuilderStore((state) => state.site.pages);
+  const updateSiteMeta = useBuilderStore((state) => state.updateSiteMeta);
+  const updatePageMeta = useBuilderStore((state) => state.updatePageMeta);
+
+  const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
+
+  const [tab, setTab] = useState<SettingsTab>("site");
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [faviconUploading, setFaviconUploading] = useState(false);
+  const [faviconError, setFaviconError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSlugError(null);
+  }, [activePageId]);
+
+  const handleSlugChange = (value: string) => {
+    if (!activePage) {
+      return;
+    }
+
+    const normalizedSlug = normalizePageSlug(value);
+    const validationError = validatePageSlug(
+      normalizedSlug,
+      pages.map((page) => page.slug),
+      activePage.slug,
+    );
+
+    if (validationError) {
+      setSlugError(validationError);
+      return;
+    }
+
+    setSlugError(null);
+    const submitError = updatePageMeta(activePage.id, { slug: normalizedSlug });
+    if (submitError) {
+      setSlugError(submitError);
+    }
+  };
+
+  const handleFaviconUpload = async (file: File | undefined) => {
+    if (!file) {
+      return;
+    }
+
+    setFaviconUploading(true);
+    setFaviconError(null);
+    try {
+      const url = await uploadImageFile(file);
+      updateSiteMeta({ favicon: url });
+    } catch (error) {
+      setFaviconError(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setFaviconUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-gray-200 px-4 py-3">
+        <h2 className="text-sm font-semibold text-gray-900">Settings</h2>
+        <p className="text-xs text-gray-500">Site and page metadata</p>
+        <div className="mt-3 flex gap-1 rounded-lg bg-gray-100 p-1">
+          <button
+            type="button"
+            className={`settings-tab ${tab === "site" ? "settings-tab--active" : ""}`}
+            onClick={() => setTab("site")}
+          >
+            Site
+          </button>
+          <button
+            type="button"
+            className={`settings-tab ${tab === "page" ? "settings-tab--active" : ""}`}
+            onClick={() => setTab("page")}
+          >
+            Page
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        {tab === "site" ? (
+          <>
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Site name
+              </span>
+              <input
+                type="text"
+                className="settings-field"
+                value={siteMeta.name}
+                onChange={(event) => updateSiteMeta({ name: event.target.value })}
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                SEO title
+              </span>
+              <input
+                type="text"
+                className="settings-field"
+                value={siteMeta.seo.title}
+                onChange={(event) =>
+                  updateSiteMeta({ seo: { ...siteMeta.seo, title: event.target.value } })
+                }
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                SEO description
+              </span>
+              <textarea
+                className="settings-field min-h-[5rem] resize-y"
+                value={siteMeta.seo.description}
+                onChange={(event) =>
+                  updateSiteMeta({ seo: { ...siteMeta.seo, description: event.target.value } })
+                }
+              />
+            </label>
+
+            <div className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Favicon
+              </span>
+              {siteMeta.favicon ? (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={siteMeta.favicon}
+                    alt=""
+                    className="h-8 w-8 rounded border border-gray-200 object-contain"
+                  />
+                  <button
+                    type="button"
+                    className="text-xs text-gray-600 underline-offset-2 hover:underline"
+                    onClick={() => updateSiteMeta({ favicon: undefined })}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : null}
+              <input
+                type="file"
+                accept="image/*"
+                className="block w-full text-xs text-gray-600"
+                disabled={faviconUploading}
+                onChange={(event) => void handleFaviconUpload(event.target.files?.[0])}
+              />
+              {faviconUploading ? (
+                <p className="text-xs text-gray-500">Uploading…</p>
+              ) : null}
+              {faviconError ? <p className="text-xs text-red-600">{faviconError}</p> : null}
+            </div>
+          </>
+        ) : activePage ? (
+          <>
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Page title
+              </span>
+              <input
+                type="text"
+                className="settings-field"
+                value={activePage.title}
+                onChange={(event) =>
+                  updatePageMeta(activePage.id, { title: event.target.value })
+                }
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Slug
+              </span>
+              <input
+                type="text"
+                className="settings-field"
+                value={activePage.slug}
+                onChange={(event) => handleSlugChange(event.target.value)}
+              />
+              {slugError ? <p className="text-xs text-red-600">{slugError}</p> : null}
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                SEO title
+              </span>
+              <input
+                type="text"
+                className="settings-field"
+                value={activePage.seo?.title ?? ""}
+                onChange={(event) =>
+                  updatePageMeta(activePage.id, {
+                    seo: { ...activePage.seo, title: event.target.value },
+                  })
+                }
+              />
+            </label>
+
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                SEO description
+              </span>
+              <textarea
+                className="settings-field min-h-[5rem] resize-y"
+                value={activePage.seo?.description ?? ""}
+                onChange={(event) =>
+                  updatePageMeta(activePage.id, {
+                    seo: { ...activePage.seo, description: event.target.value },
+                  })
+                }
+              />
+            </label>
+          </>
+        ) : (
+          <p className="text-sm text-gray-500">No page selected.</p>
+        )}
+      </div>
+    </div>
+  );
+}

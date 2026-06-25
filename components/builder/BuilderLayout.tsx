@@ -6,20 +6,51 @@ import { useBuilderStore } from "@/store/builderStore";
 import BuilderTopBar from "./BuilderTopBar";
 import Canvas from "./Canvas";
 import PagesList from "./PagesList";
+import RightSidebar from "./RightSidebar";
 import SectionLibraryModal, { type SectionLibraryMode } from "./SectionLibraryModal";
 import SectionOutline from "./SectionOutline";
-import ThemePanel from "./ThemePanel";
 
 export default function BuilderLayout() {
   const site = useBuilderStore((state) => state.site);
   const isLoading = useBuilderStore((state) => state.isLoading);
+  const isDirty = useBuilderStore((state) => state.isDirty);
+  const autosaveEnabled = useBuilderStore((state) => state.autosaveEnabled);
+  const isSaving = useBuilderStore((state) => state.isSaving);
+  const isPublishing = useBuilderStore((state) => state.isPublishing);
   const loadSite = useBuilderStore((state) => state.loadSite);
+  const saveSite = useBuilderStore((state) => state.saveSite);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
   useEffect(() => {
     void loadSite();
   }, [loadSite]);
+
+  useEffect(() => {
+    if (!isDirty || !autosaveEnabled || isSaving || isPublishing) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void saveSite();
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, [site, isDirty, autosaveEnabled, isSaving, isPublishing, saveSite]);
+
+  useEffect(() => {
+    if (!isDirty) {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   const openSectionLibrary = (config: SectionLibraryMode) => {
     setModalConfig(config);
@@ -68,8 +99,8 @@ export default function BuilderLayout() {
           <Canvas onOpenSectionLibrary={openSectionLibrary} />
         </section>
 
-        <aside className="border-l border-gray-200 bg-white">
-          <ThemePanel />
+        <aside className="min-h-0 border-l border-gray-200 bg-white">
+          <RightSidebar />
         </aside>
       </div>
 

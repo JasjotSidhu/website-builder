@@ -12,6 +12,7 @@ import type {
   NavigationConfig,
   PageData,
   SectionInstance,
+  SiteMeta,
   ThemeConfig,
   WebsiteData,
 } from "@/lib/types";
@@ -22,11 +23,18 @@ interface BuilderState {
   activePageId: string;
   isLoading: boolean;
   isSaving: boolean;
+  isPublishing: boolean;
   isDirty: boolean;
+  hasUnpublishedChanges: boolean;
+  publishedAt: Date | null;
   lastSavedAt: Date | null;
+  saveError: string | null;
+  autosaveEnabled: boolean;
 
   loadSite: () => Promise<void>;
   saveSite: () => Promise<void>;
+  publishSite: () => Promise<void>;
+  updateSiteMeta: (meta: Partial<SiteMeta>) => void;
   addPage: (title: string, slug: string) => string | null;
   removePage: (id: string) => void;
   setActivePage: (id: string) => void;
@@ -85,13 +93,33 @@ function updateActivePageSections(
 
 const fallbackSite = normalizeSiteSections(websiteSchema.parse(sampleSite) as WebsiteData);
 
+interface SiteLoadResponse {
+  site: WebsiteData;
+  publishedAt: string | null;
+  hasUnpublishedChanges: boolean;
+}
+
+async function readSaveError(res: Response): Promise<string> {
+  try {
+    const payload = (await res.json()) as { error?: string };
+    return payload.error ?? "Failed to save site";
+  } catch {
+    return "Failed to save site";
+  }
+}
+
 export const useBuilderStore = create<BuilderState>((set, get) => ({
   site: fallbackSite,
   activePageId: fallbackSite.pages[0]?.id ?? "",
   isLoading: true,
   isSaving: false,
+  isPublishing: false,
   isDirty: false,
+  hasUnpublishedChanges: false,
+  publishedAt: null,
   lastSavedAt: null,
+  saveError: null,
+  autosaveEnabled: true,
 
   loadSite: async () => {
     set({ isLoading: true });
@@ -100,12 +128,16 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       if (!res.ok) {
         throw new Error("Failed to load site");
       }
-      const site = normalizeSiteSections((await res.json()) as WebsiteData);
+      const payload = (await res.json()) as SiteLoadResponse;
+      const site = normalizeSiteSections(payload.site);
       set({
         site,
         activePageId: site.pages[0]?.id ?? "",
         isLoading: false,
         isDirty: false,
+        hasUnpublishedChanges: payload.hasUnpublishedChanges,
+        publishedAt: payload.publishedAt ? new Date(payload.publishedAt) : null,
+        saveError: null,
       });
     } catch {
       set({ isLoading: false });
@@ -113,7 +145,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   },
 
   saveSite: async () => {
-    set({ isSaving: true });
+    set({ isSaving: true, saveError: null });
     try {
       const { site } = get();
       const res = await fetch("/api/site", {
@@ -122,12 +154,71 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         body: JSON.stringify(site),
       });
       if (!res.ok) {
-        throw new Error("Failed to save site");
+        throw new Error(await readSaveError(res));
       }
-      set({ isSaving: false, isDirty: false, lastSavedAt: new Date() });
-    } catch {
-      set({ isSaving: false });
+      const payload = (await res.json()) as { hasUnpublishedChanges?: boolean };
+      set({
+        isSaving: false,
+        isDirty: false,
+        lastSavedAt: new Date(),
+        saveError: null,
+        hasUnpublishedChanges: payload.hasUnpublishedChanges ?? get().hasUnpublishedChanges,
+      });
+    } catch (error) {
+      set({
+        isSaving: false,
+        saveError: error instanceof Error ? error.message : "Failed to save site",
+      });
     }
+  },
+
+  publishSite: async () => {
+    const { isDirty, saveSite } = get();
+    if (isDirty) {
+      await saveSite();
+      if (get().saveError) {
+        return;
+      }
+    }
+
+    set({ isPublishing: true, saveError: null });
+    try {
+      const res = await fetch("/api/site/publish", { method: "POST" });
+      if (!res.ok) {
+        throw new Error("Failed to publish site");
+      }
+      const payload = (await res.json()) as {
+        publishedAt?: string;
+        hasUnpublishedChanges?: boolean;
+      };
+      set({
+        isPublishing: false,
+        hasUnpublishedChanges: payload.hasUnpublishedChanges ?? false,
+        publishedAt: payload.publishedAt ? new Date(payload.publishedAt) : new Date(),
+        saveError: null,
+      });
+    } catch (error) {
+      set({
+        isPublishing: false,
+        saveError: error instanceof Error ? error.message : "Failed to publish site",
+      });
+    }
+  },
+
+  updateSiteMeta: (metaInput) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        meta: {
+          ...state.site.meta,
+          ...metaInput,
+          seo: metaInput.seo
+            ? { ...state.site.meta.seo, ...metaInput.seo }
+            : state.site.meta.seo,
+        },
+      },
+      isDirty: true,
+    }));
   },
 
   addPage: (title, slug) => {

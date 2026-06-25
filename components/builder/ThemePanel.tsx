@@ -12,7 +12,7 @@ const FONT_OPTIONS = [
   { label: "DM Serif / DM Sans", heading: "'DM Serif Display', Georgia, serif", body: "'DM Sans', Arial, sans-serif" },
 ];
 
-export default function ThemePanel() {
+export default function ThemePanel({ embedded = false }: { embedded?: boolean }) {
   const theme = useBuilderStore((state) => state.site.theme);
   const updateTheme = useBuilderStore((state) => state.updateTheme);
 
@@ -23,10 +23,12 @@ export default function ThemePanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-gray-200 px-4 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">Theme</h2>
-        <p className="text-xs text-gray-500">Global colors and typography</p>
-      </div>
+      {!embedded ? (
+        <div className="border-b border-gray-200 px-4 py-3">
+          <h2 className="text-sm font-semibold text-gray-900">Theme</h2>
+          <p className="text-xs text-gray-500">Global colors and typography</p>
+        </div>
+      ) : null}
       <div className="flex-1 space-y-5 overflow-y-auto p-4">
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">

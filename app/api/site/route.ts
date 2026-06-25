@@ -1,26 +1,39 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { getOrCreateSiteRow, getSiteData } from "@/lib/site-store";
-import { websiteSchema } from "@/lib/schemas";
-import { normalizeSiteSections } from "@/lib/traits/normalize";
-import type { WebsiteData } from "@/lib/types";
+import { ZodError } from "zod";
+import {
+  getDraftSiteData,
+  getSitePublishStatus,
+  parseAndValidateSiteBody,
+  saveDraftSiteData,
+} from "@/lib/site-store";
 
 export async function GET() {
-  return NextResponse.json(await getSiteData());
+  const [draft, status] = await Promise.all([getDraftSiteData(), getSitePublishStatus()]);
+  return NextResponse.json({
+    site: draft,
+    publishedAt: status.publishedAt?.toISOString() ?? null,
+    hasUnpublishedChanges: status.hasUnpublishedChanges,
+  });
 }
 
 export async function PUT(req: Request) {
-  const body = await req.json();
-  const site = normalizeSiteSections(websiteSchema.parse(body) as WebsiteData);
-  const row = await getOrCreateSiteRow();
-
-  await prisma.site.update({
-    where: { id: row.id },
-    data: {
-      data: JSON.stringify(site),
-      name: site.meta?.name ?? row.name,
-    },
-  });
-
-  return NextResponse.json({ ok: true });
+  try {
+    const body = await req.json();
+    const site = parseAndValidateSiteBody(body);
+    await saveDraftSiteData(site);
+    const status = await getSitePublishStatus();
+    return NextResponse.json({
+      ok: true,
+      hasUnpublishedChanges: status.hasUnpublishedChanges,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const message = error.issues.map((issue) => issue.message).join("; ");
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    }
+    throw error;
+  }
 }
