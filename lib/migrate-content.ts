@@ -7,6 +7,7 @@ import type {
   NavigationConfig,
 } from "@/lib/types";
 import { normalizeButtonVariant } from "@/lib/button-styles";
+import { isFeatureIconId } from "@/lib/feature-icons";
 
 export function hrefToLink(href: string): LinkValue {
   return { type: "url", href };
@@ -245,7 +246,6 @@ export function migrateSectionProps(
   let migrated = props;
 
   if (type === "features" && variant === "features-grid-3" && Array.isArray(migrated.items)) {
-    const safeIcons = new Set(["layers", "palette", "sparkle", "target", "compass", "grid"]);
     migrated = {
       ...migrated,
       items: migrated.items.map((item, index) => {
@@ -259,7 +259,7 @@ export function migrateSectionProps(
         const entry = item as { icon?: unknown; title?: unknown; description?: unknown };
         return {
           icon:
-            typeof entry.icon === "string" && safeIcons.has(entry.icon)
+            typeof entry.icon === "string" && isFeatureIconId(entry.icon)
               ? entry.icon
               : "grid",
           title:

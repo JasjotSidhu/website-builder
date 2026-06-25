@@ -124,11 +124,15 @@ Top bar: **Save** (draft), **Publish** (draft → live), **Undo/Redo**, status t
 
 Header and footer support **add/remove** nav links, footer columns, and links; logo can switch between text and image.
 
-### Right sidebar — Theme & settings
+### Right sidebar — Style & settings
 
 `RightSidebar.tsx` tabs between:
 
-- **Theme** — `ThemePanel.tsx` edits global theme tokens (colors, fonts, spacing)
+- **Style** — `StylePanel.tsx` with sub-tabs:
+  - **Themes** — brand colors, layout, custom theme presets
+  - **Fonts** — Google font pairings and per-role font pickers
+  - **Buttons** — global button size, weight, padding, radius, hover, shadow, default variant
+  - **Cards** — card colors, border radius, reset-to-theme
 - **Settings** — `SiteSettingsPanel.tsx` edits site name, global SEO, favicon, per-page title/slug/SEO, and **draft export/import**
 
 ### Section library modal
@@ -139,8 +143,17 @@ Header and footer support **add/remove** nav links, footer columns, and links; l
 - Replace existing section
 - Replace header variant
 - Replace footer variant
+- Browse **Saved** sections (add mode only)
 
-Includes `SectionVariantPreview.tsx` for variant thumbnails.
+**Live previews** use `SectionVariantPreview.tsx` and `SavedSectionPreview.tsx`, wrapped in `SectionLibraryPreviewFrame.tsx`:
+
+- Renders at 1200px width, scaled to fit each card
+- Dynamic viewport height shows the **full section** (no cropping)
+- Injects active theme CSS variables, Google Fonts, `site-theme-root`, `section-typography`, and `@container`
+- Preview settings run through `migrateThemeBoundSectionSettings` so backgrounds match the user theme
+- Dummy content from `lib/preview-props.ts`
+
+Category sidebar with layout counts; saved sections show name, type badge, and variant label above the preview.
 
 ---
 
@@ -185,6 +198,8 @@ Each variant defines:
 | `SectionShell.tsx` | Applies background, spacing, text color from traits |
 | `SectionHeader.tsx` | Shared heading/subheading block |
 | `SectionContent.tsx` | `SectionHeading`, `SectionButtons`, button list editing |
+| `FeatureIcon.tsx` | Lucide-based icons for feature cards |
+| `EditableIconPicker.tsx` | Click-to-pick icon editor for feature grid items |
 
 ---
 
@@ -254,18 +269,36 @@ Edit mode is controlled by `EditModeContext` (`lib/editor/EditModeContext.tsx`).
 
 **Controls:**
 
-- Variant: Primary / Secondary
+- Style: Primary / Secondary / Outline / Light (stacked 2×2 grid in popover)
 - Link type: Page / URL
 - Page picker or URL input
 
-**Styling** (`app/globals.css`):
+**Styling** (`lib/button-styles.ts`, `app/globals.css`):
 
-- `.hero-button` base styles
-- `.hero-button--primary` — filled primary
-- `.hero-button--secondary` — bordered secondary (fixed missing border)
-- Section default text color does not cascade into button text
+- Global `.site-button` variants driven by theme button settings
+- Section and CTA overrides for contrast on colored backgrounds
+- Button labels use `inheritSectionColor={false}` so section text color does not override button styles
 
-`SectionContent.tsx` manages button arrays (add, remove, reorder) for hero sections.
+`SectionContent.tsx` manages button arrays (add, remove, reorder) for hero, CTA, and header sections.
+
+### Feature icon picker
+
+`EditableIconPicker.tsx` — click the icon on a feature grid card in edit mode.
+
+**Flow:**
+
+1. Click icon badge → `IconPickerPopover.tsx` opens (floating, anchored below)
+2. Grid of 19 Lucide icons from `lib/feature-icons.ts`
+3. Select icon → updates `icon` field on the feature item via `SectionDataContext`
+4. Popover injects theme CSS variables so icons use `--color-card-icon`
+
+**Icon catalog** (`lib/feature-icons.ts`):
+
+`layers`, `palette`, `sparkle`, `target`, `compass`, `grid`, `zap`, `shield`, `rocket`, `heart`, `star`, `globe`, `chart`, `users`, `clock`, `check`, `lightbulb`, `wrench`, `smartphone`
+
+Rendered by `FeatureIcon.tsx` (Lucide React). Validated in `schema-grid.ts` via `z.enum(FEATURE_ICON_IDS)`.
+
+**Note:** Icon picker uses `PopoverShell` with `variant="editor"` (not `toolbar`) because `.popover--toolbar .popover__body { display: none }` would hide the grid.
 
 ### Image editing
 
@@ -324,9 +357,11 @@ PopoverShell (lib/editor/PopoverShell.tsx)
 |-----------|---------|
 | `Tooltip.tsx` | CSS hover tooltips (top/bottom/left/right) |
 | `ColorSwatchInput.tsx` | Color picker swatch + hex input |
-| `PopoverSegmented.tsx` | Segmented control for select fields |
+| `PopoverSegmented.tsx` | Segmented control for select fields (`inline` or `stacked` layout) |
 | `PopoverSwitch.tsx` | Toggle switch for boolean traits |
 | `SettingField.tsx` | Renders trait field by type (number, select, color, toggle, image) |
+| `IconPickerPopover.tsx` | Feature card icon grid picker |
+| `GoogleFontSelect.tsx` | Searchable Google Fonts dropdown for style panel |
 
 ### Click-outside behavior
 
@@ -516,8 +551,20 @@ Primary styles in `app/globals.css`.
 
 ### Buttons on canvas
 
-- `.hero-button`, `.hero-button--primary`, `.hero-button--secondary`
+- `.site-button`, `.site-button--primary`, `.site-button--secondary`, `.site-button--outline`, `.site-button--light`
 - `.button-item-trigger`, `.button-item-add` — button list UI
+
+### Feature icons & icon picker
+
+- `.feature-icon-wrap`, `.feature-icon-wrap--editable` — icon badge on feature cards
+- `.feature-icon` — Lucide icon wrapper using `--color-card-icon`
+- `.icon-picker-grid`, `.icon-picker-option` — 4-column picker grid in popover
+
+### Section library previews
+
+- `.section-library-preview`, `.section-library-preview-viewport` — scaled live section thumbnails
+- `.section-library-preview-scale`, `.section-library-preview-content` — 1200px render + transform scale
+- `.section-library-card`, `.section-library-grid` — modal layout cards
 
 ### Images
 
@@ -557,9 +604,14 @@ website-builder-antd/
 ├── lib/
 │   ├── editor/               # Inline editing system
 │   ├── traits/               # Section settings traits
+│   ├── feature-icons.ts      # Feature card icon catalog
+│   ├── button-styles.ts      # Global button class helpers
+│   ├── theme-defaults.ts     # Theme normalization + card derivation
+│   ├── theme-utils.ts        # CSS variable builder
 │   ├── registry.ts           # Section catalog
 │   ├── renderer.tsx          # Site renderer
 │   ├── schemas.ts            # Zod site schema
+│   ├── preview-props.ts      # Section library preview content
 │   ├── image-upload.ts       # Client-side image processing
 │   └── types.ts
 └── store/
@@ -634,6 +686,28 @@ Everything implemented across the builder editing sessions:
 - [x] `lib/section-placement.ts` — fixed slot helpers
 - [x] Lucide React added to dependencies
 
+### Section library & previews
+
+- [x] Section library modal with category sidebar and live previews
+- [x] `SectionLibraryPreviewFrame` — theme-aware, full-height scaled previews
+- [x] Theme-bound preview settings (`migrateThemeBoundSectionSettings`)
+- [x] Saved sections tab in add mode
+- [x] Google Fonts loaded in library previews
+
+### Feature icon picker
+
+- [x] Click-to-pick icon popover on feature grid cards
+- [x] 19 Lucide icons in `lib/feature-icons.ts`
+- [x] Theme-colored icons via `--color-card-icon` with fallback
+- [x] Zod schema + migration use shared icon catalog
+
+### Global style system
+
+- [x] Style sidebar: Themes, Fonts, Buttons, Cards panels
+- [x] Card colors sync on theme preset apply + reset-to-theme
+- [x] Uniform site-wide button styles (primary, secondary, outline, light)
+- [x] CTA banner contrast, spacing, and full button style options
+
 ### Git
 
 - [x] Committed and pushed to `main` (`6953f21`)
@@ -670,6 +744,12 @@ Everything implemented across the builder editing sessions:
 3. Implement hook in `lib/traits/hooks.ts` if needed
 4. Apply in `SectionShell.tsx` or section component
 
+## Adding a new feature icon
+
+1. Add id and label to `FEATURE_ICON_IDS` / `FEATURE_ICON_LABELS` in `lib/feature-icons.ts`
+2. Map id → Lucide component in `components/sections/features/FeatureIcon.tsx`
+3. Schema in `schema-grid.ts` picks up new ids automatically via `z.enum(FEATURE_ICON_IDS)`
+
 ---
 
-*Last updated: June 2026 — reflects Phase 5 (editor polish, structure editing, export/import) on `main`.*
+*Last updated: June 2026 — reflects section library previews, icon picker, and global style system on `main`.*

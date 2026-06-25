@@ -1,9 +1,31 @@
 import { findSectionVariant } from "@/lib/registry";
+import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { buildVariantSettings } from "@/lib/traits/registry";
 
 interface VariantPreview {
   props: Record<string, unknown>;
   settings?: Record<string, unknown>;
+}
+
+function normalizePreviewSettings(settings: Record<string, unknown>): Record<string, unknown> {
+  const migrated = { ...settings };
+
+  if (!migrated.type && migrated.backgroundColor) {
+    migrated.type = "solid";
+    migrated.color = migrated.backgroundColor;
+    delete migrated.backgroundColor;
+  }
+
+  if (
+    migrated.overlayColor !== undefined &&
+    migrated.opacity !== undefined &&
+    !migrated.overlayOpacity
+  ) {
+    migrated.overlayOpacity = migrated.opacity;
+    delete migrated.opacity;
+  }
+
+  return migrated;
 }
 
 const PREVIEW_DATA: Record<string, VariantPreview> = {
@@ -208,11 +230,15 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
 export function getVariantPreview(type: string, variantId: string) {
   const variant = findSectionVariant(type, variantId);
   const preview = PREVIEW_DATA[variantId];
+  const rawSettings =
+    preview?.settings ?? buildVariantSettings(variant?.traits ?? [], variant?.settingsDefaults);
 
   return {
     props: preview?.props ?? variant?.defaultProps ?? {},
-    settings:
-      preview?.settings ??
-      buildVariantSettings(variant?.traits ?? [], variant?.settingsDefaults),
+    settings: migrateThemeBoundSectionSettings(
+      normalizePreviewSettings(rawSettings),
+      type,
+      variantId,
+    ),
   };
 }

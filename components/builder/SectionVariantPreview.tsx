@@ -6,9 +6,9 @@ import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import type { SectionVariant } from "@/lib/registry";
 import { getVariantPreview } from "@/lib/preview-props";
-import { buildThemeCssVariables } from "@/lib/theme-utils";
 import type { ThemeConfig } from "@/lib/types";
 import { SectionSettingsProvider } from "@/lib/traits/context";
+import SectionLibraryPreviewFrame from "./SectionLibraryPreviewFrame";
 
 interface SectionVariantPreviewProps {
   type: string;
@@ -23,11 +23,9 @@ export default function SectionVariantPreview({
 }: SectionVariantPreviewProps) {
   const PreviewComponent = variant.component;
   const { props, settings } = getVariantPreview(type, variant.id);
-  const themeStyle = buildThemeCssVariables(theme);
-  const { minHeight: _minHeight, ...previewThemeStyle } = themeStyle;
 
   return (
-    <div className="variant-preview-theme" style={previewThemeStyle}>
+    <SectionLibraryPreviewFrame theme={theme}>
       <EditModeContext.Provider value={{ isEditing: false }}>
         <ThemeProvider theme={theme}>
           <SiteProvider pages={[{ id: "home", title: "Home", slug: "/" }]}>
@@ -39,6 +37,6 @@ export default function SectionVariantPreview({
           </SiteProvider>
         </ThemeProvider>
       </EditModeContext.Provider>
-    </div>
+    </SectionLibraryPreviewFrame>
   );
 }

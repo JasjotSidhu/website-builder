@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { FEATURE_ICON_IDS } from "@/lib/feature-icons";
 
 export const featureItemSchema = z.object({
-  icon: z.enum(["layers", "palette", "sparkle", "target", "compass", "grid"]),
+  icon: z.enum(FEATURE_ICON_IDS),
   title: z.string().min(1),
   description: z.string().min(1),
 });

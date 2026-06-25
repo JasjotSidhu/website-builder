@@ -300,22 +300,20 @@ export default function SectionLibraryModal({
                       }}
                     >
                       <div className="section-library-card-header">
-                        <span className="section-library-card-title">
-                          {saved.name}
-                          <span className="section-library-card-badge">{typeLabel}</span>
-                        </span>
+                        <div className="section-library-card-heading">
+                          <span className="section-library-card-title">
+                            {saved.name}
+                            <span className="section-library-card-badge">{typeLabel}</span>
+                          </span>
+                          <p className="section-library-card-meta">{variantLabel}</p>
+                        </div>
                         {isSelected ? (
                           <span className="section-library-card-check" aria-hidden>
                             ✓
                           </span>
                         ) : null}
                       </div>
-                      <p className="section-library-card-meta">{variantLabel}</p>
-                      <div className="section-library-preview">
-                        <div className="section-library-preview-scale">
-                          <SavedSectionPreview saved={saved} theme={theme} />
-                        </div>
-                      </div>
+                      <SavedSectionPreview saved={saved} theme={theme} />
                       <button
                         type="button"
                         className="section-library-card-remove"
@@ -373,15 +371,11 @@ export default function SectionLibraryModal({
                         </span>
                       ) : null}
                     </div>
-                    <div className="section-library-preview">
-                      <div className="section-library-preview-scale">
-                        <SectionVariantPreview
-                          type={activeType}
-                          variant={variant}
-                          theme={theme}
-                        />
-                      </div>
-                    </div>
+                    <SectionVariantPreview
+                      type={activeType}
+                      variant={variant}
+                      theme={theme}
+                    />
                   </button>
                 );
               })

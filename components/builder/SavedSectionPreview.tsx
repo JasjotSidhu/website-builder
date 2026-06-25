@@ -6,9 +6,9 @@ import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import type { SavedSection } from "@/lib/types";
 import { findSectionVariant } from "@/lib/registry";
-import { buildThemeCssVariables } from "@/lib/theme-utils";
 import type { ThemeConfig } from "@/lib/types";
 import { SectionSettingsProvider } from "@/lib/traits/context";
+import SectionLibraryPreviewFrame from "./SectionLibraryPreviewFrame";
 
 interface SavedSectionPreviewProps {
   saved: SavedSection;
@@ -26,11 +26,9 @@ export default function SavedSectionPreview({ saved, theme }: SavedSectionPrevie
   }
 
   const PreviewComponent = match.component;
-  const themeStyle = buildThemeCssVariables(theme);
-  const { minHeight: _minHeight, ...previewThemeStyle } = themeStyle;
 
   return (
-    <div className="variant-preview-theme" style={previewThemeStyle}>
+    <SectionLibraryPreviewFrame theme={theme}>
       <EditModeContext.Provider value={{ isEditing: false }}>
         <ThemeProvider theme={theme}>
           <SiteProvider pages={[{ id: "home", title: "Home", slug: "/" }]}>
@@ -46,6 +44,6 @@ export default function SavedSectionPreview({ saved, theme }: SavedSectionPrevie
           </SiteProvider>
         </ThemeProvider>
       </EditModeContext.Provider>
-    </div>
+    </SectionLibraryPreviewFrame>
   );
 }
