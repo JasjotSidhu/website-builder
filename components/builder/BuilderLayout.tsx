@@ -19,6 +19,8 @@ export default function BuilderLayout() {
   const isPublishing = useBuilderStore((state) => state.isPublishing);
   const loadSite = useBuilderStore((state) => state.loadSite);
   const saveSite = useBuilderStore((state) => state.saveSite);
+  const undo = useBuilderStore((state) => state.undo);
+  const redo = useBuilderStore((state) => state.redo);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
@@ -51,6 +53,30 @@ export default function BuilderLayout() {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
+        return;
+      }
+
+      const isMeta = event.metaKey || event.ctrlKey;
+      if (!isMeta || event.key.toLowerCase() !== "z") {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.shiftKey) {
+        redo();
+      } else {
+        undo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [undo, redo]);
 
   const openSectionLibrary = (config: SectionLibraryMode) => {
     setModalConfig(config);

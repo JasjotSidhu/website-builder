@@ -47,6 +47,7 @@ export default function SectionWrapper({
     toggleSectionHidden,
     reorderSections,
   } = useBuilderStore();
+  const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
 
   const definition = sectionRegistry[section.type];
   const variant = definition?.variants.find((entry) => entry.id === section.variant);
@@ -86,7 +87,10 @@ export default function SectionWrapper({
         updateFields={updateFields}
       >
         <div
-          className="section-wrapper"
+          data-section-id={section.id}
+          className={`section-wrapper${
+            highlightedSectionId === section.id ? " section-wrapper--highlighted" : ""
+          }`}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           style={{ opacity: section.hidden ? 0.4 : 1, position: "relative" }}

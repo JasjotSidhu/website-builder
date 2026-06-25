@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { ZodError } from "zod";
 import sampleSite from "@/data/sample-site.json";
 import { findSectionVariant } from "@/lib/registry";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
@@ -18,6 +19,20 @@ import type {
 } from "@/lib/types";
 import { isFixedSlotType } from "@/lib/section-placement";
 
+export type PreviewDevice = "desktop" | "tablet" | "mobile";
+
+const HISTORY_LIMIT = 50;
+let skipHistory = false;
+
+function pauseHistory<T>(fn: () => T): T {
+  skipHistory = true;
+  try {
+    return fn();
+  } finally {
+    skipHistory = false;
+  }
+}
+
 interface BuilderState {
   site: WebsiteData;
   activePageId: string;
@@ -30,11 +45,20 @@ interface BuilderState {
   lastSavedAt: Date | null;
   saveError: string | null;
   autosaveEnabled: boolean;
+  previewDevice: PreviewDevice;
+  historyPast: WebsiteData[];
+  historyFuture: WebsiteData[];
+  highlightedSectionId: string | null;
 
   loadSite: () => Promise<void>;
   saveSite: () => Promise<void>;
   publishSite: () => Promise<void>;
   updateSiteMeta: (meta: Partial<SiteMeta>) => void;
+  importDraft: (raw: unknown) => string | null;
+  undo: () => void;
+  redo: () => void;
+  setPreviewDevice: (device: PreviewDevice) => void;
+  scrollToSection: (sectionId: string) => void;
   addPage: (title: string, slug: string) => string | null;
   removePage: (id: string) => void;
   setActivePage: (id: string) => void;
@@ -120,6 +144,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   lastSavedAt: null,
   saveError: null,
   autosaveEnabled: true,
+  previewDevice: "desktop",
+  historyPast: [],
+  historyFuture: [],
+  highlightedSectionId: null,
 
   loadSite: async () => {
     set({ isLoading: true });
@@ -130,14 +158,18 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       }
       const payload = (await res.json()) as SiteLoadResponse;
       const site = normalizeSiteSections(payload.site);
-      set({
-        site,
-        activePageId: site.pages[0]?.id ?? "",
-        isLoading: false,
-        isDirty: false,
-        hasUnpublishedChanges: payload.hasUnpublishedChanges,
-        publishedAt: payload.publishedAt ? new Date(payload.publishedAt) : null,
-        saveError: null,
+      pauseHistory(() => {
+        set({
+          site,
+          activePageId: site.pages[0]?.id ?? "",
+          isLoading: false,
+          isDirty: false,
+          hasUnpublishedChanges: payload.hasUnpublishedChanges,
+          publishedAt: payload.publishedAt ? new Date(payload.publishedAt) : null,
+          saveError: null,
+          historyPast: [],
+          historyFuture: [],
+        });
       });
     } catch {
       set({ isLoading: false });
@@ -219,6 +251,78 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       },
       isDirty: true,
     }));
+  },
+
+  importDraft: (raw) => {
+    try {
+      const site = normalizeSiteSections(websiteSchema.parse(raw) as WebsiteData);
+      pauseHistory(() => {
+        set({
+          site,
+          activePageId: site.pages[0]?.id ?? "",
+          isDirty: true,
+          historyPast: [],
+          historyFuture: [],
+        });
+      });
+      return null;
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return error.issues.map((issue) => issue.message).join("; ");
+      }
+      return "Invalid site JSON.";
+    }
+  },
+
+  undo: () => {
+    const state = get();
+    if (state.historyPast.length === 0) {
+      return;
+    }
+
+    const previous = state.historyPast[state.historyPast.length - 1];
+    const current = structuredClone(state.site);
+
+    pauseHistory(() => {
+      set({
+        site: structuredClone(previous),
+        historyPast: state.historyPast.slice(0, -1),
+        historyFuture: [current, ...state.historyFuture].slice(0, HISTORY_LIMIT),
+        isDirty: true,
+      });
+    });
+  },
+
+  redo: () => {
+    const state = get();
+    if (state.historyFuture.length === 0) {
+      return;
+    }
+
+    const next = state.historyFuture[0];
+    const current = structuredClone(state.site);
+
+    pauseHistory(() => {
+      set({
+        site: structuredClone(next),
+        historyPast: [...state.historyPast, current].slice(-HISTORY_LIMIT),
+        historyFuture: state.historyFuture.slice(1),
+        isDirty: true,
+      });
+    });
+  },
+
+  setPreviewDevice: (device) => set({ previewDevice: device }),
+
+  scrollToSection: (sectionId) => {
+    const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+    element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    set({ highlightedSectionId: sectionId });
+    window.setTimeout(() => {
+      if (get().highlightedSectionId === sectionId) {
+        set({ highlightedSectionId: null });
+      }
+    }, 1500);
   },
 
   addPage: (title, slug) => {
@@ -651,3 +755,23 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }));
   },
 }));
+
+useBuilderStore.subscribe((state, prevState) => {
+  if (skipHistory) {
+    return;
+  }
+
+  const prevJson = JSON.stringify(prevState.site);
+  const nextJson = JSON.stringify(state.site);
+  if (prevJson === nextJson) {
+    return;
+  }
+
+  useBuilderStore.setState((current) => ({
+    historyPast: [
+      ...current.historyPast.slice(-(HISTORY_LIMIT - 1)),
+      structuredClone(prevState.site),
+    ],
+    historyFuture: [],
+  }));
+});

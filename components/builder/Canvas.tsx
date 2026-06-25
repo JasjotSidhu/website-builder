@@ -7,6 +7,7 @@ import { isFixedSlotType } from "@/lib/section-placement";
 import { buildThemeCssVariables } from "@/lib/theme-utils";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
+import DevicePreviewBar, { getPreviewMaxWidth } from "./DevicePreviewBar";
 import FixedSlotWrapper from "./FixedSlotWrapper";
 import type { SectionLibraryMode } from "./SectionLibraryModal.types";
 import SectionWrapper from "./SectionWrapper";
@@ -18,6 +19,8 @@ interface CanvasProps {
 export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   const site = useBuilderStore((state) => state.site);
   const activePageId = useBuilderStore((state) => state.activePageId);
+  const previewDevice = useBuilderStore((state) => state.previewDevice);
+  const previewMaxWidth = getPreviewMaxWidth(previewDevice);
 
   const page =
     site.pages.find((entry) => entry.id === activePageId) ?? site.pages[0];
@@ -66,40 +69,46 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   return (
     <EditModeProvider>
       <SiteProvider pages={pages}>
-        <div className="h-full overflow-y-auto bg-gray-100 p-6">
-          <div className="mx-auto max-w-5xl rounded-xl bg-white shadow-sm ring-1 ring-black/5">
-            <div style={buildThemeCssVariables(site.theme)}>
-              <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />
+        <div className="flex h-full flex-col bg-gray-100">
+          <DevicePreviewBar />
+          <div className="min-h-0 flex-1 overflow-y-auto p-6">
+            <div
+              className="canvas-preview-frame mx-auto rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
+              style={previewMaxWidth ? { maxWidth: previewMaxWidth } : undefined}
+            >
+              <div style={buildThemeCssVariables(site.theme)}>
+                <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />
 
-              <main>
-                {sections.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <p className="mb-2 text-sm text-gray-500">No sections yet.</p>
-                    <div className="add-section-zone add-section-zone--empty">
-                      <AddSectionButton onClick={() => openAddModal(0)} />
+                <main>
+                  {sections.length === 0 ? (
+                    <div className="py-12 text-center">
+                      <p className="mb-2 text-sm text-gray-500">No sections yet.</p>
+                      <div className="add-section-zone add-section-zone--empty">
+                        <AddSectionButton onClick={() => openAddModal(0)} />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  sections.map((section, index) => (
-                    <div key={section.id}>
-                      <SectionWrapper
-                        section={section}
-                        index={index}
-                        totalSections={sections.length}
-                        onAddSection={openAddModal}
-                        onReplaceSection={openReplaceModal}
-                      />
+                  ) : (
+                    sections.map((section, index) => (
+                      <div key={section.id}>
+                        <SectionWrapper
+                          section={section}
+                          index={index}
+                          totalSections={sections.length}
+                          onAddSection={openAddModal}
+                          onReplaceSection={openReplaceModal}
+                        />
+                      </div>
+                    ))
+                  )}
+                  {sections.length > 0 ? (
+                    <div className="add-section-zone">
+                      <AddSectionButton onClick={() => openAddModal(sections.length)} />
                     </div>
-                  ))
-                )}
-                {sections.length > 0 ? (
-                  <div className="add-section-zone">
-                    <AddSectionButton onClick={() => openAddModal(sections.length)} />
-                  </div>
-                ) : null}
-              </main>
+                  ) : null}
+                </main>
 
-              <FixedSlotWrapper slot="footer" onReplace={openReplaceFooterModal} />
+                <FixedSlotWrapper slot="footer" onReplace={openReplaceFooterModal} />
+              </div>
             </div>
           </div>
         </div>

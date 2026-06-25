@@ -16,6 +16,7 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
   const [hovered, setHovered] = useState(false);
   const navigation = useBuilderStore((state) => state.site.navigation);
   const patchNavigation = useBuilderStore((state) => state.patchNavigation);
+  const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
   const headerProps = getHeaderProps(navigation);
 
   const updateField = useCallback(
@@ -34,7 +35,10 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
 
   return (
     <div
-      className="section-wrapper fixed-slot-wrapper"
+      data-section-id="header"
+      className={`section-wrapper fixed-slot-wrapper${
+        highlightedSectionId === "header" ? " section-wrapper--highlighted" : ""
+      }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -65,6 +69,7 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
   const footer = useBuilderStore((state) => state.site.footer);
   const patchFooterProps = useBuilderStore((state) => state.patchFooterProps);
   const updateFooterSettings = useBuilderStore((state) => state.updateFooterSettings);
+  const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
   const variant = findSectionVariant("footer", footer.variant);
 
   const updateField = useCallback(
@@ -94,7 +99,10 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
   return (
     <SectionSettingsProvider settings={resolvedSettings}>
       <div
-        className="section-wrapper fixed-slot-wrapper"
+        data-section-id="footer"
+        className={`section-wrapper fixed-slot-wrapper${
+          highlightedSectionId === "footer" ? " section-wrapper--highlighted" : ""
+        }`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >

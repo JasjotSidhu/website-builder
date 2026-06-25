@@ -107,27 +107,29 @@ Rendering logic is centralized in `lib/renderer.tsx`, which validates section pr
 └──────────────┴────────────────────────────┴──────────────┘
 ```
 
-Top bar: **Save** (draft), **Publish** (draft → live), status text, **View live site**.
+Top bar: **Save** (draft), **Publish** (draft → live), **Undo/Redo**, status text, **View live site**.
 
 ### Left sidebar — Pages & section outline
 
 `PagesList.tsx` — add, rename, delete, and switch between pages.
 
-`SectionOutline.tsx` lists sections on the **active page**. Supports:
+`SectionOutline.tsx` lists sections on the **active page**. Click a block to scroll the canvas to it. Supports:
 
 - Reordering awareness (sections managed on canvas)
 - Replace header / footer via section library modal
 
 ### Center — Canvas
 
-`Canvas.tsx` renders the live page with edit mode enabled. Each section is wrapped in `SectionWrapper` (or `FixedSlotWrapper` for header/footer).
+`Canvas.tsx` renders the live page with edit mode enabled. Includes a **device preview bar** (mobile 375px / tablet 768px / desktop full width). Each section is wrapped in `SectionWrapper` (or `FixedSlotWrapper` for header/footer).
+
+Header and footer support **add/remove** nav links, footer columns, and links; logo can switch between text and image.
 
 ### Right sidebar — Theme & settings
 
 `RightSidebar.tsx` tabs between:
 
 - **Theme** — `ThemePanel.tsx` edits global theme tokens (colors, fonts, spacing)
-- **Settings** — `SiteSettingsPanel.tsx` edits site name, global SEO, favicon, and per-page title/slug/SEO
+- **Settings** — `SiteSettingsPanel.tsx` edits site name, global SEO, favicon, per-page title/slug/SEO, and **draft export/import**
 
 ### Section library modal
 
@@ -376,6 +378,9 @@ SectionInstance {
 | `updateNavigation` / `updateFooter` | Header/footer content |
 | `updateSiteMeta` | Site name, SEO, favicon |
 | `loadSite` / `saveSite` / `publishSite` | Draft load, save, publish workflow |
+| `importDraft` | Replace draft from validated JSON |
+| `undo` / `redo` | Site history stack (~50 steps); ⌘Z / ⌘⇧Z |
+| `previewDevice`, `scrollToSection` | Device preview width and outline scroll |
 | `activePageId`, `addPage`, `removePage`, `updatePageMeta` | Multi-page management |
 
 ### Persistence & draft/publish
@@ -667,4 +672,4 @@ Everything implemented across the builder editing sessions:
 
 ---
 
-*Last updated: June 2026 — reflects Phase 4 (draft/publish, autosave, site settings) on `main`.*
+*Last updated: June 2026 — reflects Phase 5 (editor polish, structure editing, export/import) on `main`.*

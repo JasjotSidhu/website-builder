@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
 import EditableLogo from "@/lib/editor/EditableLogo";
-import EditableNavLink from "@/lib/editor/EditableNavLink";
+import EditableNavLinksList from "@/lib/editor/EditableNavLinksList";
+import LogoTypeToggle from "@/lib/editor/LogoTypeToggle";
 import { useEditMode } from "@/lib/editor/EditModeContext";
 import {
   SectionDataProvider,
@@ -14,11 +16,6 @@ import { EditableButton } from "../shared/SectionContent";
 
 export { headerSimpleSchema } from "./schema";
 export type { HeaderSimpleProps } from "./schema";
-
-interface HeaderLink {
-  label: string;
-  link: LinkValue;
-}
 
 interface HeaderCta {
   label: string;
@@ -31,69 +28,70 @@ interface HeaderLogo {
   value: string;
 }
 
-function HeaderNavLinks({
-  links,
-  className,
-  onNavigate,
-}: {
-  links: HeaderLink[];
-  className: string;
-  onNavigate?: () => void;
-}) {
-  const { updateField } = useSectionData();
-
-  return (
-    <>
-      {links.map((link, index) => (
-        <SectionDataProvider
-          key={`header-link-${index}`}
-          data={link as unknown as Record<string, unknown>}
-          updateField={(key, value) => {
-            const next = [...links];
-            next[index] = { ...next[index], [key]: value };
-            updateField("links", next);
-          }}
-          updateFields={(partial) => {
-            const next = [...links];
-            next[index] = { ...next[index], ...partial };
-            updateField("links", next);
-          }}
-        >
-          <EditableNavLink className={className} onNavigate={onNavigate} />
-        </SectionDataProvider>
-      ))}
-    </>
-  );
-}
-
 export default function HeaderSimple() {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
   const logo = (data.logo as HeaderLogo | undefined) ?? { type: "text", value: "" };
-  const links = (data.links as HeaderLink[] | undefined) ?? [];
   const cta = data.cta as HeaderCta | undefined;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = () => setMenuOpen(false);
 
+  const handleLogoTypeChange = (type: "text" | "image") => {
+    if (type === logo.type) {
+      return;
+    }
+
+    updateField("logo", {
+      type,
+      value: type === "text" ? "Your brand" : "",
+    });
+  };
+
   const logoNode = (
-    <SectionDataProvider
-      data={logo as unknown as Record<string, unknown>}
-      updateField={(key, value) => updateField("logo", { ...logo, [key]: value })}
-      updateFields={(partial) => updateField("logo", { ...logo, ...partial })}
-    >
-      <EditableLogo />
-    </SectionDataProvider>
+    <div className="header-logo-block">
+      <LogoTypeToggle type={logo.type} onChange={handleLogoTypeChange} />
+      <SectionDataProvider
+        data={logo as unknown as Record<string, unknown>}
+        updateField={(key, value) => updateField("logo", { ...logo, [key]: value })}
+        updateFields={(partial) => updateField("logo", { ...logo, ...partial })}
+      >
+        <EditableLogo />
+      </SectionDataProvider>
+    </div>
   );
 
   const ctaNode = cta ? (
-    <SectionDataProvider
-      data={cta as unknown as Record<string, unknown>}
-      updateField={(key, value) => updateField("cta", { ...cta, [key]: value })}
-      updateFields={(partial) => updateField("cta", { ...cta, ...partial })}
+    <div className="header-cta-block">
+      {isEditing ? (
+        <EditorRemoveButton
+          label="Remove CTA button"
+          compact
+          onClick={() => updateField("cta", undefined)}
+        />
+      ) : null}
+      <SectionDataProvider
+        data={cta as unknown as Record<string, unknown>}
+        updateField={(key, value) => updateField("cta", { ...cta, [key]: value })}
+        updateFields={(partial) => updateField("cta", { ...cta, ...partial })}
+      >
+        <EditableButton appearance="header" showVariant={false} onNavigate={closeMenu} />
+      </SectionDataProvider>
+    </div>
+  ) : isEditing ? (
+    <button
+      type="button"
+      className="button-item-add"
+      onClick={() =>
+        updateField("cta", {
+          label: "Get started",
+          link: { type: "page", pageId: "home" },
+          variant: "primary",
+        })
+      }
     >
-      <EditableButton appearance="header" showVariant={false} onNavigate={closeMenu} />
-    </SectionDataProvider>
+      + Add CTA
+    </button>
   ) : null;
 
   return (
@@ -107,9 +105,8 @@ export default function HeaderSimple() {
         {isEditing ? <div className="inline-flex">{logoNode}</div> : <Link href="/">{logoNode}</Link>}
 
         <nav className="hidden items-center gap-8 md:flex">
-          <HeaderNavLinks
-            links={links}
-            className="text-sm font-medium transition hover:text-[var(--color-primary)]"
+          <EditableNavLinksList
+            itemClassName="text-sm font-medium transition hover:text-[var(--color-primary)]"
           />
           {ctaNode}
         </nav>
@@ -160,9 +157,9 @@ export default function HeaderSimple() {
               </button>
             </div>
             <nav className="flex flex-col gap-4">
-              <HeaderNavLinks
-                links={links}
-                className="text-base font-medium"
+              <EditableNavLinksList
+                layout="column"
+                itemClassName="text-base font-medium"
                 onNavigate={closeMenu}
               />
               {cta ? (
