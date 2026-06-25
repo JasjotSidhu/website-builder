@@ -112,5 +112,6 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
           };
         }),
     })),
+    savedSections: site.savedSections ?? [],
   };
 }

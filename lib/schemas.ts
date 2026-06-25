@@ -123,8 +123,20 @@ export const sectionInstanceSchema = z.object({
   variant: z.string().min(1),
   props: z.record(z.string(), z.unknown()),
   settings: z.record(z.string(), z.unknown()).optional(),
+  customClass: z.string().optional(),
   hidden: z.boolean().optional(),
   style: sectionStyleSchema,
+});
+
+export const savedSectionSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  type: z.string().min(1),
+  variant: z.string().min(1),
+  props: z.record(z.string(), z.unknown()),
+  settings: z.record(z.string(), z.unknown()),
+  customClass: z.string().optional(),
+  savedAt: z.string().min(1),
 });
 
 export const pageDataSchema = z.object({
@@ -153,6 +165,7 @@ export const websiteSchema = z.object({
   navigation: navigationConfigSchema,
   pages: z.array(pageDataSchema),
   footer: footerConfigSchema,
+  savedSections: z.array(savedSectionSchema).optional(),
 });
 
 export type { LinkValue };

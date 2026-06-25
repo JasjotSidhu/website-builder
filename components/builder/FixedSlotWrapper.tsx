@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import FooterSimple from "@/components/sections/footer/FooterSimple";
 import HeaderSimple from "@/components/sections/header/HeaderSimple";
 import { getHeaderProps, getHeaderVariantId } from "@/lib/header-utils";
@@ -8,6 +8,7 @@ import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { findSectionVariant } from "@/lib/registry";
 import { SectionSettingsProvider } from "@/lib/traits/context";
 import { resolveFixedSlotSettings } from "@/lib/traits/normalize";
+import { useCloseOnOutsideClick } from "@/lib/hooks/use-close-on-outside-click";
 import { useBuilderStore } from "@/store/builderStore";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import { IconReplace, IconSettings, SectionToolbarButton } from "./SectionToolbarButton";
@@ -72,6 +73,8 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
 function FooterSlot({ onReplace }: { onReplace: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsAnchorRef = useRef<HTMLButtonElement>(null);
+  const settingsPopoverRef = useRef<HTMLDivElement>(null);
   const footer = useBuilderStore((state) => state.site.footer);
   const patchFooterProps = useBuilderStore((state) => state.patchFooterProps);
   const updateFooterSettings = useBuilderStore((state) => state.updateFooterSettings);
@@ -90,6 +93,13 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
       patchFooterProps(partial);
     },
     [patchFooterProps],
+  );
+
+  useCloseOnOutsideClick(
+    settingsOpen,
+    () => setSettingsOpen(false),
+    settingsPopoverRef,
+    settingsAnchorRef,
   );
 
   if (!variant) {
@@ -119,12 +129,14 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
               <div className="relative">
                 <SectionToolbarButton
                   title="Footer settings"
+                  buttonRef={settingsAnchorRef}
                   onClick={() => setSettingsOpen((open) => !open)}
                 >
                   <IconSettings />
                 </SectionToolbarButton>
                 {settingsOpen ? (
                   <SectionSettingsPanel
+                    popoverRef={settingsPopoverRef}
                     title="Footer settings"
                     settings={resolvedSettings}
                     variant={variant}

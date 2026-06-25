@@ -12,6 +12,7 @@ import type {
   FooterConfig,
   NavigationConfig,
   PageData,
+  SavedSection,
   SectionInstance,
   SiteMeta,
   ThemeConfig,
@@ -96,10 +97,18 @@ interface BuilderState {
   updateFooterSettings: (partialSettings: Record<string, unknown>) => void;
   replaceHeaderVariant: (variantId: string) => void;
   replaceFooterVariant: (variantId: string) => void;
+  saveSectionPreset: (sectionId: string, name: string) => void;
+  removeSavedSection: (savedId: string) => void;
+  addSavedSection: (savedId: string, atIndex?: number) => void;
+  updateSectionCustomClass: (sectionId: string, customClass: string) => void;
 }
 
 function createSectionId() {
   return `section-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createSavedSectionId() {
+  return `saved-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function createPageId() {
@@ -780,6 +789,101 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       },
       isDirty: true,
     }));
+  },
+
+  saveSectionPreset: (sectionId, name) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    set((state) => {
+      const activePage = getActivePage(state);
+      const section = activePage.sections.find((entry) => entry.id === sectionId);
+      if (!section || isFixedSlotType(section.type)) {
+        return state;
+      }
+
+      const preset: SavedSection = {
+        id: createSavedSectionId(),
+        name: trimmedName,
+        type: section.type,
+        variant: section.variant,
+        props: structuredClone(section.props),
+        settings: structuredClone(section.settings ?? {}),
+        customClass: section.customClass,
+        savedAt: new Date().toISOString(),
+      };
+
+      return {
+        site: {
+          ...state.site,
+          savedSections: [...(state.site.savedSections ?? []), preset],
+        },
+        isDirty: true,
+      };
+    });
+  },
+
+  removeSavedSection: (savedId) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        savedSections: (state.site.savedSections ?? []).filter(
+          (entry) => entry.id !== savedId,
+        ),
+      },
+      isDirty: true,
+    }));
+  },
+
+  addSavedSection: (savedId, atIndex) => {
+    set((state) => {
+      const preset = (state.site.savedSections ?? []).find((entry) => entry.id === savedId);
+      if (!preset || isFixedSlotType(preset.type)) {
+        return state;
+      }
+
+      const variant = findSectionVariant(preset.type, preset.variant);
+      if (!variant) {
+        return state;
+      }
+
+      const section: SectionInstance = {
+        id: createSectionId(),
+        type: preset.type,
+        variant: preset.variant,
+        props: structuredClone(preset.props),
+        settings: structuredClone(preset.settings),
+        customClass: preset.customClass,
+      };
+
+      const activePage = getActivePage(state);
+      const sections = [...activePage.sections];
+      const index = atIndex ?? sections.length;
+      sections.splice(index, 0, section);
+
+      return {
+        site: updateActivePageSections(state.site, state.activePageId, sections),
+        isDirty: true,
+      };
+    });
+  },
+
+  updateSectionCustomClass: (sectionId, customClass) => {
+    set((state) => {
+      const activePage = getActivePage(state);
+      return {
+        site: updateActivePageSections(
+          state.site,
+          state.activePageId,
+          activePage.sections.map((section) =>
+            section.id === sectionId ? { ...section, customClass: customClass.trim() } : section,
+          ),
+        ),
+        isDirty: true,
+      };
+    });
   },
 }));
 

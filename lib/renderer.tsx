@@ -147,7 +147,7 @@ export function PageRenderer({
         );
 
         return (
-          <div key={section.id}>
+          <div key={section.id} className={section.customClass?.trim() || undefined}>
             <SectionSettingsProvider settings={settings}>
               <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
                 <Component />

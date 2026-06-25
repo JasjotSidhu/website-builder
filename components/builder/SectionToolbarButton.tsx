@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowDown,
   ArrowUp,
+  Bookmark,
   Copy,
   EyeOff,
   RefreshCw,
@@ -25,16 +26,19 @@ export function SectionToolbarButton({
   disabled,
   variant = "default",
   children,
+  buttonRef,
 }: {
   title: string;
   onClick: () => void;
   disabled?: boolean;
   variant?: "default" | "danger";
   children: ReactNode;
+  buttonRef?: React.Ref<HTMLButtonElement>;
 }) {
   return (
     <Tooltip label={title} side="bottom">
       <button
+        ref={buttonRef}
         type="button"
         aria-label={title}
         disabled={disabled}
@@ -81,4 +85,8 @@ export function IconArrowDown() {
 
 export function IconDelete() {
   return <ToolbarIcon icon={Trash2} />;
+}
+
+export function IconSave() {
+  return <ToolbarIcon icon={Bookmark} />;
 }

@@ -2,6 +2,17 @@ export type LinkValue =
   | { type: "page"; pageId: string }
   | { type: "url"; href: string };
 
+export interface SavedSection {
+  id: string;
+  name: string;
+  type: string;
+  variant: string;
+  props: Record<string, unknown>;
+  settings: Record<string, unknown>;
+  customClass?: string;
+  savedAt: string;
+}
+
 export interface WebsiteData {
   siteId: string;
   meta: SiteMeta;
@@ -9,6 +20,7 @@ export interface WebsiteData {
   navigation: NavigationConfig;
   pages: PageData[];
   footer: FooterConfig;
+  savedSections?: SavedSection[];
 }
 
 export interface SiteMeta {
@@ -94,6 +106,7 @@ export interface SectionInstance {
   variant: string;
   props: Record<string, unknown>;
   settings: Record<string, unknown>;
+  customClass?: string;
   hidden?: boolean;
   style?: {
     background?: string;

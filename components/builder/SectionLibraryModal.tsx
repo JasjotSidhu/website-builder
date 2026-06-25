@@ -6,6 +6,7 @@ import Tooltip from "@/lib/editor/Tooltip";
 import { sectionRegistry } from "@/lib/registry";
 import { getAddableSectionDefinitions, isFixedSlotType } from "@/lib/section-placement";
 import { useBuilderStore } from "@/store/builderStore";
+import SavedSectionPreview from "./SavedSectionPreview";
 import SectionVariantPreview from "./SectionVariantPreview";
 import type { SectionLibraryMode } from "./SectionLibraryModal.types";
 
@@ -17,6 +18,8 @@ interface SectionLibraryModalProps {
   onClose: () => void;
 }
 
+const SAVED_SECTIONS_TYPE = "__saved__";
+
 const CATEGORY_ICONS: Record<string, string> = {
   header: "⬡",
   hero: "◆",
@@ -24,7 +27,16 @@ const CATEGORY_ICONS: Record<string, string> = {
   "social-proof": "★",
   cta: "→",
   footer: "▬",
+  saved: "★",
 };
+
+type VariantSelection = { type: string; variantId: string };
+type SavedSelection = { savedId: string };
+type LibrarySelection = VariantSelection | SavedSelection;
+
+function isSavedSelection(selection: LibrarySelection): selection is SavedSelection {
+  return "savedId" in selection;
+}
 
 function getSidebarTypes(config: SectionLibraryMode) {
   if (config.mode === "replace-header") {
@@ -65,18 +77,20 @@ export default function SectionLibraryModal({
   onClose,
 }: SectionLibraryModalProps) {
   const theme = useBuilderStore((state) => state.site.theme);
+  const savedSections = useBuilderStore((state) => state.site.savedSections ?? []);
   const sidebarTypes = config ? getSidebarTypes(config) : [];
   const isReplace =
     config?.mode === "replace" ||
     config?.mode === "replace-header" ||
     config?.mode === "replace-footer";
+  const isAddMode = config?.mode === "add";
 
   const [activeType, setActiveType] = useState("hero");
-  const [selected, setSelected] = useState<{ type: string; variantId: string } | null>(
-    null,
-  );
+  const [selected, setSelected] = useState<LibrarySelection | null>(null);
 
   const addSection = useBuilderStore((state) => state.addSection);
+  const addSavedSection = useBuilderStore((state) => state.addSavedSection);
+  const removeSavedSection = useBuilderStore((state) => state.removeSavedSection);
   const replaceSection = useBuilderStore((state) => state.replaceSection);
   const replaceHeaderVariant = useBuilderStore((state) => state.replaceHeaderVariant);
   const replaceFooterVariant = useBuilderStore((state) => state.replaceFooterVariant);
@@ -100,9 +114,15 @@ export default function SectionLibraryModal({
     }
   }, [open, config]);
 
-  const activeDef = sectionRegistry[activeType];
+  const activeDef =
+    activeType === SAVED_SECTIONS_TYPE ? null : sectionRegistry[activeType];
+  const viewingSaved = isAddMode && activeType === SAVED_SECTIONS_TYPE;
 
-  if (!open || !config || !activeDef) {
+  if (!open || !config) {
+    return null;
+  }
+
+  if (!viewingSaved && !activeDef) {
     return null;
   }
 
@@ -111,20 +131,24 @@ export default function SectionLibraryModal({
       return;
     }
 
-    if (config.mode === "replace-header") {
+    if (config.mode === "replace-header" && !isSavedSelection(selected)) {
       replaceHeaderVariant(selected.variantId);
-    } else if (config.mode === "replace-footer") {
+    } else if (config.mode === "replace-footer" && !isSavedSelection(selected)) {
       replaceFooterVariant(selected.variantId);
-    } else if (config.mode === "replace") {
+    } else if (config.mode === "replace" && !isSavedSelection(selected)) {
       replaceSection(config.sectionId, selected.type, selected.variantId);
-    } else {
+    } else if (config.mode === "add" && isSavedSelection(selected)) {
+      addSavedSection(selected.savedId, config.insertAtIndex);
+    } else if (config.mode === "add" && !isSavedSelection(selected)) {
       addSection(selected.type, selected.variantId, config.insertAtIndex);
     }
 
     onClose();
   };
 
-  const typeLabel = sectionRegistry[activeType]?.label;
+  const typeLabel = viewingSaved
+    ? "Saved sections"
+    : sectionRegistry[activeType]?.label;
   const modalTitle =
     config.mode === "replace-header"
       ? "Replace header"
@@ -141,14 +165,22 @@ export default function SectionLibraryModal({
         ? "Choose a footer layout. The footer always stays at the bottom of your page."
         : config.mode === "replace"
           ? `Choose a new ${typeLabel?.toLowerCase() ?? "section"} layout. Your content stays — only the design changes.`
-          : "Browse layouts with live previews. Header and footer are fixed at the top and bottom.";
+          : "Browse layouts with live previews, or reuse a section you saved earlier.";
 
   const isCurrentSelection =
     (config.mode === "replace" &&
-      selected?.variantId === config.currentVariantId &&
-      selected?.type === config.sectionType) ||
-    (config.mode === "replace-header" && selected?.variantId === config.currentVariantId) ||
-    (config.mode === "replace-footer" && selected?.variantId === config.currentVariantId);
+      selected &&
+      !isSavedSelection(selected) &&
+      selected.variantId === config.currentVariantId &&
+      selected.type === config.sectionType) ||
+    (config.mode === "replace-header" &&
+      selected &&
+      !isSavedSelection(selected) &&
+      selected.variantId === config.currentVariantId) ||
+    (config.mode === "replace-footer" &&
+      selected &&
+      !isSavedSelection(selected) &&
+      selected.variantId === config.currentVariantId);
 
   return (
     <div className="section-library-modal">
@@ -184,6 +216,28 @@ export default function SectionLibraryModal({
           {!isReplace && sidebarTypes.length > 1 ? (
             <aside className="section-library-sidebar">
               <p className="section-library-sidebar-label">Categories</p>
+              {isAddMode ? (
+                <button
+                  type="button"
+                  className={`section-library-category ${
+                    viewingSaved ? "section-library-category--active" : ""
+                  }`}
+                  onClick={() => {
+                    setActiveType(SAVED_SECTIONS_TYPE);
+                    setSelected(null);
+                  }}
+                >
+                  <span className="section-library-category-icon" aria-hidden>
+                    {CATEGORY_ICONS.saved}
+                  </span>
+                  <span>
+                    <span className="section-library-category-name">Saved</span>
+                    <span className="section-library-category-count">
+                      {savedSections.length} saved
+                    </span>
+                  </span>
+                </button>
+              ) : null}
               {sidebarTypes.map((def) => (
                 <button
                   key={def.type}
@@ -211,49 +265,127 @@ export default function SectionLibraryModal({
           ) : null}
 
           <div className="section-library-grid">
-            {activeDef.variants.map((variant) => {
-              const isCurrent =
-                (config.mode === "replace" && variant.id === config.currentVariantId) ||
-                (config.mode === "replace-header" && variant.id === config.currentVariantId) ||
-                (config.mode === "replace-footer" && variant.id === config.currentVariantId);
-              const isSelected = selected?.variantId === variant.id;
+            {viewingSaved ? (
+              savedSections.length === 0 ? (
+                <div className="section-library-empty">
+                  <p className="section-library-empty-title">No saved sections yet</p>
+                  <p className="section-library-empty-text">
+                    Use the bookmark button on any section toolbar to save it with its content.
+                  </p>
+                </div>
+              ) : (
+                savedSections.map((saved) => {
+                  const isSelected =
+                    selected && isSavedSelection(selected) && selected.savedId === saved.id;
+                  const typeLabel = sectionRegistry[saved.type]?.label ?? saved.type;
+                  const variantLabel =
+                    sectionRegistry[saved.type]?.variants.find(
+                      (entry) => entry.id === saved.variant,
+                    )?.label ?? saved.variant;
 
-              return (
-                <button
-                  key={variant.id}
-                  type="button"
-                  className={`section-library-card ${
-                    isSelected ? "section-library-card--selected" : ""
-                  } ${isCurrent ? "section-library-card--current" : ""}`}
-                  onClick={() =>
-                    setSelected({ type: activeType, variantId: variant.id })
-                  }
-                >
-                  <div className="section-library-card-header">
-                    <span className="section-library-card-title">
-                      {variant.label}
-                      {isCurrent ? (
-                        <span className="section-library-card-badge">Current</span>
-                      ) : null}
-                    </span>
-                    {isSelected ? (
-                      <span className="section-library-card-check" aria-hidden>
-                        ✓
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="section-library-preview">
-                    <div className="section-library-preview-scale">
-                      <SectionVariantPreview
-                        type={activeType}
-                        variant={variant}
-                        theme={theme}
-                      />
+                  return (
+                    <div
+                      key={saved.id}
+                      role="button"
+                      tabIndex={0}
+                      className={`section-library-card ${
+                        isSelected ? "section-library-card--selected" : ""
+                      }`}
+                      onClick={() => setSelected({ savedId: saved.id })}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelected({ savedId: saved.id });
+                        }
+                      }}
+                    >
+                      <div className="section-library-card-header">
+                        <span className="section-library-card-title">
+                          {saved.name}
+                          <span className="section-library-card-badge">{typeLabel}</span>
+                        </span>
+                        {isSelected ? (
+                          <span className="section-library-card-check" aria-hidden>
+                            ✓
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="section-library-card-meta">{variantLabel}</p>
+                      <div className="section-library-preview">
+                        <div className="section-library-preview-scale">
+                          <SavedSectionPreview saved={saved} theme={theme} />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="section-library-card-remove"
+                        aria-label={`Remove ${saved.name}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeSavedSection(saved.id);
+                          if (
+                            selected &&
+                            isSavedSelection(selected) &&
+                            selected.savedId === saved.id
+                          ) {
+                            setSelected(null);
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
+                  );
+                })
+              )
+            ) : (
+              activeDef?.variants.map((variant) => {
+                const isCurrent =
+                  (config.mode === "replace" && variant.id === config.currentVariantId) ||
+                  (config.mode === "replace-header" && variant.id === config.currentVariantId) ||
+                  (config.mode === "replace-footer" && variant.id === config.currentVariantId);
+                const isSelected =
+                  selected &&
+                  !isSavedSelection(selected) &&
+                  selected.variantId === variant.id;
+
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    className={`section-library-card ${
+                      isSelected ? "section-library-card--selected" : ""
+                    } ${isCurrent ? "section-library-card--current" : ""}`}
+                    onClick={() =>
+                      setSelected({ type: activeType, variantId: variant.id })
+                    }
+                  >
+                    <div className="section-library-card-header">
+                      <span className="section-library-card-title">
+                        {variant.label}
+                        {isCurrent ? (
+                          <span className="section-library-card-badge">Current</span>
+                        ) : null}
+                      </span>
+                      {isSelected ? (
+                        <span className="section-library-card-check" aria-hidden>
+                          ✓
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="section-library-preview">
+                      <div className="section-library-preview-scale">
+                        <SectionVariantPreview
+                          type={activeType}
+                          variant={variant}
+                          theme={theme}
+                        />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -264,7 +396,7 @@ export default function SectionLibraryModal({
           <button
             type="button"
             className="editor-popover-btn editor-popover-btn--primary"
-            disabled={!selected || isCurrentSelection}
+            disabled={!selected || Boolean(isCurrentSelection)}
             onClick={handleSave}
           >
             {isReplace ? "Replace" : "Add section"}

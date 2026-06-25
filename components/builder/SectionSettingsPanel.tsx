@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { SectionVariant } from "@/lib/registry";
-import { PopoverShell } from "@/lib/editor/PopoverShell";
+import { PopoverActions, PopoverField, PopoverShell } from "@/lib/editor/PopoverShell";
 import { isTraitFieldVisible } from "@/lib/traits/field-utils";
 import { traitRegistry } from "@/lib/traits/registry";
 import { buildSettingsTabs } from "@/lib/traits/settings-tabs";
@@ -15,6 +15,9 @@ interface SectionSettingsPanelProps {
   variant: SectionVariant;
   onUpdate: (partial: Record<string, unknown>) => void;
   onClose: () => void;
+  customClass?: string;
+  onCustomClassChange?: (value: string) => void;
+  popoverRef?: React.Ref<HTMLDivElement>;
 }
 
 function CloseIcon() {
@@ -73,20 +76,44 @@ function TraitFields({
   );
 }
 
+type SettingsTabId = TraitCategory | "custom";
+
 export default function SectionSettingsPanel({
   title = "Section settings",
   settings,
   variant,
   onUpdate,
   onClose,
+  customClass = "",
+  onCustomClassChange,
+  popoverRef,
 }: SectionSettingsPanelProps) {
-  const tabs = useMemo(
+  const traitTabs = useMemo(
     () => buildSettingsTabs(variant, settings),
     [variant, settings],
   );
-  const [activeTab, setActiveTab] = useState<TraitCategory>(
+  const tabs = useMemo(() => {
+    const next = traitTabs.map((tab) => ({ id: tab.id as SettingsTabId, label: tab.label, traitIds: tab.traitIds }));
+    if (onCustomClassChange) {
+      next.push({ id: "custom", label: "Custom", traitIds: [] });
+    }
+    return next;
+  }, [traitTabs, onCustomClassChange]);
+
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(
     tabs[0]?.id ?? "background",
   );
+  const [draftCustomClass, setDraftCustomClass] = useState(customClass);
+
+  useEffect(() => {
+    setDraftCustomClass(customClass);
+  }, [customClass]);
+
+  useEffect(() => {
+    if (activeTab === "custom") {
+      setDraftCustomClass(customClass);
+    }
+  }, [activeTab, customClass]);
 
   useEffect(() => {
     if (tabs.length > 0 && !tabs.some((tab) => tab.id === activeTab)) {
@@ -95,14 +122,33 @@ export default function SectionSettingsPanel({
   }, [tabs, activeTab]);
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+  const customClassDirty = draftCustomClass.trim() !== customClass.trim();
+
+  const handleSaveCustomClass = () => {
+    onCustomClassChange?.(draftCustomClass);
+  };
+
+  const handleCancelCustomClass = () => {
+    setDraftCustomClass(customClass);
+  };
 
   return (
     <PopoverShell
+      ref={popoverRef}
       title={title}
       variant="settings"
       hideHeader
       onClose={onClose}
       onMouseDown={(event) => event.stopPropagation()}
+      footer={
+        activeTab === "custom" && onCustomClassChange ? (
+          <PopoverActions
+            onCancel={handleCancelCustomClass}
+            onSave={handleSaveCustomClass}
+            saveDisabled={!customClassDirty}
+          />
+        ) : undefined
+      }
     >
       <div className="popover__topbar">
         {tabs.length > 1 ? (
@@ -130,6 +176,28 @@ export default function SectionSettingsPanel({
 
       {tabs.length === 0 ? (
         <p className="popover-empty">No settings for this section.</p>
+      ) : activeTab === "custom" ? (
+        <div className="settings-tab-panel" role="tabpanel" aria-label="Custom">
+          <section className="popover__section">
+            <PopoverField
+              label="Custom CSS classes"
+              hint="Applied to the section wrapper. Separate multiple classes with spaces."
+            >
+              <input
+                type="text"
+                className="popover-input"
+                value={draftCustomClass}
+                placeholder="e.g. my-section pt-8"
+                onChange={(event) => setDraftCustomClass(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && customClassDirty) {
+                    handleSaveCustomClass();
+                  }
+                }}
+              />
+            </PopoverField>
+          </section>
+        </div>
       ) : (
         <div className="settings-tab-panel" role="tabpanel" aria-label={activeTabData?.label}>
           {activeTabData ? (

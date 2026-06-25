@@ -390,11 +390,11 @@
 .popover__topbar {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   gap: 8px;
-  padding: 0 16px;
+  padding: 0 44px 0 16px;
   border-bottom: 1px solid var(--popover-border);
   flex-shrink: 0;
+  position: relative;
 }
 
 .popover__topbar-title {
@@ -406,7 +406,10 @@
 }
 
 .popover__topbar .popover__close {
-  margin-bottom: 6px;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  margin-bottom: 0;
 }
 
 .popover__close {
@@ -452,13 +455,21 @@
 .settings-tabs {
   display: flex;
   align-items: flex-end;
-  gap: 20px;
+  gap: 16px;
   flex: 1;
   min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.settings-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .settings-tabs__btn {
   position: relative;
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 14px 0 10px;
   font-size: 14px;
   font-weight: 500;
@@ -1627,6 +1638,69 @@ select.popover-input--inline-select {
   border-top: 1px solid #e5e7eb;
   background: white;
   padding: 1rem 1.5rem;
+}
+
+.section-library-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.section-library-empty-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.section-library-empty-text {
+  margin: 0;
+  max-width: 24rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.section-library-card-meta {
+  margin: 0 0 0.5rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.section-library-card-remove {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 0 1rem 1rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  background: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.section-library-card-remove:hover {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.section-library-preview--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.875rem;
+  color: #9ca3af;
 }
 
 /* Published section styles */
