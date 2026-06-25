@@ -25,7 +25,7 @@ const HEADING_CLASSES = {
 const SUBHEADING_CLASSES = {
   hero: "max-w-xl text-lg leading-relaxed opacity-90",
   section: "text-lg leading-relaxed opacity-90",
-  cta: "mx-auto max-w-xl text-lg leading-relaxed text-white/85",
+  cta: "mx-auto max-w-xl text-lg leading-relaxed opacity-85",
 } as const;
 
 export function SectionHeader({
@@ -56,7 +56,7 @@ export function SectionHeader({
         dataKey={headingKey}
         maxLength={resolvedHeadingMaxLength}
         className={`${HEADING_CLASSES[size]} ${textAlign}`}
-        themeTextRole="title"
+        themeTextRole={size === "cta" ? undefined : "title"}
       />
       <EditableText
         as="p"
@@ -64,7 +64,7 @@ export function SectionHeader({
         maxLength={resolvedSubheadingMaxLength}
         required={false}
         className={`${SUBHEADING_CLASSES[size]} ${textAlign}`}
-        themeTextRole="body"
+        themeTextRole={size === "cta" ? undefined : "body"}
       />
     </div>
   );

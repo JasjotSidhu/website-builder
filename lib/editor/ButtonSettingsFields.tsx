@@ -33,6 +33,7 @@ export default function ButtonSettingsFields({
       {showVariant !== false ? (
         <PopoverSegmented
           label="Style"
+          layout="stacked"
           value={variant}
           options={[
             { value: "primary", label: "Primary" },

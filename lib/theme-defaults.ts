@@ -57,40 +57,92 @@ export function normalizeThemeColors(
 
 type ThemeCardsInput = Partial<CardStyleConfig>;
 
+function deriveCardBackground(pageBackground: string): string {
+  const rgb = parseColorToRgb(pageBackground);
+  if (!rgb) {
+    return DEFAULT_CARD_STYLE.background;
+  }
+
+  const luminance = getRelativeLuminance(rgb);
+  if (luminance < 0.45) {
+    return "#1E293B";
+  }
+  if (luminance > 0.92) {
+    return "#F9FAFB";
+  }
+  return "#FFFFFF";
+}
+
+function deriveCardBorderColor(cardBackground: string): string {
+  const rgb = parseColorToRgb(cardBackground);
+  if (!rgb) {
+    return DEFAULT_CARD_STYLE.borderColor;
+  }
+
+  return getRelativeLuminance(rgb) < 0.45 ? "#334155" : "#E5E7EB";
+}
+
+export function deriveCardsFromThemeColors(
+  colors: ThemeColorsInput | ThemeConfig["colors"],
+  options?: Pick<CardStyleConfig, "borderRadius">,
+): CardStyleConfig {
+  const normalized = normalizeThemeColors(colors);
+  const background = deriveCardBackground(normalized.background);
+  const bgRgb = parseColorToRgb(background);
+  const isDarkCard = bgRgb ? getRelativeLuminance(bgRgb) < 0.45 : false;
+
+  const titleColor = isDarkCard
+    ? getContrastingTextColor(background)
+    : normalized.titleText;
+  const textColor = isDarkCard
+    ? getContrastingTextColor(background, { dark: "#D1D5DB" })
+    : normalized.bodyText;
+
+  return {
+    background,
+    titleColor,
+    textColor,
+    borderRadius: options?.borderRadius ?? DEFAULT_CARD_STYLE.borderRadius,
+    borderColor: deriveCardBorderColor(background),
+    iconColor: normalized.primary,
+  };
+}
+
 export function normalizeThemeCards(
   cards: ThemeCardsInput | undefined,
   colors?: ThemeColorsInput,
 ): CardStyleConfig {
   const input = cards ?? {};
-  const normalizedColors = normalizeThemeColors(colors);
-  const background = input.background ?? colors?.cardBackground;
+  const derived = deriveCardsFromThemeColors(colors ?? {});
+  const background = input.background ?? colors?.cardBackground ?? derived.background;
 
-  let resolvedBackground = background;
-  if (!resolvedBackground) {
-    const bgRgb = parseColorToRgb(normalizedColors.background);
-    resolvedBackground =
-      bgRgb && getRelativeLuminance(bgRgb) < 0.45 ? "#1E293B" : DEFAULT_CARD_STYLE.background;
-  }
+  const bgRgb = parseColorToRgb(background);
+  const isDarkCard = bgRgb ? getRelativeLuminance(bgRgb) < 0.45 : false;
+  const normalizedColors = normalizeThemeColors(colors);
 
   const textColor =
     input.textColor ??
     colors?.cardText ??
-    (resolvedBackground === DEFAULT_CARD_STYLE.background
-      ? DEFAULT_CARD_STYLE.textColor
-      : getContrastingTextColor(resolvedBackground));
+    (background === derived.background
+      ? derived.textColor
+      : isDarkCard
+        ? getContrastingTextColor(background, { dark: "#D1D5DB" })
+        : normalizedColors.bodyText);
 
   const titleColor =
     input.titleColor ??
-    (resolvedBackground === DEFAULT_CARD_STYLE.background
-      ? normalizedColors.titleText
-      : getContrastingTextColor(resolvedBackground));
+    (background === derived.background
+      ? derived.titleColor
+      : isDarkCard
+        ? getContrastingTextColor(background)
+        : normalizedColors.titleText);
 
   return {
-    background: resolvedBackground,
+    background,
     titleColor,
     textColor,
-    borderRadius: input.borderRadius ?? DEFAULT_CARD_STYLE.borderRadius,
-    borderColor: input.borderColor ?? DEFAULT_CARD_STYLE.borderColor,
+    borderRadius: input.borderRadius ?? derived.borderRadius,
+    borderColor: input.borderColor ?? deriveCardBorderColor(background),
     iconColor: input.iconColor ?? normalizedColors.primary ?? DEFAULT_CARD_STYLE.iconColor,
   };
 }

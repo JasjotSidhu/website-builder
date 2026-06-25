@@ -16,6 +16,7 @@ const CARD_COLOR_FIELDS = [
 export default function CardsPanel() {
   const theme = useBuilderStore((state) => state.site.theme);
   const updateTheme = useBuilderStore((state) => state.updateTheme);
+  const resetCardsToThemeDefault = useBuilderStore((state) => state.resetCardsToThemeDefault);
   const cards = theme.cards;
 
   const updateCards = (partial: Partial<CardStyleConfig>) => {
@@ -46,8 +47,19 @@ export default function CardsPanel() {
       </section>
 
       <section className="style-panel__section">
+        <div className="style-panel__section-header">
+          <p className="style-panel__group-label" style={{ margin: 0 }}>
+            Colors
+          </p>
+          <button
+            type="button"
+            className="style-panel__link-btn"
+            onClick={() => resetCardsToThemeDefault()}
+          >
+            Reset to theme
+          </button>
+        </div>
         <div className="style-panel__field-group">
-          <p className="style-panel__group-label">Colors</p>
           {CARD_COLOR_FIELDS.map(({ key, label }) => (
             <label key={key} className="style-color-row">
               <span>{label}</span>
@@ -80,7 +92,8 @@ export default function CardsPanel() {
       </section>
 
       <p className="style-panel__hint">
-        These styles apply to feature cards, testimonial cards, and similar card layouts across the site.
+        Card colors match the selected theme by default. Customize them here, or use Reset to theme to
+        re-apply the current theme palette. Border radius is kept when resetting.
       </p>
     </div>
   );

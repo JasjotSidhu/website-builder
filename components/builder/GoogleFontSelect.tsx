@@ -27,17 +27,17 @@ export default function GoogleFontSelect({ value, onChange, label }: GoogleFontS
   }, [query]);
 
   return (
-    <label className="popover-field">
-      {label ? <span className="popover-field__label">{label}</span> : null}
+    <div className="google-font-select">
+      {label ? <span className="style-field__label">{label}</span> : null}
       <input
         type="search"
-        className="popover-input mb-2"
+        className="settings-field"
         placeholder="Search Google Fonts"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
       <select
-        className="popover-input"
+        className="settings-field"
         value={normalized.googleFontId ?? normalized.family}
         onChange={(event) => {
           const match = GOOGLE_FONTS_CATALOG.find(
@@ -61,6 +61,6 @@ export default function GoogleFontSelect({ value, onChange, label }: GoogleFontS
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }

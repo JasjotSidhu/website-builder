@@ -23,9 +23,8 @@ interface ButtonItem {
   variant?: ButtonVariant;
 }
 
-function buttonClassName(variant: ButtonItem["variant"], appearance: "hero" | "cta" | "header") {
-  const extra = appearance === "cta" ? "mt-10" : "";
-  return getSiteButtonClassName(variant, extra);
+function buttonClassName(variant: ButtonItem["variant"]) {
+  return getSiteButtonClassName(variant);
 }
 
 function SectionButtonItem({
@@ -52,7 +51,7 @@ function SectionButtonItem({
   if (!isEditing) {
     const href = resolveLink(button.link, pages);
     return (
-      <a href={href} className={buttonClassName(button.variant, appearance)} onClick={onNavigate}>
+      <a href={href} className={buttonClassName(button.variant)} onClick={onNavigate}>
         {button.label}
       </a>
     );
@@ -63,7 +62,7 @@ function SectionButtonItem({
       {showRemove ? (
         <EditorRemoveButton label="Remove button" compact onClick={onRemove} />
       ) : null}
-      <div ref={triggerRef} className={`${buttonClassName(button.variant, appearance)} button-item-trigger`}>
+      <div ref={triggerRef} className={`${buttonClassName(button.variant)} button-item-trigger`}>
         <EditableText
           as="span"
           dataKey="label"
@@ -180,7 +179,7 @@ export function SectionButtons({
     <div
       className={`flex flex-wrap gap-4 ${
         align === "left" ? "justify-start" : "justify-center"
-      }${appearance === "cta" ? " mt-0" : ""}`}
+      }`}
     >
       {buttons.map((button, index) => (
         <SectionDataProvider

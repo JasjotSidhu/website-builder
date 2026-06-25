@@ -10,6 +10,7 @@ interface PopoverSegmentedProps {
   value: string;
   options: PopoverSegmentedOption[];
   onChange: (value: string) => void;
+  layout?: "inline" | "stacked";
 }
 
 export default function PopoverSegmented({
@@ -17,9 +18,15 @@ export default function PopoverSegmented({
   value,
   options,
   onChange,
+  layout = "inline",
 }: PopoverSegmentedProps) {
+  const fieldClass =
+    layout === "stacked"
+      ? "popover-field popover-field--segmented-stack"
+      : "popover-field popover-field--inline";
+
   return (
-    <div className="popover-field popover-field--inline">
+    <div className={fieldClass}>
       <span className="popover-field__label">{label}</span>
       <div className="popover-segmented" role="group" aria-label={label}>
         {options.map((option) => (

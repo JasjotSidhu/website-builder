@@ -85,7 +85,7 @@ export default function ThemesPanel() {
           </div>
         ) : null}
         {customThemes.length === 0 ? (
-          <p className="style-panel__hint">Save your current color palette to reuse later. Fonts, buttons, and cards stay unchanged when switching themes.</p>
+          <p className="style-panel__hint">Save your current color palette to reuse later. Card colors update with the theme; fonts and buttons stay unchanged.</p>
         ) : (
           <div className="style-theme-grid">
             {customThemes.map((preset) => {

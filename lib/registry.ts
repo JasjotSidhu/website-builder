@@ -191,7 +191,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
             {
               label: "Contact us",
               link: { type: "url", href: "#contact" },
-              variant: "primary",
+              variant: "light",
             },
           ],
         },

@@ -241,7 +241,7 @@
 }
 
 .popover--toolbar-wide {
-  --popover-width: 272px;
+  --popover-width: 280px;
   width: var(--popover-width);
   min-width: var(--popover-width);
   max-width: var(--popover-width);
@@ -573,6 +573,38 @@
   font-size: 14px;
   font-weight: 400;
   color: var(--popover-text);
+}
+
+.popover-field--segmented-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.popover-field--segmented-stack .popover-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+}
+
+.popover-field--segmented-stack .popover-segmented__btn {
+  min-width: 0;
+  width: 100%;
+  padding: 0 6px;
+  font-size: 12px;
+  border: 1px solid var(--popover-border);
+  background: var(--popover-bg);
+}
+
+.popover-field--segmented-stack .popover-segmented__btn:hover {
+  background: var(--popover-input-bg);
+}
+
+.popover-field--segmented-stack .popover-segmented__btn--active {
+  border-color: transparent;
+  background: var(--popover-input-bg);
 }
 
 .popover-field--stacked {
@@ -1732,6 +1764,10 @@ select.popover-input--inline-select {
   color: var(--color-title-text);
 }
 
+.section-typography .cta-banner :is(h1, h2, h3, h4, p, .font-heading) {
+  color: inherit;
+}
+
 .feature-card {
   position: relative;
   overflow: visible;
@@ -2184,6 +2220,10 @@ select.popover-input--inline-select {
   margin: 0;
 }
 
+.style-panel__field-group .google-font-select {
+  margin: 0;
+}
+
 .style-panel > .style-panel__hint {
   margin-top: -0.25rem;
 }
@@ -2597,6 +2637,22 @@ select.popover-input--inline-select {
 .settings-field:focus {
   outline: 2px solid #bfdbfe;
   border-color: #93c5fd;
+}
+
+.google-font-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+select.settings-field {
+  cursor: pointer;
+  appearance: none;
+  padding-right: 2rem;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
 }
 
 .builder-icon-btn {

@@ -169,14 +169,14 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
         {
           label: "Start a project",
           link: { type: "url", href: "#" },
-          variant: "primary",
+          variant: "light",
         },
       ],
     },
     settings: {
-      overlayColor: "#000000",
-      opacity: 0,
-      backgroundColor: "#5B4B8A",
+      type: "solid",
+      color: "var(--color-primary)",
+      textColor: "auto",
       paddingY: "md",
     },
   },

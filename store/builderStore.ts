@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { ZodError } from "zod";
 import sampleSite from "@/data/sample-site.json";
 import { findBuiltInPreset } from "@/data/theme-presets";
-import { cloneTheme, normalizeTheme, normalizeThemeColors } from "@/lib/theme-defaults";
+import { cloneTheme, deriveCardsFromThemeColors, normalizeTheme, normalizeThemeColors } from "@/lib/theme-defaults";
 import { findSectionVariant } from "@/lib/registry";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
 import { websiteSchema } from "@/lib/schemas";
@@ -93,6 +93,7 @@ interface BuilderState {
   patchSectionProps: (id: string, partial: Record<string, unknown>) => void;
   updateSectionSettings: (id: string, partialSettings: Record<string, unknown>) => void;
   updateTheme: (theme: Partial<ThemeConfig>) => void;
+  resetCardsToThemeDefault: () => void;
   applyThemePreset: (presetId: string, source: "built-in" | "custom") => void;
   saveCustomTheme: (name: string) => void;
   removeCustomTheme: (themeId: string) => void;
@@ -654,6 +655,21 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }));
   },
 
+  resetCardsToThemeDefault: () => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        theme: normalizeTheme({
+          ...state.site.theme,
+          cards: deriveCardsFromThemeColors(state.site.theme.colors, {
+            borderRadius: state.site.theme.cards.borderRadius,
+          }),
+        }),
+      },
+      isDirty: true,
+    }));
+  },
+
   applyThemePreset: (presetId, source) => {
     set((state) => {
       const presetTheme =
@@ -665,9 +681,13 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         return state;
       }
 
+      const colors = normalizeThemeColors(presetTheme.colors);
       const nextTheme = normalizeTheme({
         ...state.site.theme,
-        colors: normalizeThemeColors(presetTheme.colors),
+        colors,
+        cards: deriveCardsFromThemeColors(colors, {
+          borderRadius: state.site.theme.cards.borderRadius,
+        }),
         presetId,
       });
 
