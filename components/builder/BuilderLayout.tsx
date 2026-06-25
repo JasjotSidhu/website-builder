@@ -129,7 +129,7 @@ export default function BuilderLayout() {
           )}
         </aside>
 
-        <section className="min-h-0">
+        <section className="min-h-0 min-w-0 overflow-hidden">
           <Canvas onOpenSectionLibrary={openSectionLibrary} />
         </section>
 
