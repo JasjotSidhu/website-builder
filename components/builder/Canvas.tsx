@@ -17,8 +17,14 @@ interface CanvasProps {
 
 export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   const site = useBuilderStore((state) => state.site);
+  const activePageId = useBuilderStore((state) => state.activePageId);
 
-  const page = site.pages[0];
+  const page =
+    site.pages.find((entry) => entry.id === activePageId) ?? site.pages[0];
+  if (!page) {
+    return null;
+  }
+
   const sections = page.sections.filter((section) => !isFixedSlotType(section.type));
   const pages = site.pages.map((entry) => ({
     id: entry.id,

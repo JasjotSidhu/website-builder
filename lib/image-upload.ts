@@ -120,3 +120,39 @@ export async function readImageFileAsDataUrl(file: File): Promise<string> {
 export function createPreviewObjectUrl(file: File): string {
   return URL.createObjectURL(file);
 }
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, base64] = dataUrl.split(",");
+  const mime = header.match(/:(.*?);/)?.[1] ?? "image/jpeg";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return new Blob([bytes], { type: mime });
+}
+
+export async function uploadImageFile(file: File): Promise<string> {
+  const dataUrl = await readImageFileAsDataUrl(file);
+  const blob = dataUrlToBlob(dataUrl);
+  const ext = blob.type === "image/png" ? "png" : blob.type === "image/svg+xml" ? "svg" : "jpg";
+  const uploadFile = new File([blob], `upload.${ext}`, { type: blob.type });
+  const formData = new FormData();
+  formData.append("file", uploadFile);
+
+  const response = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Upload failed.");
+  }
+
+  const payload = (await response.json()) as { url?: string };
+  if (!payload.url) {
+    throw new Error("Upload failed.");
+  }
+
+  return payload.url;
+}

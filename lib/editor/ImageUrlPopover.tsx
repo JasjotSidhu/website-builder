@@ -5,8 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPreviewObjectUrl,
   isHeicFile,
-  optimizeImageDataUrl,
-  readFileAsDataUrl,
+  uploadImageFile,
 } from "@/lib/image-upload";
 import FloatingPopover from "./FloatingPopover";
 import { PopoverActions, PopoverField, PopoverShell } from "./PopoverShell";
@@ -135,18 +134,10 @@ export default function ImageUrlPopover({
     setPreviewSrc(objectUrl);
 
     try {
-      const raw = await readFileAsDataUrl(file);
+      const uploadedUrl = await uploadImageFile(file);
       clearPreviewObjectUrl();
-      setUrl(raw);
-      setPreviewSrc(raw);
-
-      try {
-        const optimized = await optimizeImageDataUrl(raw, file);
-        setUrl(optimized);
-        setPreviewSrc(optimized);
-      } catch {
-        // Keep the raw data URL preview when compression is unavailable.
-      }
+      setUrl(uploadedUrl);
+      setPreviewSrc(uploadedUrl);
     } catch (error) {
       clearPreviewObjectUrl();
       setPreviewSrc(value);

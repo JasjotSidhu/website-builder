@@ -162,19 +162,21 @@ export function PageRenderer({
 
 export function SiteRenderer({
   site,
+  page,
   slug,
   strict = true,
   showHidden = false,
 }: {
   site: WebsiteData;
-  slug: string;
+  page?: PageData;
+  slug?: string;
   strict?: boolean;
   showHidden?: boolean;
 }) {
-  const page = site.pages.find((entry) => entry.slug === slug);
+  const resolvedPage = page ?? site.pages.find((entry) => entry.slug === slug);
 
-  if (!page) {
-    throw new Error(`No page found for slug "${slug}".`);
+  if (!resolvedPage) {
+    throw new Error(`No page found for slug "${slug ?? "unknown"}".`);
   }
 
   const pages = site.pages.map((entry) => ({
@@ -188,7 +190,7 @@ export function SiteRenderer({
       <div style={buildThemeCssVariables(site.theme)}>
         {renderNavigation(site.navigation, strict)}
         <PageRenderer
-          page={page}
+          page={resolvedPage}
           theme={site.theme}
           strict={strict}
           showHidden={showHidden}

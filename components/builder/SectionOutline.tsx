@@ -16,7 +16,10 @@ export default function SectionOutline({
   onReplaceFooter,
 }: SectionOutlineProps) {
   const site = useBuilderStore((state) => state.site);
-  const sections = site.pages[0].sections;
+  const activePageId = useBuilderStore((state) => state.activePageId);
+  const page =
+    site.pages.find((entry) => entry.id === activePageId) ?? site.pages[0];
+  const sections = page?.sections ?? [];
   const headerVariant = findSectionVariant("header", getHeaderVariantId(site.navigation));
   const footerVariant = findSectionVariant("footer", site.footer.variant);
 

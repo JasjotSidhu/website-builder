@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { rgbToHex } from "@/lib/color-utils";
 import type { ButtonToolbarSettings } from "./button-toolbar-settings";
 import ButtonToolbar from "./ButtonToolbar";
@@ -42,9 +42,7 @@ function initializeEditorContent(
     return;
   }
 
-  if (value) {
-    element.textContent = value;
-  }
+  element.textContent = value;
 }
 
 export default function EditableText({
@@ -60,14 +58,16 @@ export default function EditableText({
   fallback,
 }: EditableTextProps) {
   const { isEditing } = useEditMode();
-  const { data, updateField } = useSectionData();
+  const { data, updateField, updateFields } = useSectionData();
   const sectionTextColor = useTextColorStyle();
   const [active, setActive] = useState(false);
   const [editorEl, setEditorEl] = useState<HTMLElement | null>(null);
   const [toolbarAnchorEl, setToolbarAnchorEl] = useState<HTMLElement | null>(null);
   const [inheritedTextColor, setInheritedTextColor] = useState("#111111");
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentReadyRef = useRef(false);
+  const editorRef = useRef<HTMLElement | null>(null);
+  const initializedKeyRef = useRef<string | null>(null);
+  const seedContentRef = useRef({ value: "", html: undefined as string | undefined });
 
   const value = String(data[dataKey] ?? "");
   const displayValue = value.trim() ? value : (fallback ?? "");
@@ -87,6 +87,9 @@ export default function EditableText({
     fontSizeOverride != null && fontSizeOverride !== ""
       ? Number(fontSizeOverride)
       : undefined;
+  const editorInstanceKey = `${dataKey}:${Tag}`;
+
+  seedContentRef.current = { value: displayValue, html: htmlValue };
 
   const toolbarDefaultColor = inheritSectionColor ? sectionTextColor : inheritedTextColor;
 
@@ -99,6 +102,25 @@ export default function EditableText({
     ...(fontFamily ? { fontFamily } : {}),
     ...(fontSizeNum && !Number.isNaN(fontSizeNum) ? { fontSize: `${fontSizeNum}px` } : {}),
   };
+
+  useLayoutEffect(() => {
+    if (!isEditing) {
+      initializedKeyRef.current = null;
+      return;
+    }
+
+    const element = editorRef.current;
+    if (!element || initializedKeyRef.current === editorInstanceKey) {
+      return;
+    }
+
+    initializeEditorContent(
+      element,
+      seedContentRef.current.value,
+      seedContentRef.current.html,
+    );
+    initializedKeyRef.current = editorInstanceKey;
+  }, [isEditing, editorInstanceKey]);
 
   useLayoutEffect(() => {
     if (inheritSectionColor) {
@@ -145,13 +167,23 @@ export default function EditableText({
   }, [active]);
 
   const handleContentChange = (text: string, html: string) => {
-    updateField(dataKey, text);
     if (hasRichTextMarkup(html)) {
-      updateField(`${dataKey}Html`, html);
-    } else {
-      updateField(`${dataKey}Html`, undefined);
+      updateFields({
+        [dataKey]: text,
+        [`${dataKey}Html`]: html,
+      });
+      return;
     }
+
+    updateFields({
+      [dataKey]: text,
+      [`${dataKey}Html`]: undefined,
+    });
   };
+
+  const assignEditorRef = useCallback((element: HTMLElement | null) => {
+    editorRef.current = element;
+  }, []);
 
   if (!isEditing) {
     if (!displayValue) {
@@ -178,20 +210,6 @@ export default function EditableText({
   const wrapperClass = BLOCK_TAGS.has(defaultTag)
     ? "editable-text-wrapper editable-text-wrapper--block"
     : "editable-text-wrapper";
-
-  const handleEditorRef = (element: HTMLElement | null) => {
-    setEditorEl(element);
-
-    if (!element) {
-      contentReadyRef.current = false;
-      return;
-    }
-
-    if (!contentReadyRef.current) {
-      initializeEditorContent(element, displayValue, htmlValue);
-      contentReadyRef.current = true;
-    }
-  };
 
   return (
     <div
@@ -220,15 +238,18 @@ export default function EditableText({
         )
       ) : null}
       <Tag
-        key={String(tagOverride ?? defaultTag)}
-        ref={handleEditorRef}
+        key={editorInstanceKey}
+        ref={assignEditorRef as never}
         style={style}
         className={`${className ?? ""} editable-field ${
           required && !value.trim() ? "editable-field--empty" : ""
         }`.trim()}
         contentEditable
         suppressContentEditableWarning
-        onFocus={() => setActive(true)}
+        onFocus={() => {
+          setActive(true);
+          setEditorEl(editorRef.current);
+        }}
         onInput={(event) => {
           const element = event.currentTarget;
           const text = element.textContent ?? "";
