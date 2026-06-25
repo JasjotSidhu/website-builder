@@ -21,6 +21,21 @@ export interface WebsiteData {
   pages: PageData[];
   footer: FooterConfig;
   savedSections?: SavedSection[];
+  customThemes?: CustomTheme[];
+}
+
+export interface CustomTheme {
+  id: string;
+  name: string;
+  theme: ThemeConfig;
+  savedAt: string;
+}
+
+export interface ThemePreset {
+  id: string;
+  name: string;
+  theme: ThemeConfig;
+  builtIn?: boolean;
 }
 
 export interface SiteMeta {
@@ -34,20 +49,61 @@ export interface SiteMeta {
   };
 }
 
+export interface ThemeFontConfig {
+  family: string;
+  googleFontId?: string;
+  weights?: string;
+  fallback?: "sans-serif" | "serif" | "monospace";
+}
+
+export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonHoverEffect = "lift" | "darken" | "outline-fill" | "none";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "light";
+
+export interface ButtonStyleConfig {
+  fontSize: ButtonSize;
+  fontWeight: 500 | 600 | 700;
+  padding: ButtonSize;
+  borderRadius: "inherit" | "none" | "sm" | "md" | "lg" | "full";
+  hoverEffect: ButtonHoverEffect;
+  shadow: boolean;
+  defaultVariant: ButtonVariant;
+}
+
+export interface CardStyleConfig {
+  background: string;
+  titleColor: string;
+  textColor: string;
+  borderRadius: "inherit" | "none" | "sm" | "md" | "lg" | "full";
+  borderColor: string;
+  iconColor: string;
+}
+
 export interface ThemeConfig {
   colors: {
     primary: string;
     secondary: string;
     background: string;
-    text: string;
+    titleText: string;
+    bodyText: string;
     accent?: string;
+    /** @deprecated Use bodyText — kept for legacy site data */
+    text?: string;
+    /** @deprecated Migrated to theme.cards — kept for legacy site data */
+    cardBackground?: string;
+    /** @deprecated Migrated to theme.cards — kept for legacy site data */
+    cardText?: string;
   };
   fonts: {
-    heading: string;
-    body: string;
+    heading: ThemeFontConfig;
+    body: ThemeFontConfig;
   };
   borderRadius: "none" | "sm" | "md" | "lg" | "full";
   spacing: "compact" | "comfortable" | "spacious";
+  buttons: ButtonStyleConfig;
+  cards: CardStyleConfig;
+  presetId?: string;
+  customName?: string;
 }
 
 export interface NavigationConfig {
@@ -55,8 +111,8 @@ export interface NavigationConfig {
   logo: { type: "image"; value: string };
   links?: { label: string; link: LinkValue }[];
   menus?: HeaderMenuItem[];
-  cta?: { label: string; link: LinkValue; variant?: "primary" | "secondary" };
-  ctas?: { id: string; label: string; link: LinkValue; variant?: "primary" | "secondary" }[];
+  cta?: { label: string; link: LinkValue; variant?: ButtonVariant };
+  ctas?: { id: string; label: string; link: LinkValue; variant?: ButtonVariant }[];
   settings?: Record<string, unknown>;
 }
 

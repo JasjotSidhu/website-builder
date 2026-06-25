@@ -13,8 +13,17 @@
       "primary": "#5B4B8A",
       "secondary": "#E8A598",
       "background": "#FFFBF7",
-      "text": "#2D2640",
+      "titleText": "#2D2640",
+      "bodyText": "#374151",
       "accent": "#7CB69D"
+    },
+    "cards": {
+      "background": "#FFFFFF",
+      "titleColor": "#2D2640",
+      "textColor": "#4B5563",
+      "borderRadius": "inherit",
+      "borderColor": "#E5E7EB",
+      "iconColor": "#5B4B8A"
     },
     "fonts": {
       "heading": "Georgia, 'Times New Roman', serif",
@@ -74,10 +83,10 @@
             ]
           },
           "settings": {
-            "overlayColor": "#000000",
-            "opacity": 0.35,
-            "backgroundColor": "#FFFBF7",
-            "paddingY": "lg"
+            "type": "solid",
+            "color": "var(--color-background)",
+            "paddingY": "lg",
+            "textColor": "auto"
           }
         },
         {
@@ -106,10 +115,12 @@
             ]
           },
           "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
             "columns": 3,
             "gap": "md",
-            "backgroundColor": "#F5F0EB",
-            "paddingY": "lg"
+            "paddingY": "lg",
+            "textColor": "auto"
           }
         },
         {
@@ -141,8 +152,10 @@
             ]
           },
           "settings": {
-            "backgroundColor": "#FFFBF7",
-            "paddingY": "lg"
+            "type": "solid",
+            "color": "var(--color-background)",
+            "paddingY": "lg",
+            "textColor": "auto"
           }
         },
         {
@@ -174,10 +187,12 @@
             ]
           },
           "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
             "columns": 3,
             "gap": "md",
-            "backgroundColor": "#F5F0EB",
-            "paddingY": "lg"
+            "paddingY": "lg",
+            "textColor": "auto"
           }
         },
         {
@@ -191,15 +206,15 @@
               {
                 "label": "Start a project",
                 "link": { "type": "url", "href": "#contact" },
-                "variant": "primary"
+                "variant": "light"
               }
             ]
           },
           "settings": {
-            "overlayColor": "#000000",
-            "opacity": 0,
-            "backgroundColor": "#5B4B8A",
-            "paddingY": "md"
+            "type": "solid",
+            "color": "var(--color-primary)",
+            "paddingY": "md",
+            "textColor": "auto"
           }
         }
       ]

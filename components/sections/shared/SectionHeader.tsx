@@ -56,6 +56,7 @@ export function SectionHeader({
         dataKey={headingKey}
         maxLength={resolvedHeadingMaxLength}
         className={`${HEADING_CLASSES[size]} ${textAlign}`}
+        themeTextRole="title"
       />
       <EditableText
         as="p"
@@ -63,6 +64,7 @@ export function SectionHeader({
         maxLength={resolvedSubheadingMaxLength}
         required={false}
         className={`${SUBHEADING_CLASSES[size]} ${textAlign}`}
+        themeTextRole="body"
       />
     </div>
   );

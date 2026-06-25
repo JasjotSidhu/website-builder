@@ -5,6 +5,7 @@ import { sectionRegistry } from "@/lib/registry";
 import type { SectionInstance } from "@/lib/types";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
+import { buildSectionTypographyStyle } from "@/lib/theme-utils";
 import { resolveSectionSettings } from "@/lib/traits/normalize";
 import { useCloseOnOutsideClick } from "@/lib/hooks/use-close-on-outside-click";
 import { useBuilderStore } from "@/store/builderStore";
@@ -107,11 +108,13 @@ export default function SectionWrapper({
 
   const wrapperClassName = [
     "section-wrapper",
+    "section-typography",
     highlightedSectionId === section.id ? "section-wrapper--highlighted" : "",
     section.customClass ?? "",
   ]
     .filter(Boolean)
     .join(" ");
+  const typographyStyle = buildSectionTypographyStyle(resolvedSettings);
 
   return (
     <SectionSettingsProvider settings={resolvedSettings}>
@@ -125,7 +128,7 @@ export default function SectionWrapper({
           className={wrapperClassName}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          style={{ opacity: section.hidden ? 0.4 : 1, position: "relative" }}
+          style={{ opacity: section.hidden ? 0.4 : 1, position: "relative", ...typographyStyle }}
         >
           {hovered ? <AddSectionButton onClick={() => onAddSection(index)} /> : null}
           {hovered || settingsOpen || saveOpen ? (

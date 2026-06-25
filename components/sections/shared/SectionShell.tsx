@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEditMode } from "@/lib/editor/EditModeContext";
-import { useBackgroundStyle, useSpacingStyle } from "@/lib/traits/hooks";
+import { useBackgroundStyle, useSpacingStyle, useTextColorStyle } from "@/lib/traits/hooks";
 
 interface SectionShellProps {
   children: ReactNode;
@@ -18,12 +18,13 @@ export function SectionShell({
   const { isEditing } = useEditMode();
   const { containerStyle, overlayStyle } = useBackgroundStyle();
   const spacingStyle = withSpacing ? useSpacingStyle() : {};
+  const textColor = useTextColorStyle();
   const overflowClass = isEditing ? "overflow-visible" : "overflow-hidden";
 
   return (
     <section
       className={`relative ${overflowClass} ${className}`.trim()}
-      style={{ ...containerStyle, ...spacingStyle }}
+      style={{ ...containerStyle, ...spacingStyle, color: textColor }}
     >
       {overlayStyle ? <div style={overlayStyle} /> : null}
       <div className="relative z-10">{children}</div>

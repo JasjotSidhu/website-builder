@@ -70,7 +70,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Centered hero",
         component: HeroCentered as ComponentType<Record<string, unknown>>,
         propsSchema: heroCenteredSchema,
-        traits: ["background", "textColor", "spacing"],
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
         settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           eyebrow: "Welcome",
@@ -86,7 +86,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Split hero",
         component: HeroSplit as ComponentType<Record<string, unknown>>,
         propsSchema: heroSplitSchema,
-        traits: ["background", "textColor", "spacing", "reversible"],
+        traits: ["background", "textColor", "spacing", "reversible", "sectionFonts"],
         settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           eyebrow: "Our studio",
@@ -109,7 +109,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "3-column features grid",
         component: FeaturesGrid3 as ComponentType<Record<string, unknown>>,
         propsSchema: featuresGrid3Schema,
-        traits: ["grid", "background", "textColor", "spacing"],
+        traits: ["grid", "background", "textColor", "spacing", "sectionFonts"],
         defaultProps: {
           eyebrow: "Features",
           heading: "Features",
@@ -126,7 +126,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Alternating features",
         component: FeaturesAlternating as ComponentType<Record<string, unknown>>,
         propsSchema: featuresAlternatingSchema,
-        traits: ["background", "textColor", "spacing"],
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
         defaultProps: {
           eyebrow: "Process",
           heading: "How it works",
@@ -153,7 +153,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Testimonials grid",
         component: TestimonialsGrid as ComponentType<Record<string, unknown>>,
         propsSchema: testimonialsGridSchema,
-        traits: ["grid", "background", "textColor", "spacing"],
+        traits: ["grid", "background", "textColor", "spacing", "sectionFonts"],
         defaultProps: {
           eyebrow: "Testimonials",
           heading: "What clients say",
@@ -177,11 +177,11 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "CTA banner",
         component: CtaBanner as ComponentType<Record<string, unknown>>,
         propsSchema: ctaBannerSchema,
-        traits: ["background", "textColor", "spacing"],
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
         settingsDefaults: {
           type: "solid",
           color: "var(--color-primary)",
-          textColor: "#ffffff",
+          textColor: "auto",
         },
         defaultProps: {
           eyebrow: "Get started",
@@ -208,7 +208,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         label: "Simple footer",
         component: FooterSimple as ComponentType<Record<string, unknown>>,
         propsSchema: footerSimpleSchema,
-        traits: ["background", "textColor"],
+        traits: ["background", "textColor", "sectionFonts"],
         settingsDefaults: { type: "solid", color: "var(--color-background)" },
         defaultProps: {
           logo: { type: "text", value: "Brand" },

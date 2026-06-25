@@ -1,8 +1,8 @@
 "use client";
 
 import { useBuilderStore } from "@/store/builderStore";
+import StylePanel from "./style/StylePanel";
 import SiteSettingsPanel from "./SiteSettingsPanel";
-import ThemePanel from "./ThemePanel";
 
 export default function RightSidebar() {
   const tab = useBuilderStore((state) => state.rightSidebarTab);
@@ -27,7 +27,7 @@ export default function RightSidebar() {
         </button>
       </div>
       <div className="min-h-0 flex-1">
-        {tab === "theme" ? <ThemePanel embedded /> : <SiteSettingsPanel />}
+        {tab === "theme" ? <StylePanel /> : <SiteSettingsPanel />}
       </div>
     </div>
   );

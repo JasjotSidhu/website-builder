@@ -5,8 +5,9 @@ import { useState } from "react";
 import EditableNavLinksList from "@/lib/editor/EditableNavLinksList";
 import { useSectionData } from "@/lib/editor/SectionDataContext";
 import { useSitePages } from "@/lib/editor/SiteContext";
+import { getSiteButtonClassName } from "@/lib/button-styles";
 import { resolveLink } from "@/lib/links";
-import type { LinkValue } from "@/lib/types";
+import type { ButtonVariant, LinkValue } from "@/lib/types";
 
 export { headerSimpleSchema } from "./schema";
 export type { HeaderSimpleProps } from "./schema";
@@ -15,7 +16,7 @@ interface HeaderCtaItem {
   id: string;
   label: string;
   link: LinkValue;
-  variant?: "primary" | "secondary";
+  variant?: ButtonVariant;
 }
 
 interface HeaderLogoImage {
@@ -58,7 +59,7 @@ export default function HeaderSimple() {
           {ctas.map((cta) => {
             const href = resolveLink(cta.link, pages);
             return (
-              <a key={cta.id} href={href} className="rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95">
+              <a key={cta.id} href={href} className={getSiteButtonClassName(cta.variant)}>
                 {cta.label}
               </a>
             );
@@ -120,7 +121,7 @@ export default function HeaderSimple() {
                       <a
                         key={cta.id}
                         href={href}
-                        className="block rounded-md bg-[var(--color-primary)] px-4 py-3 text-center text-sm font-semibold text-white"
+                        className={getSiteButtonClassName(cta.variant)}
                         onClick={closeMenu}
                       >
                         {cta.label}

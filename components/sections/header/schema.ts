@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { linkValueSchema } from "@/lib/schemas";
+import { normalizeButtonVariant } from "@/lib/button-styles";
+
+const buttonVariantSchema = z.preprocess(
+  (value) => normalizeButtonVariant(value),
+  z.enum(["primary", "secondary", "outline", "light"]),
+);
 
 export const headerSimpleSchema = z.object({
   logo: z.object({
@@ -60,7 +66,7 @@ export const headerSimpleSchema = z.object({
     .object({
       label: z.string().min(1),
       link: linkValueSchema,
-      variant: z.enum(["primary", "secondary"]).optional(),
+      variant: buttonVariantSchema.optional(),
     })
     .optional(),
   ctas: z
@@ -69,7 +75,7 @@ export const headerSimpleSchema = z.object({
         id: z.string().min(1),
         label: z.string().min(1),
         link: linkValueSchema,
-        variant: z.enum(["primary", "secondary"]).optional(),
+        variant: buttonVariantSchema.optional(),
       }),
     )
     .optional(),

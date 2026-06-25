@@ -10,7 +10,10 @@ import type {
 } from "./types";
 import { findSectionVariant } from "./registry";
 import { getHeaderProps } from "./header-utils";
-import { buildThemeCssVariables } from "./theme-utils";
+import GoogleFontsLoader from "@/components/shared/GoogleFontsLoader";
+import { ThemeProvider } from "@/lib/editor/ThemeContext";
+import { collectSiteFonts } from "@/lib/fonts/collect-site-fonts";
+import { buildThemeCssVariables, buildSectionTypographyStyle } from "./theme-utils";
 import HeaderSimple from "@/components/sections/header/HeaderSimple";
 import { headerSimpleSchema } from "@/components/sections/header/schema";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
@@ -81,6 +84,8 @@ function renderFooter(footer: FooterConfig, strict: boolean) {
     footer.settings,
     match.traits,
     match.settingsDefaults,
+    "footer",
+    footer.variant,
   );
 
   return (
@@ -147,7 +152,11 @@ export function PageRenderer({
         );
 
         return (
-          <div key={section.id} className={section.customClass?.trim() || undefined}>
+          <div
+            key={section.id}
+            className={["section-typography", section.customClass?.trim()].filter(Boolean).join(" ") || undefined}
+            style={buildSectionTypographyStyle(settings)}
+          >
             <SectionSettingsProvider settings={settings}>
               <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
                 <Component />
@@ -187,16 +196,23 @@ export function SiteRenderer({
 
   return (
     <SiteProvider pages={pages}>
-      <div className="@container w-full" style={buildThemeCssVariables(site.theme)}>
-        {renderNavigation(site.navigation, strict)}
-        <PageRenderer
-          page={resolvedPage}
-          theme={site.theme}
-          strict={strict}
-          showHidden={showHidden}
-        />
-        {renderFooter(site.footer, strict)}
-      </div>
+      <GoogleFontsLoader fonts={collectSiteFonts(site)} />
+      <ThemeProvider theme={site.theme}>
+        <div
+          className="@container site-theme-root w-full"
+          style={buildThemeCssVariables(site.theme)}
+          data-btn-hover-effect={site.theme.buttons?.hoverEffect ?? "lift"}
+        >
+          {renderNavigation(site.navigation, strict)}
+          <PageRenderer
+            page={resolvedPage}
+            theme={site.theme}
+            strict={strict}
+            showHidden={showHidden}
+          />
+          {renderFooter(site.footer, strict)}
+        </div>
+      </ThemeProvider>
     </SiteProvider>
   );
 }

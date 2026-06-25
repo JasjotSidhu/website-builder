@@ -36,4 +36,5 @@ export const tabSubtitles: Record<TraitCategory, string> = {
   background: "Colors, gradients & images",
   typography: "Default text color",
   layout: "Spacing, grid & column order",
+  fonts: "Heading and body font overrides",
 };

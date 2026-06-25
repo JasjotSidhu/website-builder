@@ -10,32 +10,22 @@ import {
 } from "@/lib/editor/SectionDataContext";
 import { useSitePages } from "@/lib/editor/SiteContext";
 import { resolveLink } from "@/lib/links";
-import type { LinkValue } from "@/lib/types";
+import type { ButtonVariant, LinkValue } from "@/lib/types";
 import { SectionHeader } from "./SectionHeader";
 
 const DEFAULT_MAX_BUTTONS = 6;
 
+import { getSiteButtonClassName } from "@/lib/button-styles";
+
 interface ButtonItem {
   label: string;
   link: LinkValue;
-  variant?: "primary" | "secondary";
+  variant?: ButtonVariant;
 }
 
-function buttonClassName(
-  variant: ButtonItem["variant"],
-  appearance: "hero" | "cta" | "header",
-) {
-  if (appearance === "cta") {
-    return "cta-button mt-10 inline-block";
-  }
-
-  if (appearance === "header") {
-    return "rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95";
-  }
-
-  return variant === "secondary"
-    ? "hero-button hero-button--secondary"
-    : "hero-button hero-button--primary";
+function buttonClassName(variant: ButtonItem["variant"], appearance: "hero" | "cta" | "header") {
+  const extra = appearance === "cta" ? "mt-10" : "";
+  return getSiteButtonClassName(variant, extra);
 }
 
 function SectionButtonItem({
@@ -78,7 +68,7 @@ function SectionButtonItem({
           as="span"
           dataKey="label"
           maxLength={40}
-          inheritSectionColor={appearance === "hero"}
+          inheritSectionColor={false}
           colorSourceRef={triggerRef}
           toolbarAnchorRef={triggerRef}
           buttonSettings={{

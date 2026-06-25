@@ -9,6 +9,7 @@ import InlineTextToolbar from "./InlineTextToolbar";
 import { hasRichTextMarkup, sanitizeRichTextHtml } from "./rich-text";
 import { useSectionData } from "./SectionDataContext";
 import { useTextColorStyle } from "@/lib/traits/hooks";
+import { getThemeTextColorVar, type ThemeTextRole } from "@/lib/theme-text-color";
 
 type EditableTag = "span" | "p" | "h1" | "h2" | "h3" | "h4" | "div";
 
@@ -30,6 +31,8 @@ interface EditableTextProps {
   buttonSettings?: ButtonToolbarSettings;
   /** Shown when the stored value is empty (e.g. legacy sections without this field). */
   fallback?: string;
+  /** Global theme text token — section uses auto-contrast when omitted. */
+  themeTextRole?: ThemeTextRole;
 }
 
 function initializeEditorContent(
@@ -56,6 +59,7 @@ export default function EditableText({
   toolbarAnchorRef,
   buttonSettings,
   fallback,
+  themeTextRole,
 }: EditableTextProps) {
   const { isEditing } = useEditMode();
   const { data, updateField, updateFields } = useSectionData();
@@ -82,7 +86,8 @@ export default function EditableText({
       ? String(fontFamilyOverride)
       : undefined;
   const fontSizeOverride = data[`${dataKey}FontSize`];
-  const Tag = (tagOverride || defaultTag) as EditableTag;
+  const isButtonLabel = Boolean(buttonSettings);
+  const Tag = (isButtonLabel ? "span" : tagOverride || defaultTag) as EditableTag;
   const fontSizeNum =
     fontSizeOverride != null && fontSizeOverride !== ""
       ? Number(fontSizeOverride)
@@ -91,16 +96,27 @@ export default function EditableText({
 
   seedContentRef.current = { value: displayValue, html: htmlValue };
 
-  const toolbarDefaultColor = inheritSectionColor ? sectionTextColor : inheritedTextColor;
+  const toolbarDefaultColor = isButtonLabel
+    ? inheritedTextColor
+    : inheritSectionColor
+      ? getThemeTextColorVar(themeTextRole) ?? sectionTextColor
+      : inheritedTextColor;
+
+  const resolvedTextColor = isButtonLabel
+    ? colorOverride
+      ? String(colorOverride)
+      : undefined
+    : colorOverride
+      ? String(colorOverride)
+      : getThemeTextColorVar(themeTextRole) ??
+        (inheritSectionColor ? sectionTextColor : undefined);
 
   const style: React.CSSProperties = {
-    ...(colorOverride
-      ? { color: String(colorOverride) }
-      : inheritSectionColor
-        ? { color: sectionTextColor }
-        : {}),
-    ...(fontFamily ? { fontFamily } : {}),
-    ...(fontSizeNum && !Number.isNaN(fontSizeNum) ? { fontSize: `${fontSizeNum}px` } : {}),
+    ...(resolvedTextColor ? { color: resolvedTextColor } : {}),
+    ...(!isButtonLabel && fontFamily ? { fontFamily } : {}),
+    ...(!isButtonLabel && fontSizeNum && !Number.isNaN(fontSizeNum)
+      ? { fontSize: `${fontSizeNum}px` }
+      : {}),
   };
 
   useLayoutEffect(() => {

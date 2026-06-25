@@ -3,12 +3,16 @@
 import { create } from "zustand";
 import { ZodError } from "zod";
 import sampleSite from "@/data/sample-site.json";
+import { findBuiltInPreset } from "@/data/theme-presets";
+import { cloneTheme, normalizeTheme, normalizeThemeColors } from "@/lib/theme-defaults";
 import { findSectionVariant } from "@/lib/registry";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
 import { websiteSchema } from "@/lib/schemas";
+import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { buildVariantSettings } from "@/lib/traits/registry";
 import { normalizeSiteSections } from "@/lib/traits/normalize";
 import type {
+  CustomTheme,
   FooterConfig,
   NavigationConfig,
   PageData,
@@ -22,6 +26,7 @@ import { isFixedSlotType } from "@/lib/section-placement";
 
 export type PreviewDevice = "desktop" | "tablet" | "mobile";
 export type RightSidebarTab = "theme" | "settings";
+export type StyleSubTab = "themes" | "fonts" | "buttons" | "cards";
 export type SettingsPanelTab = "site" | "page" | "data";
 export type LeftSidebarMode = "outline" | "header-settings";
 
@@ -54,6 +59,7 @@ interface BuilderState {
   historyFuture: WebsiteData[];
   highlightedSectionId: string | null;
   rightSidebarTab: RightSidebarTab;
+  styleSubTab: StyleSubTab;
   settingsPanelTab: SettingsPanelTab;
   leftSidebarMode: LeftSidebarMode;
 
@@ -67,6 +73,7 @@ interface BuilderState {
   setPreviewDevice: (device: PreviewDevice) => void;
   scrollToSection: (sectionId: string) => void;
   setRightSidebarTab: (tab: RightSidebarTab) => void;
+  setStyleSubTab: (tab: StyleSubTab) => void;
   setSettingsPanelTab: (tab: SettingsPanelTab) => void;
   openHeaderSettings: () => void;
   closeHeaderSettings: () => void;
@@ -86,6 +93,9 @@ interface BuilderState {
   patchSectionProps: (id: string, partial: Record<string, unknown>) => void;
   updateSectionSettings: (id: string, partialSettings: Record<string, unknown>) => void;
   updateTheme: (theme: Partial<ThemeConfig>) => void;
+  applyThemePreset: (presetId: string, source: "built-in" | "custom") => void;
+  saveCustomTheme: (name: string) => void;
+  removeCustomTheme: (themeId: string) => void;
   toggleSectionHidden: (id: string) => void;
   resetSectionToDefault: (id: string) => void;
   replaceSection: (id: string, type: string, variantId: string) => void;
@@ -134,7 +144,27 @@ function updateActivePageSections(
   };
 }
 
-const fallbackSite = normalizeSiteSections(websiteSchema.parse(sampleSite) as WebsiteData);
+function createCustomThemeId() {
+  return `theme-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function remigrateSectionSettings(section: SectionInstance): SectionInstance {
+  return {
+    ...section,
+    settings: migrateThemeBoundSectionSettings(
+      section.settings ?? {},
+      section.type,
+      section.variant,
+    ),
+  };
+}
+
+const fallbackSite = normalizeSiteSections(
+  websiteSchema.parse({
+    ...sampleSite,
+    theme: normalizeTheme(sampleSite.theme),
+  }) as WebsiteData,
+);
 
 interface SiteLoadResponse {
   site: WebsiteData;
@@ -168,6 +198,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   historyFuture: [],
   highlightedSectionId: null,
   rightSidebarTab: "theme",
+  styleSubTab: "themes",
   settingsPanelTab: "site",
   leftSidebarMode: "outline",
 
@@ -348,6 +379,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   },
 
   setRightSidebarTab: (tab) => set({ rightSidebarTab: tab }),
+  setStyleSubTab: (tab) => set({ styleSubTab: tab }),
 
   setSettingsPanelTab: (tab) => set({ settingsPanelTab: tab }),
 
@@ -597,7 +629,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     set((state) => ({
       site: {
         ...state.site,
-        theme: {
+        theme: normalizeTheme({
           ...state.site.theme,
           ...theme,
           colors: {
@@ -605,10 +637,91 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             ...theme.colors,
           },
           fonts: {
-            ...state.site.theme.fonts,
-            ...theme.fonts,
+            heading: { ...state.site.theme.fonts.heading, ...theme.fonts?.heading },
+            body: { ...state.site.theme.fonts.body, ...theme.fonts?.body },
+          },
+          buttons: {
+            ...state.site.theme.buttons,
+            ...theme.buttons,
+          },
+          cards: {
+            ...state.site.theme.cards,
+            ...theme.cards,
+          },
+        }),
+      },
+      isDirty: true,
+    }));
+  },
+
+  applyThemePreset: (presetId, source) => {
+    set((state) => {
+      const presetTheme =
+        source === "built-in"
+          ? findBuiltInPreset(presetId)?.theme
+          : state.site.customThemes?.find((entry) => entry.id === presetId)?.theme;
+
+      if (!presetTheme) {
+        return state;
+      }
+
+      const nextTheme = normalizeTheme({
+        ...state.site.theme,
+        colors: normalizeThemeColors(presetTheme.colors),
+        presetId,
+      });
+
+      return {
+        site: {
+          ...state.site,
+          theme: nextTheme,
+          pages: state.site.pages.map((page) => ({
+            ...page,
+            sections: page.sections.map(remigrateSectionSettings),
+          })),
+          footer: {
+            ...state.site.footer,
+            settings: migrateThemeBoundSectionSettings(
+              state.site.footer.settings ?? {},
+              "footer",
+              state.site.footer.variant,
+            ),
           },
         },
+        isDirty: true,
+      };
+    });
+  },
+
+  saveCustomTheme: (name) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    set((state) => {
+      const customTheme: CustomTheme = {
+        id: createCustomThemeId(),
+        name: trimmedName,
+        theme: cloneTheme({ colors: state.site.theme.colors }),
+        savedAt: new Date().toISOString(),
+      };
+
+      return {
+        site: {
+          ...state.site,
+          customThemes: [...(state.site.customThemes ?? []), customTheme],
+        },
+        isDirty: true,
+      };
+    });
+  },
+
+  removeCustomTheme: (themeId) => {
+    set((state) => ({
+      site: {
+        ...state.site,
+        customThemes: (state.site.customThemes ?? []).filter((entry) => entry.id !== themeId),
       },
       isDirty: true,
     }));

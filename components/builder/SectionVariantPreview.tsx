@@ -1,6 +1,7 @@
 "use client";
 
 import { EditModeContext } from "@/lib/editor/EditModeContext";
+import { ThemeProvider } from "@/lib/editor/ThemeContext";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import type { SectionVariant } from "@/lib/registry";
@@ -28,13 +29,15 @@ export default function SectionVariantPreview({
   return (
     <div className="variant-preview-theme" style={previewThemeStyle}>
       <EditModeContext.Provider value={{ isEditing: false }}>
-        <SiteProvider pages={[{ id: "home", title: "Home", slug: "/" }]}>
-          <SectionSettingsProvider settings={settings}>
-            <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
-              <PreviewComponent />
-            </SectionDataProvider>
-          </SectionSettingsProvider>
-        </SiteProvider>
+        <ThemeProvider theme={theme}>
+          <SiteProvider pages={[{ id: "home", title: "Home", slug: "/" }]}>
+            <SectionSettingsProvider settings={settings}>
+              <SectionDataProvider data={props} updateField={() => {}} updateFields={() => {}}>
+                <PreviewComponent />
+              </SectionDataProvider>
+            </SectionSettingsProvider>
+          </SiteProvider>
+        </ThemeProvider>
       </EditModeContext.Provider>
     </div>
   );

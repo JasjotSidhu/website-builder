@@ -1,10 +1,16 @@
 import { z } from "zod";
 import { linkValueSchema } from "@/lib/schemas";
+import { normalizeButtonVariant } from "@/lib/button-styles";
+
+const buttonVariantSchema = z.preprocess(
+  (value) => normalizeButtonVariant(value),
+  z.enum(["primary", "secondary", "outline", "light"]),
+);
 
 export const heroButtonSchema = z.object({
   label: z.string().min(1),
   link: linkValueSchema,
-  variant: z.enum(["primary", "secondary"]).default("primary"),
+  variant: buttonVariantSchema.default("primary"),
 });
 
 export const heroCenteredSchema = z.object({

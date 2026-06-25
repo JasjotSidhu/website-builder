@@ -6,12 +6,14 @@ import ButtonSettingsFields from "./ButtonSettingsFields";
 import type { SitePageSummary } from "./SiteContext";
 import { PopoverActions, PopoverShell } from "./PopoverShell";
 
+import type { ButtonToolbarVariant } from "./button-toolbar-settings";
+
 interface ButtonEditorPopoverProps {
-  variant: "primary" | "secondary";
+  variant: ButtonToolbarVariant;
   link: LinkValue;
   pages: SitePageSummary[];
   onSave: (value: {
-    variant: "primary" | "secondary";
+    variant: ButtonToolbarVariant;
     link: LinkValue;
   }) => void;
   onCancel: () => void;

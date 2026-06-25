@@ -1,10 +1,12 @@
 import type {
+  ButtonVariant,
   HeaderMenuGroup,
   HeaderMenuItem,
   HeaderSubmenuItem,
   LinkValue,
   NavigationConfig,
 } from "@/lib/types";
+import { normalizeButtonVariant } from "@/lib/button-styles";
 
 export function hrefToLink(href: string): LinkValue {
   return { type: "url", href };
@@ -135,6 +137,24 @@ function migrateMenuItems(
   });
 }
 
+function migrateButtonsProp(buttons: unknown): Array<Record<string, unknown>> {
+  if (!Array.isArray(buttons)) {
+    return [];
+  }
+
+  return buttons.map((button) => {
+    if (!button || typeof button !== "object") {
+      return button as Record<string, unknown>;
+    }
+
+    const entry = button as { variant?: unknown };
+    return {
+      ...entry,
+      variant: normalizeButtonVariant(entry.variant),
+    };
+  });
+}
+
 export function migrateNavigation(navigation: NavigationConfig): NavigationConfig {
   const fallbackLinks = Array.isArray(navigation.links) ? navigation.links : [];
   const menus = migrateMenuItems(
@@ -151,10 +171,9 @@ export function migrateNavigation(navigation: NavigationConfig): NavigationConfi
             "link" in navigation.cta && navigation.cta.link
               ? navigation.cta.link
               : hrefToLink("href" in navigation.cta ? String(navigation.cta.href ?? "#") : "#"),
-          variant:
-            "variant" in navigation.cta
-              ? (navigation.cta.variant as "primary" | "secondary" | undefined)
-              : "primary",
+          variant: normalizeButtonVariant(
+            "variant" in navigation.cta ? navigation.cta.variant : "primary",
+          ),
         }
       : null;
   const ctas = Array.isArray(navigation.ctas)
@@ -162,7 +181,7 @@ export function migrateNavigation(navigation: NavigationConfig): NavigationConfi
         id: cta.id || makeId("cta", index),
         label: cta.label,
         link: cta.link,
-        variant: cta.variant ?? "primary",
+        variant: normalizeButtonVariant(cta.variant),
       }))
     : legacyCta
       ? [legacyCta]
@@ -186,10 +205,9 @@ export function migrateNavigation(navigation: NavigationConfig): NavigationConfi
               : hrefToLink(
                   "href" in navigation.cta ? String(navigation.cta.href ?? "#") : "#",
                 ),
-          variant:
-            "variant" in navigation.cta
-              ? (navigation.cta.variant as "primary" | "secondary" | undefined)
-              : "primary",
+          variant: normalizeButtonVariant(
+            "variant" in navigation.cta ? navigation.cta.variant : "primary",
+          ),
         }
       : undefined,
   };
@@ -224,11 +242,13 @@ export function migrateSectionProps(
   variant: string,
   props: Record<string, unknown>,
 ): Record<string, unknown> {
-  if (type === "features" && variant === "features-grid-3" && Array.isArray(props.items)) {
+  let migrated = props;
+
+  if (type === "features" && variant === "features-grid-3" && Array.isArray(migrated.items)) {
     const safeIcons = new Set(["layers", "palette", "sparkle", "target", "compass", "grid"]);
-    return {
-      ...props,
-      items: props.items.map((item, index) => {
+    migrated = {
+      ...migrated,
+      items: migrated.items.map((item, index) => {
         if (!item || typeof item !== "object") {
           return {
             icon: "grid",
@@ -255,24 +275,31 @@ export function migrateSectionProps(
     };
   }
 
-  if (type === "cta" && variant === "cta-banner" && props.button && !props.buttons) {
-    const button = props.button as {
+  if (type === "cta" && variant === "cta-banner" && migrated.button && !migrated.buttons) {
+    const button = migrated.button as {
       label: string;
       link: LinkValue;
-      variant?: "primary" | "secondary";
+      variant?: ButtonVariant;
     };
-    const { button: _removed, ...rest } = props;
-    return {
+    const { button: _removed, ...rest } = migrated;
+    migrated = {
       ...rest,
       buttons: [
         {
           label: button.label,
           link: button.link,
-          variant: button.variant ?? "primary",
+          variant: normalizeButtonVariant(button.variant),
         },
       ],
     };
   }
 
-  return props;
+  if (Array.isArray(migrated.buttons)) {
+    migrated = {
+      ...migrated,
+      buttons: migrateButtonsProp(migrated.buttons),
+    };
+  }
+
+  return migrated;
 }

@@ -57,5 +57,5 @@ const ICONS: Record<string, ReactNode> = {
 };
 
 export function FeatureIcon({ name }: { name: string }) {
-  return <span className="inline-flex text-[var(--color-primary)]">{ICONS[name] ?? ICONS.grid}</span>;
+  return <span className="inline-flex text-[var(--color-card-icon)]">{ICONS[name] ?? ICONS.grid}</span>;
 }

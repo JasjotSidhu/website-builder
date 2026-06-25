@@ -5,11 +5,13 @@ import PopoverSegmented from "./PopoverSegmented";
 import type { SitePageSummary } from "./SiteContext";
 import { PopoverField } from "./PopoverShell";
 
+import type { ButtonToolbarVariant } from "./button-toolbar-settings";
+
 export interface ButtonSettingsFieldsProps {
-  variant: "primary" | "secondary";
+  variant: ButtonToolbarVariant;
   link: LinkValue;
   pages: SitePageSummary[];
-  onVariantChange: (variant: "primary" | "secondary") => void;
+  onVariantChange: (variant: ButtonToolbarVariant) => void;
   onLinkChange: (link: LinkValue) => void;
   showVariant?: boolean;
 }
@@ -35,8 +37,10 @@ export default function ButtonSettingsFields({
           options={[
             { value: "primary", label: "Primary" },
             { value: "secondary", label: "Secondary" },
+            { value: "outline", label: "Outline" },
+            { value: "light", label: "Light" },
           ]}
-          onChange={(value) => onVariantChange(value as "primary" | "secondary")}
+          onChange={(value) => onVariantChange(value as ButtonToolbarVariant)}
         />
       ) : null}
 

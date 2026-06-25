@@ -1,4 +1,4 @@
-export type TraitCategory = "background" | "typography" | "layout";
+export type TraitCategory = "background" | "typography" | "layout" | "fonts";
 
 export interface ShowIfRule {
   key: string;
@@ -30,7 +30,8 @@ export type TraitFieldConfig =
       step?: number;
     })
   | (TraitFieldBase & { type: "toggle" })
-  | (TraitFieldBase & { type: "image" });
+  | (TraitFieldBase & { type: "image" })
+  | (TraitFieldBase & { type: "googleFont" });
 
 export interface TraitDefinition {
   id: string;

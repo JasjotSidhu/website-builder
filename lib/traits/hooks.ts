@@ -1,6 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useSiteTheme } from "@/lib/editor/ThemeContext";
+import { resolveSectionTextColor } from "@/lib/theme-color-utils";
 import { useSectionSettings } from "./context";
 
 const GAP_MAP = { sm: "1rem", md: "1.5rem", lg: "2.5rem" } as const;
@@ -71,8 +73,9 @@ export function useBackgroundStyle(): BackgroundStyles {
 
 export function useTextColorStyle(): string {
   const settings = useSectionSettings();
+  const theme = useSiteTheme();
 
-  return String(settings.textColor ?? "#111111");
+  return resolveSectionTextColor(settings, theme);
 }
 
 export function useSpacingStyle(): CSSProperties {

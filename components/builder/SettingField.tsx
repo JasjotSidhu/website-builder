@@ -6,7 +6,9 @@ import ImageUrlPopover from "@/lib/editor/ImageUrlPopover";
 import PopoverSegmented from "@/lib/editor/PopoverSegmented";
 import PopoverSwitch from "@/lib/editor/PopoverSwitch";
 import { toColorInputValue } from "@/lib/color-utils";
+import GoogleFontSelect from "@/components/builder/GoogleFontSelect";
 import type { TraitFieldConfig } from "@/lib/traits/types";
+import type { ThemeFontConfig } from "@/lib/types";
 
 interface SettingFieldProps {
   field: TraitFieldConfig;
@@ -154,21 +156,35 @@ export function SettingField({ field, value, onChange }: SettingFieldProps) {
     );
   }
 
-  return (
-    <label className="popover-field popover-field--stacked">
-      <span className="popover-field__label">
-        {field.label}{" "}
-        <span className="popover-field__value">{Number(value ?? field.min).toFixed(2)}</span>
-      </span>
-      <input
-        type="range"
-        className="popover-range"
-        min={field.min}
-        max={field.max}
-        step={field.step}
-        value={Number(value ?? field.min)}
-        onChange={(event) => onChange(Number(event.target.value))}
+  if (field.type === "googleFont") {
+    return (
+      <GoogleFontSelect
+        label={field.label}
+        value={value}
+        onChange={(font: ThemeFontConfig) => onChange(font)}
       />
-    </label>
-  );
+    );
+  }
+
+  if (field.type === "slider") {
+    return (
+      <label className="popover-field popover-field--stacked">
+        <span className="popover-field__label">
+          {field.label}{" "}
+          <span className="popover-field__value">{Number(value ?? field.min).toFixed(2)}</span>
+        </span>
+        <input
+          type="range"
+          className="popover-range"
+          min={field.min}
+          max={field.max}
+          step={field.step}
+          value={Number(value ?? field.min)}
+          onChange={(event) => onChange(Number(event.target.value))}
+        />
+      </label>
+    );
+  }
+
+  return null;
 }

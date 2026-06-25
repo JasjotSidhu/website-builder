@@ -4,6 +4,9 @@ import { EditModeProvider } from "@/lib/editor/EditModeContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import { getHeaderVariantId } from "@/lib/header-utils";
 import { isFixedSlotType } from "@/lib/section-placement";
+import GoogleFontsLoader from "@/components/shared/GoogleFontsLoader";
+import { ThemeProvider } from "@/lib/editor/ThemeContext";
+import { collectSiteFonts } from "@/lib/fonts/collect-site-fonts";
 import { buildThemeCssVariables } from "@/lib/theme-utils";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
@@ -77,8 +80,14 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
               data-preview-device={previewDevice}
               style={previewMaxWidth ? { maxWidth: previewMaxWidth } : undefined}
             >
-              <div style={buildThemeCssVariables(site.theme)}>
-                <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />
+              <div
+                className="site-theme-root"
+                style={buildThemeCssVariables(site.theme)}
+                data-btn-hover-effect={site.theme.buttons?.hoverEffect ?? "lift"}
+              >
+                <ThemeProvider theme={site.theme}>
+                  <GoogleFontsLoader fonts={collectSiteFonts(site)} />
+                  <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />
 
                 <main>
                   {sections.length === 0 ? (
@@ -109,6 +118,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
                 </main>
 
                 <FixedSlotWrapper slot="footer" onReplace={openReplaceFooterModal} />
+                </ThemeProvider>
               </div>
             </div>
           </div>

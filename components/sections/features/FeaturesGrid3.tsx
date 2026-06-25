@@ -84,10 +84,12 @@ export default function FeaturesGrid3() {
                   dataKey="title"
                   maxLength={40}
                   className="mt-5 text-xl font-semibold"
+                  themeTextRole="cardTitle"
                 />
                 <EditableText
                   as="p"
                   dataKey="description"
+                  themeTextRole="card"
                   maxLength={150}
                   className="mt-3 text-[15px] leading-relaxed opacity-80"
                 />

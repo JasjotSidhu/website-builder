@@ -107,12 +107,14 @@ function FeatureText({ step }: { step: number }) {
         dataKey="title"
         maxLength={60}
         className="text-2xl font-semibold tracking-tight @md:text-3xl"
+        themeTextRole="title"
       />
       <EditableText
         as="p"
         dataKey="description"
         maxLength={250}
         className="text-lg leading-relaxed opacity-80"
+        themeTextRole="body"
       />
     </div>
   );

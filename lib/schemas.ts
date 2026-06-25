@@ -1,5 +1,8 @@
 import { z } from "zod";
 import type { LinkValue } from "./types";
+import { normalizeFontConfig } from "./fonts/font-utils";
+import { DEFAULT_BUTTON_STYLE, normalizeTheme, normalizeThemeColors } from "./theme-defaults";
+import type { ThemeConfig } from "./types";
 
 export const linkValueSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("page"), pageId: z.string() }),
@@ -17,20 +20,75 @@ export const siteMetaSchema = z.object({
   }),
 });
 
-export const themeConfigSchema = z.object({
-  colors: z.object({
+export const themeFontConfigSchema = z.object({
+  family: z.string().min(1),
+  googleFontId: z.string().optional(),
+  weights: z.string().optional(),
+  fallback: z.enum(["sans-serif", "serif", "monospace"]).optional(),
+});
+
+const themeFontFieldSchema = z.preprocess(
+  (value) => normalizeFontConfig(value),
+  themeFontConfigSchema,
+);
+
+export const buttonStyleConfigSchema = z.object({
+  fontSize: z.enum(["sm", "md", "lg"]),
+  fontWeight: z.union([z.literal(500), z.literal(600), z.literal(700)]),
+  padding: z.enum(["sm", "md", "lg"]),
+  borderRadius: z.enum(["inherit", "none", "sm", "md", "lg", "full"]),
+  hoverEffect: z.enum(["lift", "darken", "outline-fill", "none"]),
+  shadow: z.boolean(),
+  defaultVariant: z.enum(["primary", "secondary", "outline", "light"]),
+});
+
+export const cardStyleConfigSchema = z.object({
+  background: z.string().min(1),
+  titleColor: z.string().min(1),
+  textColor: z.string().min(1),
+  borderRadius: z.enum(["inherit", "none", "sm", "md", "lg", "full"]),
+  borderColor: z.string().min(1),
+  iconColor: z.string().min(1),
+});
+
+const themeColorsFieldSchema = z.preprocess(
+  (value) => normalizeThemeColors(value as ThemeConfig["colors"] | undefined),
+  z.object({
     primary: z.string().min(1),
     secondary: z.string().min(1),
     background: z.string().min(1),
-    text: z.string().min(1),
+    titleText: z.string().min(1),
+    bodyText: z.string().min(1),
+    text: z.string().optional(),
     accent: z.string().optional(),
+    cardBackground: z.string().optional(),
+    cardText: z.string().optional(),
   }),
-  fonts: z.object({
-    heading: z.string().min(1),
-    body: z.string().min(1),
-  }),
-  borderRadius: z.enum(["none", "sm", "md", "lg", "full"]),
-  spacing: z.enum(["compact", "comfortable", "spacious"]),
+);
+
+const themeCardsFieldSchema = cardStyleConfigSchema.partial().optional();
+
+export const themeConfigSchema = z
+  .object({
+    colors: themeColorsFieldSchema,
+    fonts: z.object({
+      heading: themeFontFieldSchema,
+      body: themeFontFieldSchema,
+    }),
+    borderRadius: z.enum(["none", "sm", "md", "lg", "full"]),
+    spacing: z.enum(["compact", "comfortable", "spacious"]),
+    buttons: buttonStyleConfigSchema.optional(),
+    cards: themeCardsFieldSchema,
+    presetId: z.string().optional(),
+    customName: z.string().optional(),
+  })
+  .transform((theme) => normalizeTheme(theme));
+
+export const customThemeSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  theme: themeConfigSchema,
+  savedAt: z.string().min(1),
 });
 
 export const navigationConfigSchema = z.object({
@@ -93,7 +151,7 @@ export const navigationConfigSchema = z.object({
     .object({
       label: z.string().min(1),
       link: linkValueSchema,
-      variant: z.enum(["primary", "secondary"]).optional(),
+      variant: z.enum(["primary", "secondary", "outline", "light"]).optional(),
     })
     .optional(),
   ctas: z
@@ -102,7 +160,7 @@ export const navigationConfigSchema = z.object({
         id: z.string().min(1),
         label: z.string().min(1),
         link: linkValueSchema,
-        variant: z.enum(["primary", "secondary"]).optional(),
+        variant: z.enum(["primary", "secondary", "outline", "light"]).optional(),
       }),
     )
     .optional(),
@@ -166,6 +224,7 @@ export const websiteSchema = z.object({
   pages: z.array(pageDataSchema),
   footer: footerConfigSchema,
   savedSections: z.array(savedSectionSchema).optional(),
+  customThemes: z.array(customThemeSchema).optional(),
 });
 
 export type { LinkValue };

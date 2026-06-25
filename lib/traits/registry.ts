@@ -4,6 +4,7 @@ export const traitCategoryTabs: { id: TraitCategory; label: string }[] = [
   { id: "layout", label: "Design" },
   { id: "background", label: "Background" },
   { id: "typography", label: "Colors" },
+  { id: "fonts", label: "Fonts" },
 ];
 
 export const traitRegistry: Record<string, TraitDefinition> = {
@@ -92,7 +93,7 @@ export const traitRegistry: Record<string, TraitDefinition> = {
     ],
     defaultValues: {
       type: "solid",
-      color: "#ffffff",
+      color: "var(--color-background)",
       gradientFrom: "#ffffff",
       gradientTo: "#f0f0f0",
       gradientAngle: 135,
@@ -106,7 +107,7 @@ export const traitRegistry: Record<string, TraitDefinition> = {
     label: "Text",
     category: "typography",
     fields: [{ key: "textColor", label: "Default text color", type: "color" }],
-    defaultValues: { textColor: "#111111" },
+    defaultValues: { textColor: "auto" },
   },
   spacing: {
     id: "spacing",
@@ -133,6 +134,33 @@ export const traitRegistry: Record<string, TraitDefinition> = {
     category: "layout",
     fields: [{ key: "reversed", label: "Reverse columns", type: "toggle" }],
     defaultValues: { reversed: false },
+  },
+  sectionFonts: {
+    id: "sectionFonts",
+    label: "Fonts",
+    category: "fonts",
+    fields: [
+      { key: "headingFontInherit", label: "Use global heading font", type: "toggle" },
+      {
+        key: "headingFont",
+        label: "Heading font",
+        type: "googleFont",
+        showIf: { key: "headingFontInherit", equals: false },
+      },
+      { key: "bodyFontInherit", label: "Use global body font", type: "toggle" },
+      {
+        key: "bodyFont",
+        label: "Body font",
+        type: "googleFont",
+        showIf: { key: "bodyFontInherit", equals: false },
+      },
+    ],
+    defaultValues: {
+      headingFontInherit: true,
+      bodyFontInherit: true,
+      headingFont: { family: "Inter", googleFontId: "Inter", weights: "400;600;700" },
+      bodyFont: { family: "Inter", googleFontId: "Inter", weights: "400;500;600" },
+    },
   },
 };
 

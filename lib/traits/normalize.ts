@@ -1,3 +1,5 @@
+import { normalizeTheme } from "@/lib/theme-defaults";
+import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { findSectionVariant } from "@/lib/registry";
 import { getHeaderVariantId } from "@/lib/header-utils";
 import { migrateFooterProps, migrateNavigation, migrateSectionProps } from "@/lib/migrate-content";
@@ -42,22 +44,28 @@ export function resolveSectionSettings(
   traitIds: string[],
   settingsDefaults?: Record<string, unknown>,
 ): Record<string, unknown> {
-  return migrateTraitSettings({
+  const merged = migrateTraitSettings({
     ...buildVariantSettings(traitIds, settingsDefaults),
     ...migrateLegacyStyle(section),
     ...(section.settings ?? {}),
   });
+
+  return migrateThemeBoundSectionSettings(merged, section.type, section.variant);
 }
 
 export function resolveFixedSlotSettings(
   storedSettings: Record<string, unknown> | undefined,
   traitIds: string[],
   settingsDefaults?: Record<string, unknown>,
+  slotType = "footer",
+  variantId = "footer-simple",
 ): Record<string, unknown> {
-  return migrateTraitSettings({
+  const merged = migrateTraitSettings({
     ...buildVariantSettings(traitIds, settingsDefaults),
     ...(storedSettings ?? {}),
   });
+
+  return migrateThemeBoundSectionSettings(merged, slotType, variantId);
 }
 
 export function normalizeSiteSections(site: WebsiteData): WebsiteData {
@@ -83,6 +91,8 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
           site.footer.settings,
           footerVariant.traits,
           footerVariant.settingsDefaults,
+          "footer",
+          site.footer.variant,
         )
       : site.footer.settings,
   };
@@ -113,5 +123,7 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
         }),
     })),
     savedSections: site.savedSections ?? [],
+    customThemes: site.customThemes ?? [],
+    theme: normalizeTheme(site.theme),
   };
 }

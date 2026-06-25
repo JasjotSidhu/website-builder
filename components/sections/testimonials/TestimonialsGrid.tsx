@@ -97,7 +97,7 @@ export default function TestimonialsGrid() {
                 </span>
                 <StarRow />
                 <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed opacity-85">
-                  <EditableText as="span" dataKey="quote" maxLength={300} />
+                  <EditableText as="span" dataKey="quote" maxLength={300} themeTextRole="card" />
                 </blockquote>
                 <div className="mt-6 flex items-center gap-3 border-t border-black/5 pt-5 min-w-0">
                   <EditableImage
@@ -125,10 +125,10 @@ export default function TestimonialsGrid() {
                   />
                   <div className="min-w-0">
                     <p className="font-semibold">
-                      <EditableText as="span" dataKey="name" maxLength={40} />
+                      <EditableText as="span" dataKey="name" maxLength={40} themeTextRole="cardTitle" />
                     </p>
                     <p className="text-sm opacity-60">
-                      <EditableText as="span" dataKey="role" maxLength={60} />
+                      <EditableText as="span" dataKey="role" maxLength={60} themeTextRole="card" />
                     </p>
                   </div>
                 </div>
