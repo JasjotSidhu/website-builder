@@ -73,8 +73,13 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
           <DevicePreviewBar />
           <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
             <div
-              className="canvas-preview-frame mx-auto rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
-              style={previewMaxWidth ? { maxWidth: previewMaxWidth } : undefined}
+              className="canvas-preview-frame @container mx-auto w-full rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
+              data-preview-device={previewDevice}
+              style={
+                previewMaxWidth
+                  ? { maxWidth: previewMaxWidth }
+                  : { minWidth: "64rem" }
+              }
             >
               <div style={buildThemeCssVariables(site.theme)}>
                 <FixedSlotWrapper slot="header" onReplace={openReplaceHeaderModal} />

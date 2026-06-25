@@ -16,8 +16,8 @@ export default function HeroSplit() {
   return (
     <SectionShell>
       <div
-        className={`mx-auto flex max-w-6xl flex-col gap-14 px-6 lg:flex-row lg:items-center ${
-          reversed ? "lg:flex-row-reverse" : ""
+        className={`mx-auto flex max-w-6xl flex-col gap-14 px-6 @lg:flex-row @lg:items-center ${
+          reversed ? "@lg:flex-row-reverse" : ""
         }`}
       >
         <div className="flex flex-1 flex-col gap-6">
@@ -31,7 +31,7 @@ export default function HeroSplit() {
           <SectionButtons align="left" />
         </div>
 
-        <div className="relative flex-1 lg:pl-4">
+        <div className="relative flex-1 @lg:pl-4">
           <div
             className="absolute -left-4 -top-4 h-24 w-24 rounded-[var(--radius)] border-2 border-[var(--color-primary)]/20"
             aria-hidden

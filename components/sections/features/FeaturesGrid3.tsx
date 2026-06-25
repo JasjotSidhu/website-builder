@@ -9,7 +9,7 @@ import {
   SectionDataProvider,
   useSectionData,
 } from "@/lib/editor/SectionDataContext";
-import { useGridStyle } from "@/lib/traits/hooks";
+import { useSectionSettings } from "@/lib/traits/context";
 import { SectionHeader } from "../shared/SectionHeader";
 import { SectionShell } from "../shared/SectionShell";
 
@@ -22,20 +22,38 @@ interface FeatureItem {
   description: string;
 }
 
+const GRID_COLS_CLASSES: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-1 @sm:grid-cols-2",
+  3: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-3",
+  4: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-4",
+  5: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-5",
+  6: "grid-cols-1 @sm:grid-cols-2 @md:grid-cols-3 @lg:grid-cols-6",
+};
+
+const GAP_CLASSES: Record<string, string> = {
+  sm: "gap-4",
+  md: "gap-4 @md:gap-6",
+  lg: "gap-4 @md:gap-6 @lg:gap-10",
+};
+
 export default function FeaturesGrid3() {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
+  const settings = useSectionSettings();
   const items = (data.items as FeatureItem[] | undefined) ?? [];
-  const gridStyle = useGridStyle();
+  const columns = Number(settings.columns ?? 3);
+  const colsClass = GRID_COLS_CLASSES[columns] ?? GRID_COLS_CLASSES[3];
+  const gapClass = GAP_CLASSES[String(settings.gap ?? "md")] ?? GAP_CLASSES.md;
 
   return (
     <SectionShell>
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-14 flex justify-center">
+      <div className="mx-auto max-w-7xl px-4 @sm:px-6 @lg:px-8">
+        <div className="mb-10 flex justify-center @sm:mb-14">
           <SectionHeader align="center" eyebrowFallback="Features" />
         </div>
 
-        <div style={gridStyle}>
+        <div className={`grid ${colsClass} ${gapClass}`}>
           {items.map((item, index) => {
             const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
               updateField("items", applyItemPatch(items, index, partial));
@@ -86,7 +104,7 @@ export default function FeaturesGrid3() {
             onClick={() =>
               updateField("items", [
                 ...items,
-                { icon: "grid", title: "New item", description: "" },
+                { icon: "grid", title: "New item", description: "Add a short description" },
               ])
             }
           >

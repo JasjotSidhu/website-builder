@@ -16,10 +16,10 @@ interface SectionHeaderProps {
 }
 
 const HEADING_CLASSES = {
-  hero: "max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl",
+  hero: "max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight @md:text-5xl @lg:text-6xl",
   section:
-    "text-3xl font-bold tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-tight",
-  cta: "text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl",
+    "text-3xl font-bold tracking-tight @md:text-4xl @lg:text-[2.75rem] @lg:leading-tight",
+  cta: "text-3xl font-bold tracking-tight @md:text-4xl @lg:text-5xl",
 } as const;
 
 const SUBHEADING_CLASSES = {

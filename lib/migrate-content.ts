@@ -224,6 +224,37 @@ export function migrateSectionProps(
   variant: string,
   props: Record<string, unknown>,
 ): Record<string, unknown> {
+  if (type === "features" && variant === "features-grid-3" && Array.isArray(props.items)) {
+    const safeIcons = new Set(["layers", "palette", "sparkle", "target", "compass", "grid"]);
+    return {
+      ...props,
+      items: props.items.map((item, index) => {
+        if (!item || typeof item !== "object") {
+          return {
+            icon: "grid",
+            title: `Feature ${index + 1}`,
+            description: "Add a short description",
+          };
+        }
+        const entry = item as { icon?: unknown; title?: unknown; description?: unknown };
+        return {
+          icon:
+            typeof entry.icon === "string" && safeIcons.has(entry.icon)
+              ? entry.icon
+              : "grid",
+          title:
+            typeof entry.title === "string" && entry.title.trim()
+              ? entry.title
+              : `Feature ${index + 1}`,
+          description:
+            typeof entry.description === "string" && entry.description.trim()
+              ? entry.description
+              : "Add a short description",
+        };
+      }),
+    };
+  }
+
   if (type === "cta" && variant === "cta-banner" && props.button && !props.buttons) {
     const button = props.button as {
       label: string;

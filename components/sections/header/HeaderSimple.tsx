@@ -53,7 +53,7 @@ export default function HeaderSimple() {
           )}
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 @md:flex">
           <EditableNavLinksList editMode="never" />
           {ctas.map((cta) => {
             const href = resolveLink(cta.link, pages);
@@ -67,7 +67,7 @@ export default function HeaderSimple() {
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 md:hidden"
+          className="inline-flex items-center justify-center rounded-md p-2 @md:hidden"
           aria-label="Open navigation menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
@@ -84,7 +84,7 @@ export default function HeaderSimple() {
       </div>
 
       {menuOpen ? (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 @md:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/40"

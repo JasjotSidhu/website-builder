@@ -187,7 +187,7 @@ export function SiteRenderer({
 
   return (
     <SiteProvider pages={pages}>
-      <div style={buildThemeCssVariables(site.theme)}>
+      <div className="@container w-full" style={buildThemeCssVariables(site.theme)}>
         {renderNavigation(site.navigation, strict)}
         <PageRenderer
           page={resolvedPage}

@@ -30,12 +30,12 @@ export default function FeaturesAlternating() {
 
   return (
     <SectionShell>
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-16 flex justify-center">
+      <div className="mx-auto max-w-7xl px-4 @sm:px-6 @lg:px-8">
+        <div className="mb-10 flex justify-center @sm:mb-16">
           <SectionHeader align="center" eyebrowFallback="Process" />
         </div>
 
-        <div className="flex flex-col gap-20">
+        <div className="flex flex-col gap-12 @sm:gap-16 @lg:gap-20">
           {items.map((item, index) => {
             const imageFirst = index % 2 === 0;
 
@@ -50,7 +50,7 @@ export default function FeaturesAlternating() {
                 updateField={(key, value) => applyItemPatchForIndex({ [key]: value })}
                 updateFields={applyItemPatchForIndex}
               >
-                <div className="relative grid items-center gap-10 overflow-visible md:grid-cols-2 md:gap-14">
+                <div className="relative grid items-center gap-10 overflow-visible @md:grid-cols-2 @md:gap-14">
                   {isEditing ? (
                     <EditorRemoveButton
                       label="Remove item"
@@ -106,7 +106,7 @@ function FeatureText({ step }: { step: number }) {
         as="h3"
         dataKey="title"
         maxLength={60}
-        className="text-2xl font-semibold tracking-tight md:text-3xl"
+        className="text-2xl font-semibold tracking-tight @md:text-3xl"
       />
       <EditableText
         as="p"

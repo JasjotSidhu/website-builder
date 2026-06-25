@@ -10,7 +10,7 @@ import {
   SectionDataProvider,
   useSectionData,
 } from "@/lib/editor/SectionDataContext";
-import { useGridStyle } from "@/lib/traits/hooks";
+import { useSectionSettings } from "@/lib/traits/context";
 import { SectionHeader } from "../shared/SectionHeader";
 import { SectionShell } from "../shared/SectionShell";
 
@@ -23,6 +23,21 @@ interface TestimonialItem {
   role: string;
   avatar?: string;
 }
+
+const GRID_COLS_CLASSES: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-1 @sm:grid-cols-2",
+  3: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-3",
+  4: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-4",
+  5: "grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-5",
+  6: "grid-cols-1 @sm:grid-cols-2 @md:grid-cols-3 @lg:grid-cols-6",
+};
+
+const GAP_CLASSES: Record<string, string> = {
+  sm: "gap-4",
+  md: "gap-4 @md:gap-6",
+  lg: "gap-4 @md:gap-6 @lg:gap-10",
+};
 
 function StarRow() {
   return (
@@ -39,17 +54,20 @@ function StarRow() {
 export default function TestimonialsGrid() {
   const { isEditing } = useEditMode();
   const { data, updateField } = useSectionData();
+  const settings = useSectionSettings();
   const testimonials = (data.testimonials as TestimonialItem[] | undefined) ?? [];
-  const gridStyle = useGridStyle();
+  const columns = Number(settings.columns ?? 3);
+  const colsClass = GRID_COLS_CLASSES[columns] ?? GRID_COLS_CLASSES[3];
+  const gapClass = GAP_CLASSES[String(settings.gap ?? "md")] ?? GAP_CLASSES.md;
 
   return (
     <SectionShell>
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-14 flex justify-center">
+      <div className="mx-auto max-w-7xl px-4 @sm:px-6 @lg:px-8">
+        <div className="mb-10 flex justify-center @sm:mb-14">
           <SectionHeader align="center" eyebrowFallback="Testimonials" />
         </div>
 
-        <div style={gridStyle}>
+        <div className={`grid ${colsClass} ${gapClass}`}>
           {testimonials.map((item, index) => {
             const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
               updateField("testimonials", applyItemPatch(testimonials, index, partial));
@@ -81,7 +99,7 @@ export default function TestimonialsGrid() {
                 <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed opacity-85">
                   <EditableText as="span" dataKey="quote" maxLength={300} />
                 </blockquote>
-                <div className="mt-6 flex items-center gap-3 border-t border-black/5 pt-5">
+                <div className="mt-6 flex items-center gap-3 border-t border-black/5 pt-5 min-w-0">
                   <EditableImage
                     dataKey="avatar"
                     compact
@@ -105,7 +123,7 @@ export default function TestimonialsGrid() {
                       </ImageEditSurface>
                     )}
                   />
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold">
                       <EditableText as="span" dataKey="name" maxLength={40} />
                     </p>
