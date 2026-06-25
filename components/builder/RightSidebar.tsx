@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useBuilderStore } from "@/store/builderStore";
 import SiteSettingsPanel from "./SiteSettingsPanel";
 import ThemePanel from "./ThemePanel";
 
-type RightPanelTab = "theme" | "settings";
-
 export default function RightSidebar() {
-  const [tab, setTab] = useState<RightPanelTab>("theme");
+  const tab = useBuilderStore((state) => state.rightSidebarTab);
+  const setTab = useBuilderStore((state) => state.setRightSidebarTab);
 
   return (
     <div className="flex h-full flex-col">

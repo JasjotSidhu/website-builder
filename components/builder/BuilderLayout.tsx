@@ -5,6 +5,7 @@ import { getHeaderVariantId } from "@/lib/header-utils";
 import { useBuilderStore } from "@/store/builderStore";
 import BuilderTopBar from "./BuilderTopBar";
 import Canvas from "./Canvas";
+import HeaderSettingsSidebar from "./HeaderSettingsSidebar";
 import PagesList from "./PagesList";
 import RightSidebar from "./RightSidebar";
 import SectionLibraryModal, { type SectionLibraryMode } from "./SectionLibraryModal";
@@ -21,6 +22,7 @@ export default function BuilderLayout() {
   const saveSite = useBuilderStore((state) => state.saveSite);
   const undo = useBuilderStore((state) => state.undo);
   const redo = useBuilderStore((state) => state.redo);
+  const leftSidebarMode = useBuilderStore((state) => state.leftSidebarMode);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
@@ -100,32 +102,38 @@ export default function BuilderLayout() {
     <div className="flex h-screen flex-col bg-white">
       <BuilderTopBar />
 
-      <div className="grid min-h-0 flex-1 grid-cols-[240px_1fr_300px]">
-        <aside className="flex min-h-0 flex-col border-r border-gray-200 bg-white">
-          <PagesList />
-          <div className="min-h-0 flex-1">
-            <SectionOutline
-              onReplaceHeader={() =>
-                openSectionLibrary({
-                  mode: "replace-header",
-                  currentVariantId: getHeaderVariantId(site.navigation),
-                })
-              }
-              onReplaceFooter={() =>
-                openSectionLibrary({
-                  mode: "replace-footer",
-                  currentVariantId: site.footer.variant,
-                })
-              }
-            />
-          </div>
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px]">
+        <aside className="hidden min-h-0 flex-col border-r border-gray-200 bg-white lg:flex">
+          {leftSidebarMode === "header-settings" ? (
+            <HeaderSettingsSidebar />
+          ) : (
+            <>
+              <PagesList />
+              <div className="min-h-0 flex-1">
+                <SectionOutline
+                  onReplaceHeader={() =>
+                    openSectionLibrary({
+                      mode: "replace-header",
+                      currentVariantId: getHeaderVariantId(site.navigation),
+                    })
+                  }
+                  onReplaceFooter={() =>
+                    openSectionLibrary({
+                      mode: "replace-footer",
+                      currentVariantId: site.footer.variant,
+                    })
+                  }
+                />
+              </div>
+            </>
+          )}
         </aside>
 
         <section className="min-h-0">
           <Canvas onOpenSectionLibrary={openSectionLibrary} />
         </section>
 
-        <aside className="min-h-0 border-l border-gray-200 bg-white">
+        <aside className="hidden min-h-0 border-l border-gray-200 bg-white lg:block">
           <RightSidebar />
         </aside>
       </div>

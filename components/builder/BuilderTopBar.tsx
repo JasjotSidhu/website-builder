@@ -36,12 +36,12 @@ export default function BuilderTopBar() {
       : "text-gray-500";
 
   return (
-    <header className="builder-topbar flex items-center justify-between border-b border-gray-200 px-4 py-3">
-      <div>
+    <header className="builder-topbar flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 px-3 py-3 sm:px-4">
+      <div className="min-w-0 flex-1">
         <h1 className="text-sm font-semibold text-gray-900">{siteName}</h1>
-        <p className="text-xs text-gray-500">Page builder — click any text to edit inline</p>
+        <p className="hidden text-xs text-gray-500 sm:block">Page builder — click any text to edit inline</p>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:gap-3">
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -64,14 +64,14 @@ export default function BuilderTopBar() {
             <Redo2 size={16} strokeWidth={1.75} aria-hidden />
           </button>
         </div>
-        <span className={`max-w-xs truncate text-xs ${statusClass}`} aria-live="polite">
+        <span className={`max-w-[11rem] truncate text-xs ${statusClass}`} aria-live="polite">
           {statusText}
         </span>
         <a
           href="/"
           target="_blank"
           rel="noreferrer"
-          className="text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline"
+          className="hidden text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline sm:inline"
         >
           View live site
         </a>

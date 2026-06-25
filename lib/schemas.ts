@@ -37,20 +37,74 @@ export const navigationConfigSchema = z.object({
   variant: z.string().optional(),
   logo: z.object({
     type: z.enum(["text", "image"]),
-    value: z.string().min(1),
+    value: z.string(),
   }),
-  links: z.array(
-    z.object({
-      label: z.string().min(1),
-      link: linkValueSchema,
-    }),
-  ),
+  links: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        link: linkValueSchema,
+      }),
+    )
+    .optional(),
+  menus: z
+    .array(
+      z.discriminatedUnion("type", [
+        z.object({
+          id: z.string().min(1),
+          type: z.literal("link"),
+          label: z.string().min(1),
+          link: linkValueSchema,
+        }),
+        z.object({
+          id: z.string().min(1),
+          type: z.literal("single-dropdown"),
+          label: z.string().min(1),
+          items: z.array(
+            z.object({
+              id: z.string().min(1),
+              label: z.string().min(1),
+              link: linkValueSchema,
+            }),
+          ),
+        }),
+        z.object({
+          id: z.string().min(1),
+          type: z.literal("multi-level-dropdown"),
+          label: z.string().min(1),
+          groups: z.array(
+            z.object({
+              id: z.string().min(1),
+              title: z.string().min(1),
+              items: z.array(
+                z.object({
+                  id: z.string().min(1),
+                  label: z.string().min(1),
+                  link: linkValueSchema,
+                }),
+              ),
+            }),
+          ),
+        }),
+      ]),
+    )
+    .optional(),
   cta: z
     .object({
       label: z.string().min(1),
       link: linkValueSchema,
       variant: z.enum(["primary", "secondary"]).optional(),
     })
+    .optional(),
+  ctas: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        link: linkValueSchema,
+        variant: z.enum(["primary", "secondary"]).optional(),
+      }),
+    )
     .optional(),
   settings: z.record(z.string(), z.unknown()).optional(),
 });

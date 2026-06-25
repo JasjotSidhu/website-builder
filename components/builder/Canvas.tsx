@@ -71,7 +71,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
       <SiteProvider pages={pages}>
         <div className="flex h-full flex-col bg-gray-100">
           <DevicePreviewBar />
-          <div className="min-h-0 flex-1 overflow-y-auto p-6">
+          <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
             <div
               className="canvas-preview-frame mx-auto rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
               style={previewMaxWidth ? { maxWidth: previewMaxWidth } : undefined}

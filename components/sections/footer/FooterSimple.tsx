@@ -104,12 +104,12 @@ export default function FooterSimple() {
 
   return (
     <footer
-      className="site-footer relative border-t border-black/[0.06] px-6 py-16"
+      className="site-footer relative border-t border-black/[0.06] px-4 py-10 sm:px-6 sm:py-12 md:py-16"
       style={containerStyle}
     >
       {overlayStyle ? <div style={overlayStyle} /> : null}
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="grid gap-12 md:grid-cols-12">
+        <div className="grid gap-8 md:grid-cols-12 md:gap-12">
           <div className="md:col-span-5">
             <div className="footer-logo-block">
               <LogoTypeToggle type={logo.type} onChange={handleLogoTypeChange} />
@@ -215,7 +215,7 @@ export default function FooterSimple() {
             + Add column
           </button>
         ) : null}
-        <div className="mt-12 border-t border-black/[0.06] pt-8">
+        <div className="mt-10 border-t border-black/[0.06] pt-6 md:mt-12 md:pt-8">
           <EditableText
             as="p"
             dataKey="copyright"

@@ -20,6 +20,9 @@ import type {
 import { isFixedSlotType } from "@/lib/section-placement";
 
 export type PreviewDevice = "desktop" | "tablet" | "mobile";
+export type RightSidebarTab = "theme" | "settings";
+export type SettingsPanelTab = "site" | "page" | "data";
+export type LeftSidebarMode = "outline" | "header-settings";
 
 const HISTORY_LIMIT = 50;
 let skipHistory = false;
@@ -49,6 +52,9 @@ interface BuilderState {
   historyPast: WebsiteData[];
   historyFuture: WebsiteData[];
   highlightedSectionId: string | null;
+  rightSidebarTab: RightSidebarTab;
+  settingsPanelTab: SettingsPanelTab;
+  leftSidebarMode: LeftSidebarMode;
 
   loadSite: () => Promise<void>;
   saveSite: () => Promise<void>;
@@ -59,6 +65,10 @@ interface BuilderState {
   redo: () => void;
   setPreviewDevice: (device: PreviewDevice) => void;
   scrollToSection: (sectionId: string) => void;
+  setRightSidebarTab: (tab: RightSidebarTab) => void;
+  setSettingsPanelTab: (tab: SettingsPanelTab) => void;
+  openHeaderSettings: () => void;
+  closeHeaderSettings: () => void;
   addPage: (title: string, slug: string) => string | null;
   removePage: (id: string) => void;
   setActivePage: (id: string) => void;
@@ -148,6 +158,9 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   historyPast: [],
   historyFuture: [],
   highlightedSectionId: null,
+  rightSidebarTab: "theme",
+  settingsPanelTab: "site",
+  leftSidebarMode: "outline",
 
   loadSite: async () => {
     set({ isLoading: true });
@@ -324,6 +337,20 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       }
     }, 1500);
   },
+
+  setRightSidebarTab: (tab) => set({ rightSidebarTab: tab }),
+
+  setSettingsPanelTab: (tab) => set({ settingsPanelTab: tab }),
+
+  openHeaderSettings: () =>
+    set({
+      leftSidebarMode: "header-settings",
+    }),
+
+  closeHeaderSettings: () =>
+    set({
+      leftSidebarMode: "outline",
+    }),
 
   addPage: (title, slug) => {
     const state = get();

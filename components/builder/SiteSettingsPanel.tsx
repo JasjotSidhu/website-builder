@@ -5,8 +5,6 @@ import { uploadImageFile } from "@/lib/image-upload";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
 import { useBuilderStore } from "@/store/builderStore";
 
-type SettingsTab = "site" | "page" | "data";
-
 export default function SiteSettingsPanel() {
   const site = useBuilderStore((state) => state.site);
   const siteMeta = useBuilderStore((state) => state.site.meta);
@@ -15,10 +13,11 @@ export default function SiteSettingsPanel() {
   const updateSiteMeta = useBuilderStore((state) => state.updateSiteMeta);
   const updatePageMeta = useBuilderStore((state) => state.updatePageMeta);
   const importDraft = useBuilderStore((state) => state.importDraft);
+  const tab = useBuilderStore((state) => state.settingsPanelTab);
+  const setTab = useBuilderStore((state) => state.setSettingsPanelTab);
 
   const activePage = pages.find((page) => page.id === activePageId) ?? pages[0];
 
-  const [tab, setTab] = useState<SettingsTab>("site");
   const [slugError, setSlugError] = useState<string | null>(null);
   const [faviconUploading, setFaviconUploading] = useState(false);
   const [faviconError, setFaviconError] = useState<string | null>(null);

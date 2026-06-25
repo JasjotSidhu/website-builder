@@ -16,6 +16,7 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
   const [hovered, setHovered] = useState(false);
   const navigation = useBuilderStore((state) => state.site.navigation);
   const patchNavigation = useBuilderStore((state) => state.patchNavigation);
+  const openHeaderSettings = useBuilderStore((state) => state.openHeaderSettings);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
   const headerProps = getHeaderProps(navigation);
 
@@ -44,7 +45,12 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
     >
       {hovered ? (
         <>
+          <div className="header-interaction-overlay" aria-hidden />
           <span className="section-label-badge fixed-slot-badge">Header</span>
+          <button type="button" className="header-edit-overlay-btn" onClick={openHeaderSettings}>
+            <IconSettings />
+            Edit Header
+          </button>
           <div className="section-toolbar fixed-slot-toolbar">
             <SectionToolbarButton title="Replace header" onClick={onReplace}>
               <IconReplace />

@@ -20,7 +20,7 @@ export const footerSimpleSchema = z.object({
       }),
     )
     .min(2)
-    .max(3),
+    .max(4),
   copyright: z.string().min(1),
 });
 

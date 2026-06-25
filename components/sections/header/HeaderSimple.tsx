@@ -2,97 +2,37 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import EditorRemoveButton from "@/lib/editor/EditorRemoveButton";
-import EditableLogo from "@/lib/editor/EditableLogo";
 import EditableNavLinksList from "@/lib/editor/EditableNavLinksList";
-import LogoTypeToggle from "@/lib/editor/LogoTypeToggle";
-import { useEditMode } from "@/lib/editor/EditModeContext";
-import {
-  SectionDataProvider,
-  useSectionData,
-} from "@/lib/editor/SectionDataContext";
+import { useSectionData } from "@/lib/editor/SectionDataContext";
+import { useSitePages } from "@/lib/editor/SiteContext";
+import { resolveLink } from "@/lib/links";
 import type { LinkValue } from "@/lib/types";
-import { EditableButton } from "../shared/SectionContent";
 
 export { headerSimpleSchema } from "./schema";
 export type { HeaderSimpleProps } from "./schema";
 
-interface HeaderCta {
+interface HeaderCtaItem {
+  id: string;
   label: string;
   link: LinkValue;
   variant?: "primary" | "secondary";
 }
 
-interface HeaderLogo {
-  type: "text" | "image";
+interface HeaderLogoImage {
+  type: "image";
   value: string;
 }
 
 export default function HeaderSimple() {
-  const { isEditing } = useEditMode();
-  const { data, updateField } = useSectionData();
-  const logo = (data.logo as HeaderLogo | undefined) ?? { type: "text", value: "" };
-  const cta = data.cta as HeaderCta | undefined;
+  const { data } = useSectionData();
+  const pages = useSitePages();
+  const logo = (data.logo as HeaderLogoImage | undefined) ?? { type: "image", value: "" };
+  const ctas = ((data.ctas as HeaderCtaItem[] | undefined) ?? []).filter(
+    (cta) => cta && typeof cta.label === "string",
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = () => setMenuOpen(false);
-
-  const handleLogoTypeChange = (type: "text" | "image") => {
-    if (type === logo.type) {
-      return;
-    }
-
-    updateField("logo", {
-      type,
-      value: type === "text" ? "Your brand" : "",
-    });
-  };
-
-  const logoNode = (
-    <div className="header-logo-block">
-      <LogoTypeToggle type={logo.type} onChange={handleLogoTypeChange} />
-      <SectionDataProvider
-        data={logo as unknown as Record<string, unknown>}
-        updateField={(key, value) => updateField("logo", { ...logo, [key]: value })}
-        updateFields={(partial) => updateField("logo", { ...logo, ...partial })}
-      >
-        <EditableLogo />
-      </SectionDataProvider>
-    </div>
-  );
-
-  const ctaNode = cta ? (
-    <div className="header-cta-block">
-      {isEditing ? (
-        <EditorRemoveButton
-          label="Remove CTA button"
-          compact
-          onClick={() => updateField("cta", undefined)}
-        />
-      ) : null}
-      <SectionDataProvider
-        data={cta as unknown as Record<string, unknown>}
-        updateField={(key, value) => updateField("cta", { ...cta, [key]: value })}
-        updateFields={(partial) => updateField("cta", { ...cta, ...partial })}
-      >
-        <EditableButton appearance="header" showVariant={false} onNavigate={closeMenu} />
-      </SectionDataProvider>
-    </div>
-  ) : isEditing ? (
-    <button
-      type="button"
-      className="button-item-add"
-      onClick={() =>
-        updateField("cta", {
-          label: "Get started",
-          link: { type: "page", pageId: "home" },
-          variant: "primary",
-        })
-      }
-    >
-      + Add CTA
-    </button>
-  ) : null;
 
   return (
     <header
@@ -102,13 +42,27 @@ export default function HeaderSimple() {
       }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        {isEditing ? <div className="inline-flex">{logoNode}</div> : <Link href="/">{logoNode}</Link>}
+        <Link href="/">
+          {logo.value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo.value} alt="Site logo" className="h-10 w-auto object-contain" />
+          ) : (
+            <div className="rounded border border-dashed border-gray-300 px-3 py-2 text-xs text-gray-500">
+              Upload logo
+            </div>
+          )}
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          <EditableNavLinksList
-            itemClassName="text-sm font-medium transition hover:text-[var(--color-primary)]"
-          />
-          {ctaNode}
+          <EditableNavLinksList editMode="never" />
+          {ctas.map((cta) => {
+            const href = resolveLink(cta.link, pages);
+            return (
+              <a key={cta.id} href={href} className="rounded-[var(--radius)] bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg hover:opacity-95">
+                {cta.label}
+              </a>
+            );
+          })}
         </nav>
 
         <button
@@ -157,14 +111,22 @@ export default function HeaderSimple() {
               </button>
             </div>
             <nav className="flex flex-col gap-4">
-              <EditableNavLinksList
-                layout="column"
-                itemClassName="text-base font-medium"
-                onNavigate={closeMenu}
-              />
-              {cta ? (
-                <div className="mt-2 text-center [&_.button-item-trigger]:w-full [&_a]:block [&_a]:w-full [&_a]:px-4 [&_a]:py-3">
-                  {ctaNode}
+              <EditableNavLinksList layout="column" onNavigate={closeMenu} editMode="never" />
+              {ctas.length > 0 ? (
+                <div className="mt-2 flex flex-col gap-2">
+                  {ctas.map((cta) => {
+                    const href = resolveLink(cta.link, pages);
+                    return (
+                      <a
+                        key={cta.id}
+                        href={href}
+                        className="block rounded-md bg-[var(--color-primary)] px-4 py-3 text-center text-sm font-semibold text-white"
+                        onClick={closeMenu}
+                      >
+                        {cta.label}
+                      </a>
+                    );
+                  })}
                 </div>
               ) : null}
             </nav>
