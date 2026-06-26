@@ -18,6 +18,7 @@ export { testimonialsGridSchema } from "./schema";
 export type { TestimonialsGridProps } from "./schema";
 
 interface TestimonialItem {
+  id?: string;
   quote: string;
   name: string;
   role: string;
@@ -75,7 +76,7 @@ export default function TestimonialsGrid() {
 
             return (
             <SectionDataProvider
-              key={`testimonial-${index}`}
+              key={item.id ?? `testimonial-${index}`}
               data={item as unknown as Record<string, unknown>}
               updateField={(key, value) => applyItemPatchForIndex({ [key]: value })}
               updateFields={applyItemPatchForIndex}

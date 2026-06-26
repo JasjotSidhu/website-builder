@@ -13,6 +13,8 @@ export interface SavedSection {
   savedAt: string;
 }
 
+import type { SiteCollections } from "@/lib/collections/types";
+
 export interface WebsiteData {
   siteId: string;
   meta: SiteMeta;
@@ -22,6 +24,10 @@ export interface WebsiteData {
   footer: FooterConfig;
   savedSections?: SavedSection[];
   customThemes?: CustomTheme[];
+  /** Omitted on legacy sites; treated as 1 */
+  schemaVersion?: number;
+  /** Shared content pools (testimonials, team, etc.) */
+  collections?: SiteCollections;
 }
 
 export interface CustomTheme {

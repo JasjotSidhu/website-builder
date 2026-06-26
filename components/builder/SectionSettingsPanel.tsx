@@ -18,6 +18,7 @@ interface SectionSettingsPanelProps {
   customClass?: string;
   onCustomClassChange?: (value: string) => void;
   popoverRef?: React.Ref<HTMLDivElement>;
+  headerContent?: React.ReactNode;
 }
 
 function CloseIcon() {
@@ -87,6 +88,7 @@ export default function SectionSettingsPanel({
   customClass = "",
   onCustomClassChange,
   popoverRef,
+  headerContent,
 }: SectionSettingsPanelProps) {
   const traitTabs = useMemo(
     () => buildSettingsTabs(variant, settings),
@@ -173,6 +175,8 @@ export default function SectionSettingsPanel({
           <CloseIcon />
         </button>
       </div>
+
+      {headerContent ? <div className="border-b border-gray-100 px-4 py-3">{headerContent}</div> : null}
 
       {tabs.length === 0 ? (
         <p className="popover-empty">No settings for this section.</p>

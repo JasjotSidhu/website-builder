@@ -7,7 +7,15 @@ import { findBuiltInPreset } from "@/data/theme-presets";
 import { cloneTheme, deriveCardsFromThemeColors, normalizeTheme, normalizeThemeColors } from "@/lib/theme-defaults";
 import { findSectionVariant } from "@/lib/registry";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
-import { websiteSchema } from "@/lib/schemas";
+import { parseAndMigrateWebsiteData } from "@/lib/site-migrations";
+import {
+  setTestimonialsSectionShared,
+  updateTestimonialsCollectionItems,
+} from "@/lib/collections/collection-mutations";
+import { DEFAULT_TESTIMONIALS_COLLECTION_ID } from "@/lib/collections/types";
+import { findSectionInSite } from "@/lib/collections/normalize-testimonials";
+import { isTestimonialsCollectionMode } from "@/lib/collections/resolve-section-props";
+import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
 import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { buildVariantSettings } from "@/lib/traits/registry";
 import { normalizeSiteSections } from "@/lib/traits/normalize";
@@ -114,6 +122,11 @@ interface BuilderState {
   removeSavedSection: (savedId: string) => void;
   addSavedSection: (savedId: string, atIndex?: number) => void;
   updateSectionCustomClass: (sectionId: string, customClass: string) => void;
+  setTestimonialsCollectionItems: (
+    collectionId: string,
+    items: TestimonialDisplayItem[],
+  ) => void;
+  setTestimonialsShared: (sectionId: string, shared: boolean) => void;
 }
 
 function createSectionId() {
@@ -162,12 +175,10 @@ function remigrateSectionSettings(section: SectionInstance): SectionInstance {
   };
 }
 
-const fallbackSite = normalizeSiteSections(
-  websiteSchema.parse({
-    ...sampleSite,
-    theme: normalizeTheme(sampleSite.theme),
-  }) as WebsiteData,
-);
+const fallbackSite = parseAndMigrateWebsiteData({
+  ...sampleSite,
+  theme: normalizeTheme(sampleSite.theme),
+});
 
 interface SiteLoadResponse {
   site: WebsiteData;
@@ -216,7 +227,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         throw new Error("Failed to load site");
       }
       const payload = (await res.json()) as SiteLoadResponse;
-      const site = normalizeSiteSections(payload.site);
+      const site = parseAndMigrateWebsiteData(payload.site);
       pauseHistory(() => {
         set({
           site,
@@ -325,7 +336,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   importDraft: (raw) => {
     try {
-      const site = normalizeSiteSections(websiteSchema.parse(raw) as WebsiteData);
+      const site = parseAndMigrateWebsiteData(raw);
       pauseHistory(() => {
         set({
           site,
@@ -597,17 +608,33 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   patchSectionProps: (id, partial) => {
     set((state) => {
+      const section = findSectionInSite(state.site, id);
+      if (
+        section?.type === "testimonials" &&
+        isTestimonialsCollectionMode(section.props) &&
+        "testimonials" in partial
+      ) {
+        return {
+          site: updateTestimonialsCollectionItems(
+            state.site,
+            DEFAULT_TESTIMONIALS_COLLECTION_ID,
+            partial.testimonials as TestimonialDisplayItem[],
+          ),
+          isDirty: true,
+        };
+      }
+
       const activePage = getActivePage(state);
       return {
         site: updateActivePageSections(
           state.site,
           state.activePageId,
-          activePage.sections.map((section) => {
-            if (section.id !== id) {
-              return section;
+          activePage.sections.map((entry) => {
+            if (entry.id !== id) {
+              return entry;
             }
 
-            const next = { ...section.props };
+            const next = { ...entry.props };
             for (const [key, value] of Object.entries(partial)) {
               if (value === undefined || value === "") {
                 delete next[key];
@@ -616,7 +643,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
               }
             }
 
-            return { ...section, props: next };
+            if (entry.type === "testimonials" && isTestimonialsCollectionMode(next)) {
+              delete next.testimonials;
+            }
+
+            return { ...entry, props: next };
           }),
         ),
         isDirty: true,
@@ -1029,6 +1060,29 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           activePage.sections.map((section) =>
             section.id === sectionId ? { ...section, customClass: customClass.trim() } : section,
           ),
+        ),
+        isDirty: true,
+      };
+    });
+  },
+
+  setTestimonialsCollectionItems: (collectionId, items) => {
+    set((state) => ({
+      site: updateTestimonialsCollectionItems(state.site, collectionId, items),
+      isDirty: true,
+    }));
+  },
+
+  setTestimonialsShared: (sectionId, shared) => {
+    set((state) => {
+      const section = findSectionInSite(state.site, sectionId);
+      if (!section) {
+        return state;
+      }
+
+      return {
+        site: normalizeSiteSections(
+          setTestimonialsSectionShared(state.site, section, shared),
         ),
         isDirty: true,
       };

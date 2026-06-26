@@ -8,6 +8,7 @@ import type {
   ThemeConfig,
   WebsiteData,
 } from "./types";
+import { resolveSectionRenderProps } from "./collections/resolve-section-props";
 import { findSectionVariant } from "./registry";
 import { getHeaderProps } from "./header-utils";
 import GoogleFontsLoader from "@/components/shared/GoogleFontsLoader";
@@ -122,11 +123,13 @@ function renderNavigation(navigation: NavigationConfig, strict: boolean) {
 
 export function PageRenderer({
   page,
+  site,
   theme: _theme,
   strict = true,
   showHidden = false,
 }: {
   page: PageData;
+  site: WebsiteData;
   theme: ThemeConfig;
   strict?: boolean;
   showHidden?: boolean;
@@ -138,7 +141,9 @@ export function PageRenderer({
           return null;
         }
 
-        const { match, props } = validateSectionProps(section, strict);
+        const resolvedProps = resolveSectionRenderProps(site, section);
+        const sectionForValidation = { ...section, props: resolvedProps };
+        const { match, props } = validateSectionProps(sectionForValidation, strict);
 
         if (!match) {
           return null;
@@ -206,6 +211,7 @@ export function SiteRenderer({
           {renderNavigation(site.navigation, strict)}
           <PageRenderer
             page={resolvedPage}
+            site={site}
             theme={site.theme}
             strict={strict}
             showHidden={showHidden}

@@ -1,17 +1,24 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { sectionRegistry } from "@/lib/registry";
 import type { SectionInstance } from "@/lib/types";
 import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
 import { buildSectionTypographyStyle } from "@/lib/theme-utils";
 import { resolveSectionSettings } from "@/lib/traits/normalize";
+import {
+  isTestimonialsCollectionMode,
+  resolveSectionRenderProps,
+} from "@/lib/collections/resolve-section-props";
+import { DEFAULT_TESTIMONIALS_COLLECTION_ID } from "@/lib/collections/types";
+import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
 import { useCloseOnOutsideClick } from "@/lib/hooks/use-close-on-outside-click";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
 import SaveSectionPopover from "./SaveSectionPopover";
 import SectionSettingsPanel from "./SectionSettingsPanel";
+import TestimonialsShareToggle from "./TestimonialsShareToggle";
 import {
   IconArrowDown,
   IconArrowUp,
@@ -67,25 +74,53 @@ export default function SectionWrapper({
     removeSection,
     toggleSectionHidden,
     reorderSections,
+    setTestimonialsCollectionItems,
   } = useBuilderStore();
+  const site = useBuilderStore((state) => state.site);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
 
   const definition = sectionRegistry[section.type];
   const variant = definition?.variants.find((entry) => entry.id === section.variant);
   const isFixed = section.type === "header" || section.type === "footer";
+  const resolvedProps = useMemo(
+    () => resolveSectionRenderProps(site, section),
+    [site, section],
+  );
+  const isSharedTestimonials =
+    section.type === "testimonials" && isTestimonialsCollectionMode(section.props);
 
   const updateField = useCallback(
     (key: string, value: unknown) => {
+      if (key === "testimonials" && isSharedTestimonials) {
+        setTestimonialsCollectionItems(
+          DEFAULT_TESTIMONIALS_COLLECTION_ID,
+          value as TestimonialDisplayItem[],
+        );
+        return;
+      }
+
       patchSectionProps(section.id, { [key]: value });
     },
-    [patchSectionProps, section.id],
+    [patchSectionProps, section.id, setTestimonialsCollectionItems, isSharedTestimonials],
   );
 
   const updateFields = useCallback(
     (partial: Record<string, unknown>) => {
+      if (isSharedTestimonials && "testimonials" in partial) {
+        setTestimonialsCollectionItems(
+          DEFAULT_TESTIMONIALS_COLLECTION_ID,
+          partial.testimonials as TestimonialDisplayItem[],
+        );
+        const { testimonials: _ignored, ...rest } = partial;
+        if (Object.keys(rest).length > 0) {
+          patchSectionProps(section.id, rest);
+        }
+        return;
+      }
+
       patchSectionProps(section.id, partial);
     },
-    [patchSectionProps, section.id],
+    [patchSectionProps, section.id, setTestimonialsCollectionItems, isSharedTestimonials],
   );
 
   useCloseOnOutsideClick(
@@ -119,7 +154,7 @@ export default function SectionWrapper({
   return (
     <SectionSettingsProvider settings={resolvedSettings}>
       <SectionDataProvider
-        data={section.props}
+        data={resolvedProps}
         updateField={updateField}
         updateFields={updateFields}
       >
@@ -133,7 +168,12 @@ export default function SectionWrapper({
           {hovered ? <AddSectionButton onClick={() => onAddSection(index)} /> : null}
           {hovered || settingsOpen || saveOpen ? (
             <>
-              <span className="section-label-badge">{variant.label}</span>
+              <span className="section-label-badge">
+                {variant.label}
+                {section.type === "testimonials" && isTestimonialsCollectionMode(section.props)
+                  ? " · Shared"
+                  : ""}
+              </span>
               <div className="section-toolbar">
                 <div className="relative">
                   <SectionToolbarButton
@@ -157,6 +197,14 @@ export default function SectionWrapper({
                       }
                       onUpdate={(partial) => updateSectionSettings(section.id, partial)}
                       onClose={() => setSettingsOpen(false)}
+                      headerContent={
+                        section.type === "testimonials" ? (
+                          <TestimonialsShareToggle
+                            sectionId={section.id}
+                            sectionProps={section.props}
+                          />
+                        ) : undefined
+                      }
                     />
                   ) : null}
                 </div>

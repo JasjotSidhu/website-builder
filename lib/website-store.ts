@@ -1,17 +1,17 @@
 import { prisma } from "@/lib/db";
 import { websiteSchema } from "@/lib/schemas";
-import { normalizeSiteSections } from "@/lib/traits/normalize";
+import { parseAndMigrateWebsiteData } from "@/lib/site-migrations";
 import type { WebsiteData } from "@/lib/types";
 import { createWebsiteData } from "./website-factory";
 import { ensureUniqueWebsiteSlug, slugifyWebsiteName, validateWebsiteSlug } from "./website-slugs";
 
 function parseWebsiteData(raw: string): WebsiteData {
-  const parsed = websiteSchema.parse(JSON.parse(raw));
-  return normalizeSiteSections(parsed as WebsiteData);
+  return parseAndMigrateWebsiteData(JSON.parse(raw));
 }
 
 function serializeWebsiteData(site: WebsiteData): string {
-  return JSON.stringify(normalizeSiteSections(websiteSchema.parse(site) as WebsiteData));
+  const normalized = parseAndMigrateWebsiteData(site);
+  return JSON.stringify(websiteSchema.parse(normalized));
 }
 
 export class WebsiteAccessError extends Error {
@@ -150,5 +150,5 @@ export async function getWebsitePublishStatus(userId: string, websiteId: string)
 }
 
 export function parseAndValidateWebsiteBody(body: unknown): WebsiteData {
-  return normalizeSiteSections(websiteSchema.parse(body) as WebsiteData);
+  return parseAndMigrateWebsiteData(body);
 }

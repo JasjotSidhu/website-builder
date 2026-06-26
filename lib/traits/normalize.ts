@@ -6,6 +6,7 @@ import { migrateFooterProps, migrateNavigation, migrateSectionProps } from "@/li
 import { isFixedSlotType } from "@/lib/section-placement";
 import type { SectionInstance, WebsiteData } from "@/lib/types";
 import { buildVariantSettings } from "./registry";
+import { normalizeTestimonialsCollections } from "@/lib/collections/normalize-testimonials";
 
 function migrateLegacyStyle(section: SectionInstance): Record<string, unknown> {
   const legacy: Record<string, unknown> = {};
@@ -97,7 +98,7 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
       : site.footer.settings,
   };
 
-  return {
+  return normalizeTestimonialsCollections({
     ...site,
     navigation,
     footer,
@@ -124,6 +125,8 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
     })),
     savedSections: site.savedSections ?? [],
     customThemes: site.customThemes ?? [],
+    collections: site.collections ?? {},
+    schemaVersion: site.schemaVersion ?? 2,
     theme: normalizeTheme(site.theme),
-  };
+  });
 }

@@ -216,6 +216,25 @@ export const footerConfigSchema = z.object({
   settings: z.record(z.string(), z.unknown()).optional(),
 });
 
+export const collectionItemSchema = z
+  .object({
+    id: z.string().min(1),
+    order: z.number().int().nonnegative(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .passthrough();
+
+export const collectionSchema = z.object({
+  id: z.string().min(1),
+  type: z.enum(["testimonials", "team", "features", "blog"]),
+  name: z.string().min(1),
+  items: z.array(collectionItemSchema),
+  meta: z.record(z.string(), z.unknown()).optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 export const websiteSchema = z.object({
   siteId: z.string().min(1),
   meta: siteMetaSchema,
@@ -225,6 +244,8 @@ export const websiteSchema = z.object({
   footer: footerConfigSchema,
   savedSections: z.array(savedSectionSchema).optional(),
   customThemes: z.array(customThemeSchema).optional(),
+  schemaVersion: z.number().int().positive().optional(),
+  collections: z.record(z.string(), collectionSchema).optional(),
 });
 
 export type { LinkValue };
