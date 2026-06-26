@@ -44,6 +44,13 @@ export const COLLECTION_TYPE_REGISTRY: Record<CollectionType, CollectionTypeDefi
     /** Blog may move to SQL later; JSON ok for early MVP */
     softItemLimit: 100,
   },
+  faq: {
+    type: "faq",
+    label: "FAQ",
+    pluralLabel: "FAQs",
+    compatibleSectionTypes: ["faq"],
+    softItemLimit: 50,
+  },
 };
 
 export function isCollectionType(value: string): value is CollectionType {

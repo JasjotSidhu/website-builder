@@ -10,12 +10,19 @@ export const DEFAULT_TESTIMONIALS_COLLECTION_ID = "testimonials-default";
 /** Single shared team pool per website. */
 export const DEFAULT_TEAM_COLLECTION_ID = "team-default";
 
+/** Single shared blog pool per website. */
+export const DEFAULT_BLOG_COLLECTION_ID = "blog-default";
+
+/** Single shared FAQ pool per website. */
+export const DEFAULT_FAQ_COLLECTION_ID = "faq-default";
+
 /** Discriminator for collection item shape. Defined in code, not per-site. */
 export type CollectionType =
   | "testimonials"
   | "team"
   | "features"
-  | "blog";
+  | "blog"
+  | "faq";
 
 export interface CollectionItemBase {
   id: string;
@@ -55,6 +62,7 @@ export interface BlogCollectionItem extends CollectionItemBase {
   coverImage?: string;
   author?: string;
   publishedAt?: string;
+  featured?: boolean;
   tags?: string[];
   seo?: {
     title?: string;
@@ -62,11 +70,17 @@ export interface BlogCollectionItem extends CollectionItemBase {
   };
 }
 
+export interface FaqCollectionItem extends CollectionItemBase {
+  question: string;
+  answer: string;
+}
+
 export type CollectionItemByType = {
   testimonials: TestimonialCollectionItem;
   team: TeamCollectionItem;
   features: FeatureCollectionItem;
   blog: BlogCollectionItem;
+  faq: FaqCollectionItem;
 };
 
 export interface Collection<T extends CollectionType = CollectionType> {

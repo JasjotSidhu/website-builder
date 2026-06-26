@@ -42,7 +42,6 @@ export const SITE_MANAGE_NAV: SiteManageNavItem[] = [
     label: "Blog",
     href: (id) => `/dashboard/sites/${id}/blog`,
     icon: FileText,
-    soon: true,
   },
   {
     id: "domain",

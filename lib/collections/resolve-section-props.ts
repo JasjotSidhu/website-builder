@@ -1,8 +1,16 @@
 import type { SectionInstance, WebsiteData } from "@/lib/types";
+import { resolveBlogSectionProps } from "./resolve-blog-section";
 import { resolveSectionListItems } from "./resolve";
+import { collectionItemToFaq } from "./faq";
 import { collectionItemToTestimonial } from "./testimonials";
 import { collectionItemToTeamMember } from "./team";
-import type { SectionDataSource, TeamCollectionItem, TestimonialCollectionItem } from "./types";
+import type {
+  FaqCollectionItem,
+  SectionDataSource,
+  TeamCollectionItem,
+  TestimonialCollectionItem,
+} from "./types";
+import { DEFAULT_BLOG_COLLECTION_ID } from "./types";
 import { isListSectionType, LIST_SECTION_CONFIG } from "./list-section-config";
 
 export function isSectionCollectionMode(props: Record<string, unknown>): boolean {
@@ -24,6 +32,10 @@ export function resolveSectionRenderProps(
   site: WebsiteData,
   section: SectionInstance,
 ): Record<string, unknown> {
+  if (section.type === "blog") {
+    return resolveBlogSectionProps(site, section);
+  }
+
   if (!isListSectionType(section.type)) {
     return section.props;
   }
@@ -37,25 +49,27 @@ export function resolveSectionRenderProps(
       }
     : (section.props.dataSource as SectionDataSource | undefined);
 
-  if (section.type === "testimonials") {
-    const testimonials = resolveSectionListItems<TestimonialCollectionItem>({
-      site,
-      dataSource,
-      inlineKey: config.inlineKey,
-      props: section.props,
-    }).map(collectionItemToTestimonial);
-
-    return { ...section.props, testimonials };
-  }
-
-  const members = resolveSectionListItems<TeamCollectionItem>({
+  const resolvedItems = resolveSectionListItems({
     site,
     dataSource,
     inlineKey: config.inlineKey,
     props: section.props,
-  }).map(collectionItemToTeamMember);
+  });
 
-  return { ...section.props, members };
+  if (section.type === "testimonials") {
+    const testimonials = (resolvedItems as TestimonialCollectionItem[]).map(
+      collectionItemToTestimonial,
+    );
+    return { ...section.props, testimonials };
+  }
+
+  if (section.type === "team") {
+    const members = (resolvedItems as TeamCollectionItem[]).map(collectionItemToTeamMember);
+    return { ...section.props, members };
+  }
+
+  const faqs = (resolvedItems as FaqCollectionItem[]).map(collectionItemToFaq);
+  return { ...section.props, faqs };
 }
 
 export function getTestimonialsCollectionId(props: Record<string, unknown>): string | null {
@@ -72,4 +86,20 @@ export function getTeamCollectionId(props: Record<string, unknown>): string | nu
   }
 
   return LIST_SECTION_CONFIG.team.defaultCollectionId;
+}
+
+export function getBlogCollectionId(props: Record<string, unknown>): string | null {
+  if (!isSectionCollectionMode(props)) {
+    return null;
+  }
+
+  return DEFAULT_BLOG_COLLECTION_ID;
+}
+
+export function getFaqCollectionId(props: Record<string, unknown>): string | null {
+  if (!isSectionCollectionMode(props)) {
+    return null;
+  }
+
+  return LIST_SECTION_CONFIG.faq.defaultCollectionId;
 }

@@ -21,6 +21,8 @@ import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
 import { resolveFixedSlotSettings, resolveSectionSettings } from "@/lib/traits/normalize";
+import BlogPostDetail from "@/components/sections/blog/BlogPostDetail";
+import type { BlogPostDisplayItem } from "@/lib/collections/blog";
 
 function validateSectionProps(section: SectionInstance, strict: boolean) {
   const match = findSectionVariant(section.type, section.variant);
@@ -178,12 +180,14 @@ export function SiteRenderer({
   site,
   page,
   slug,
+  websiteSlug,
   strict = true,
   showHidden = false,
 }: {
   site: WebsiteData;
   page?: PageData;
   slug?: string;
+  websiteSlug?: string;
   strict?: boolean;
   showHidden?: boolean;
 }) {
@@ -200,7 +204,7 @@ export function SiteRenderer({
   }));
 
   return (
-    <SiteProvider pages={pages}>
+    <SiteProvider pages={pages} websiteSlug={websiteSlug}>
       <GoogleFontsLoader fonts={collectSiteFonts(site)} />
       <ThemeProvider theme={site.theme}>
         <div
@@ -217,6 +221,43 @@ export function SiteRenderer({
             showHidden={showHidden}
           />
           {renderFooter(site.footer, strict)}
+        </div>
+      </ThemeProvider>
+    </SiteProvider>
+  );
+}
+
+export function BlogPostSiteRenderer({
+  site,
+  post,
+  websiteSlug,
+  backHref,
+}: {
+  site: WebsiteData;
+  post: BlogPostDisplayItem;
+  websiteSlug: string;
+  backHref?: string;
+}) {
+  const pages = site.pages.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    slug: entry.slug,
+  }));
+
+  return (
+    <SiteProvider pages={pages} websiteSlug={websiteSlug}>
+      <GoogleFontsLoader fonts={collectSiteFonts(site)} />
+      <ThemeProvider theme={site.theme}>
+        <div
+          className="@container site-theme-root w-full"
+          style={buildThemeCssVariables(site.theme)}
+          data-btn-hover-effect={site.theme.buttons?.hoverEffect ?? "lift"}
+        >
+          {renderNavigation(site.navigation, false)}
+          <main>
+            <BlogPostDetail post={post} backHref={backHref} />
+          </main>
+          {renderFooter(site.footer, false)}
         </div>
       </ThemeProvider>
     </SiteProvider>

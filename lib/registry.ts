@@ -11,6 +11,8 @@ import TestimonialsGrid, {
   testimonialsGridSchema,
 } from "@/components/sections/testimonials/TestimonialsGrid";
 import TeamGrid, { teamGridSchema } from "@/components/sections/team/TeamGrid";
+import BlogList, { blogListSchema } from "@/components/sections/blog/BlogList";
+import FaqAccordion, { faqAccordionSchema } from "@/components/sections/faq/FaqAccordion";
 import CtaBanner, { ctaBannerSchema } from "@/components/sections/cta/CtaBanner";
 import FooterSimple, { footerSimpleSchema } from "@/components/sections/footer/FooterSimple";
 
@@ -187,6 +189,65 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
             { name: "Alex Morgan", role: "Founder", bio: "Leads strategy and partnerships." },
             { name: "Sam Lee", role: "Design Director", bio: "Shapes the visual identity of every project." },
             { name: "Jordan Kim", role: "Lead Developer", bio: "Builds fast, accessible web experiences." },
+          ],
+        },
+      },
+    ],
+  },
+  blog: {
+    type: "blog",
+    label: "Blog",
+    category: "content",
+    variants: [
+      {
+        id: "blog-list",
+        label: "Blog list",
+        component: BlogList as ComponentType<Record<string, unknown>>,
+        propsSchema: blogListSchema,
+        traits: ["grid", "background", "textColor", "spacing", "sectionFonts"],
+        defaultProps: {
+          eyebrow: "Blog",
+          heading: "Latest posts",
+          subheading: "Insights, updates, and stories",
+          displayMode: "limit",
+          postLimit: 3,
+          dataSource: {
+            mode: "collection",
+            collectionId: "blog-default",
+            sort: "newest",
+          },
+        },
+      },
+    ],
+  },
+  faq: {
+    type: "faq",
+    label: "FAQ",
+    category: "content",
+    variants: [
+      {
+        id: "faq-accordion",
+        label: "FAQ accordion",
+        component: FaqAccordion as ComponentType<Record<string, unknown>>,
+        propsSchema: faqAccordionSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        defaultProps: {
+          eyebrow: "FAQ",
+          heading: "Frequently asked questions",
+          subheading: "Quick answers to common questions",
+          faqs: [
+            {
+              question: "How long does a typical project take?",
+              answer: "Most projects take 2–4 weeks depending on scope, content readiness, and feedback cycles.",
+            },
+            {
+              question: "Do you offer ongoing support?",
+              answer: "Yes. We offer maintenance plans for updates, performance checks, and small content changes.",
+            },
+            {
+              question: "Can I update the website myself?",
+              answer: "Absolutely. The builder lets you edit content, images, and pages without touching code.",
+            },
           ],
         },
       },

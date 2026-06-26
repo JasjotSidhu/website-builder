@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { SessionUser } from "@/lib/auth/session";
 import type { WebsiteManageContext } from "@/lib/website-store";
 import DashboardNav from "../DashboardNav";
@@ -15,6 +15,8 @@ interface SiteManageShellProps {
 
 export default function SiteManageShell({ user, website, children }: SiteManageShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isBlogPage = pathname.endsWith("/blog");
 
   return (
     <div className="dash site-manage">
@@ -23,9 +25,11 @@ export default function SiteManageShell({ user, website, children }: SiteManageS
       <div className="site-manage__layout">
         <SiteManageSidebar websiteId={website.id} />
 
-        <main className="site-manage__main">
-          <SiteManageHeader website={website} />
-          <div className="site-manage__content">{children}</div>
+        <main className={`site-manage__main${isBlogPage ? " site-manage__main--blog" : ""}`}>
+          {!isBlogPage ? <SiteManageHeader website={website} /> : null}
+          <div className={`site-manage__content${isBlogPage ? " site-manage__content--blog" : ""}`}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

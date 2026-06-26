@@ -12,13 +12,12 @@ import {
   setListSectionShared,
   siteHasSharedListSection,
   updateListSectionItems,
+  type ListSectionDisplayItem,
 } from "@/lib/collections/section-share";
 import { isListSectionType, LIST_SECTION_CONFIG } from "@/lib/collections/list-section-config";
 import { findSectionInSite } from "@/lib/collections/normalize-collections";
 import { isSectionCollectionMode } from "@/lib/collections/resolve-section-props";
 import type { ListSectionType } from "@/lib/collections/list-section-config";
-import type { TeamMemberDisplayItem } from "@/lib/collections/team";
-import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
 import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { buildVariantSettings } from "@/lib/traits/registry";
 import { normalizeSiteSections } from "@/lib/traits/normalize";
@@ -33,7 +32,7 @@ import type {
   ThemeConfig,
   WebsiteData,
 } from "@/lib/types";
-import { isFixedSlotType } from "@/lib/section-placement";
+import { isFixedSlotType } from "@/lib/fixed-slot-types";
 
 export type PreviewDevice = "desktop" | "tablet" | "mobile";
 export type RightSidebarTab = "theme" | "settings";
@@ -128,7 +127,7 @@ interface BuilderState {
   setSectionListItems: (
     sectionType: ListSectionType,
     collectionId: string,
-    items: TestimonialDisplayItem[] | TeamMemberDisplayItem[],
+    items: ListSectionDisplayItem[],
   ) => void;
   setSectionShared: (sectionType: ListSectionType, sectionId: string, shared: boolean) => void;
 }
@@ -179,10 +178,18 @@ function remigrateSectionSettings(section: SectionInstance): SectionInstance {
   };
 }
 
-const fallbackSite = parseAndMigrateWebsiteData({
-  ...sampleSite,
-  theme: normalizeTheme(sampleSite.theme),
-});
+const fallbackSite = (() => {
+  let cached: WebsiteData | null = null;
+  return () => {
+    if (!cached) {
+      cached = parseAndMigrateWebsiteData({
+        ...sampleSite,
+        theme: normalizeTheme(sampleSite.theme),
+      });
+    }
+    return cached;
+  };
+})();
 
 interface SiteLoadResponse {
   site: WebsiteData;
@@ -203,8 +210,8 @@ async function readSaveError(res: Response): Promise<string> {
 export const useBuilderStore = create<BuilderState>((set, get) => ({
   websiteId: null,
   websiteSlug: null,
-  site: fallbackSite,
-  activePageId: fallbackSite.pages[0]?.id ?? "",
+  site: fallbackSite(),
+  activePageId: fallbackSite().pages[0]?.id ?? "",
   isLoading: true,
   isSaving: false,
   isPublishing: false,
@@ -645,7 +652,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
               state.site,
               section.type,
               config.defaultCollectionId,
-              partial[config.inlineKey] as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
+              partial[config.inlineKey] as ListSectionDisplayItem[],
             ),
             isDirty: true,
           };

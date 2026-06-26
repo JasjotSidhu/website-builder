@@ -3,7 +3,7 @@
 import { EditModeProvider } from "@/lib/editor/EditModeContext";
 import { SiteProvider } from "@/lib/editor/SiteContext";
 import { getHeaderVariantId } from "@/lib/header-utils";
-import { isFixedSlotType } from "@/lib/section-placement";
+import { isFixedSlotType } from "@/lib/fixed-slot-types";
 import GoogleFontsLoader from "@/components/shared/GoogleFontsLoader";
 import { ThemeProvider } from "@/lib/editor/ThemeContext";
 import { collectSiteFonts } from "@/lib/fonts/collect-site-fonts";
@@ -21,6 +21,8 @@ interface CanvasProps {
 
 export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   const site = useBuilderStore((state) => state.site);
+  const websiteId = useBuilderStore((state) => state.websiteId);
+  const websiteSlug = useBuilderStore((state) => state.websiteSlug);
   const activePageId = useBuilderStore((state) => state.activePageId);
   const previewDevice = useBuilderStore((state) => state.previewDevice);
   const previewMaxWidth = getPreviewMaxWidth(previewDevice);
@@ -71,7 +73,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
 
   return (
     <EditModeProvider>
-      <SiteProvider pages={pages}>
+      <SiteProvider pages={pages} websiteSlug={websiteSlug ?? undefined} websiteId={websiteId ?? undefined}>
         <div className="builder-canvas flex h-full flex-col">
           <DevicePreviewBar />
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6">

@@ -8,7 +8,7 @@ import {
   type FeatureIconId,
 } from "@/lib/feature-icons";
 import { buildThemeCssVariables } from "@/lib/theme-utils";
-import { useBuilderStore } from "@/store/builderStore";
+import { useSiteTheme } from "@/lib/editor/ThemeContext";
 import FloatingPopover from "./FloatingPopover";
 import { PopoverShell } from "./PopoverShell";
 
@@ -28,7 +28,7 @@ export default function IconPickerPopover({
   onClose,
 }: IconPickerPopoverProps) {
   const shellRef = useRef<HTMLDivElement>(null);
-  const theme = useBuilderStore((state) => state.site.theme);
+  const theme = useSiteTheme();
   const themeStyle = buildThemeCssVariables(theme, { embed: true });
 
   useEffect(() => {

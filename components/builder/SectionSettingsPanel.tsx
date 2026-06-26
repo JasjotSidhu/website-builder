@@ -19,6 +19,7 @@ interface SectionSettingsPanelProps {
   onCustomClassChange?: (value: string) => void;
   popoverRef?: React.Ref<HTMLDivElement>;
   headerContent?: React.ReactNode;
+  additionalTabs?: { id: string; label: string; content: React.ReactNode }[];
 }
 
 function CloseIcon() {
@@ -77,7 +78,7 @@ function TraitFields({
   );
 }
 
-type SettingsTabId = TraitCategory | "custom";
+type SettingsTabId = TraitCategory | "custom" | string;
 
 export default function SectionSettingsPanel({
   title = "Section settings",
@@ -89,18 +90,30 @@ export default function SectionSettingsPanel({
   onCustomClassChange,
   popoverRef,
   headerContent,
+  additionalTabs,
 }: SectionSettingsPanelProps) {
   const traitTabs = useMemo(
     () => buildSettingsTabs(variant, settings),
     [variant, settings],
   );
   const tabs = useMemo(() => {
-    const next = traitTabs.map((tab) => ({ id: tab.id as SettingsTabId, label: tab.label, traitIds: tab.traitIds }));
+    const next = traitTabs.map((tab) => ({
+      id: tab.id as SettingsTabId,
+      label: tab.label,
+      traitIds: tab.traitIds,
+    }));
+
+    if (additionalTabs) {
+      for (const tab of additionalTabs) {
+        next.unshift({ id: tab.id, label: tab.label, traitIds: [] });
+      }
+    }
+
     if (onCustomClassChange) {
       next.push({ id: "custom", label: "Custom", traitIds: [] });
     }
     return next;
-  }, [traitTabs, onCustomClassChange]);
+  }, [traitTabs, onCustomClassChange, additionalTabs]);
 
   const [activeTab, setActiveTab] = useState<SettingsTabId>(
     tabs[0]?.id ?? "background",
@@ -124,6 +137,7 @@ export default function SectionSettingsPanel({
   }, [tabs, activeTab]);
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+  const activeAdditionalTab = additionalTabs?.find((tab) => tab.id === activeTab);
   const customClassDirty = draftCustomClass.trim() !== customClass.trim();
 
   const handleSaveCustomClass = () => {
@@ -180,6 +194,14 @@ export default function SectionSettingsPanel({
 
       {tabs.length === 0 ? (
         <p className="popover-empty">No settings for this section.</p>
+      ) : activeAdditionalTab ? (
+        <div
+          className="settings-tab-panel"
+          role="tabpanel"
+          aria-label={activeAdditionalTab.label}
+        >
+          {activeAdditionalTab.content}
+        </div>
       ) : activeTab === "custom" ? (
         <div className="settings-tab-panel" role="tabpanel" aria-label="Custom">
           <section className="popover__section">

@@ -13,12 +13,12 @@ import {
   resolveSectionRenderProps,
 } from "@/lib/collections/resolve-section-props";
 import type { ListSectionType } from "@/lib/collections/list-section-config";
-import type { TeamMemberDisplayItem } from "@/lib/collections/team";
-import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
+import type { ListSectionDisplayItem } from "@/lib/collections/section-share";
 import { useCloseOnOutsideClick } from "@/lib/hooks/use-close-on-outside-click";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
 import CollectionShareToggle from "./CollectionShareToggle";
+import BlogSectionSettings from "./BlogSectionSettings";
 import SaveSectionPopover from "./SaveSectionPopover";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import SharedContentBanner from "./SharedContentBanner";
@@ -100,7 +100,7 @@ export default function SectionWrapper({
         setSectionListItems(
           listSectionType,
           listConfig.defaultCollectionId,
-          value as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
+          value as ListSectionDisplayItem[],
         );
         return;
       }
@@ -128,7 +128,7 @@ export default function SectionWrapper({
         setSectionListItems(
           listSectionType,
           listConfig.defaultCollectionId,
-          partial[listConfig.inlineKey] as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
+          partial[listConfig.inlineKey] as ListSectionDisplayItem[],
         );
         const { [listConfig.inlineKey]: _ignored, ...rest } = partial;
         if (Object.keys(rest).length > 0) {
@@ -223,6 +223,22 @@ export default function SectionWrapper({
                       }
                       onUpdate={(partial) => updateSectionSettings(section.id, partial)}
                       onClose={() => setSettingsOpen(false)}
+                      additionalTabs={
+                        section.type === "blog"
+                          ? [
+                              {
+                                id: "posts",
+                                label: "Posts",
+                                content: (
+                                  <BlogSectionSettings
+                                    sectionId={section.id}
+                                    sectionProps={section.props}
+                                  />
+                                ),
+                              },
+                            ]
+                          : undefined
+                      }
                       headerContent={
                         listSectionType ? (
                           <CollectionShareToggle
