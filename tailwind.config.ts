@@ -7,7 +7,11 @@ const config: Config = {
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-platform)", "system-ui", "sans-serif"],
+      },
+    },
   },
   plugins: [require("@tailwindcss/container-queries")],
 };

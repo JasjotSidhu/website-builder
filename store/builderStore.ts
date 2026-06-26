@@ -43,6 +43,8 @@ function pauseHistory<T>(fn: () => T): T {
 }
 
 interface BuilderState {
+  websiteId: string | null;
+  websiteSlug: string | null;
   site: WebsiteData;
   activePageId: string;
   isLoading: boolean;
@@ -63,7 +65,7 @@ interface BuilderState {
   settingsPanelTab: SettingsPanelTab;
   leftSidebarMode: LeftSidebarMode;
 
-  loadSite: () => Promise<void>;
+  loadSite: (websiteId: string) => Promise<void>;
   saveSite: () => Promise<void>;
   publishSite: () => Promise<void>;
   updateSiteMeta: (meta: Partial<SiteMeta>) => void;
@@ -169,6 +171,7 @@ const fallbackSite = normalizeSiteSections(
 
 interface SiteLoadResponse {
   site: WebsiteData;
+  websiteSlug: string;
   publishedAt: string | null;
   hasUnpublishedChanges: boolean;
 }
@@ -183,6 +186,8 @@ async function readSaveError(res: Response): Promise<string> {
 }
 
 export const useBuilderStore = create<BuilderState>((set, get) => ({
+  websiteId: null,
+  websiteSlug: null,
   site: fallbackSite,
   activePageId: fallbackSite.pages[0]?.id ?? "",
   isLoading: true,
@@ -203,10 +208,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   settingsPanelTab: "site",
   leftSidebarMode: "outline",
 
-  loadSite: async () => {
-    set({ isLoading: true });
+  loadSite: async (websiteId) => {
+    set({ isLoading: true, websiteId });
     try {
-      const res = await fetch("/api/site");
+      const res = await fetch(`/api/websites/${websiteId}`);
       if (!res.ok) {
         throw new Error("Failed to load site");
       }
@@ -215,6 +220,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       pauseHistory(() => {
         set({
           site,
+          websiteId,
+          websiteSlug: payload.websiteSlug,
           activePageId: site.pages[0]?.id ?? "",
           isLoading: false,
           isDirty: false,
@@ -231,10 +238,15 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   },
 
   saveSite: async () => {
+    const { websiteId } = get();
+    if (!websiteId) {
+      return;
+    }
+
     set({ isSaving: true, saveError: null });
     try {
       const { site } = get();
-      const res = await fetch("/api/site", {
+      const res = await fetch(`/api/websites/${websiteId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(site),
@@ -259,7 +271,11 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   },
 
   publishSite: async () => {
-    const { isDirty, saveSite } = get();
+    const { websiteId, isDirty, saveSite } = get();
+    if (!websiteId) {
+      return;
+    }
+
     if (isDirty) {
       await saveSite();
       if (get().saveError) {
@@ -269,7 +285,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
     set({ isPublishing: true, saveError: null });
     try {
-      const res = await fetch("/api/site/publish", { method: "POST" });
+      const res = await fetch(`/api/websites/${websiteId}/publish`, { method: "POST" });
       if (!res.ok) {
         throw new Error("Failed to publish site");
       }

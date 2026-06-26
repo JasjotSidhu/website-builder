@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { Redo2, Undo2 } from "lucide-react";
 import { useBuilderStore } from "@/store/builderStore";
 
 export default function BuilderTopBar() {
   const siteName = useBuilderStore((state) => state.site.meta.name);
+  const websiteSlug = useBuilderStore((state) => state.websiteSlug);
   const isDirty = useBuilderStore((state) => state.isDirty);
   const isSaving = useBuilderStore((state) => state.isSaving);
   const isPublishing = useBuilderStore((state) => state.isPublishing);
@@ -38,6 +40,12 @@ export default function BuilderTopBar() {
   return (
     <header className="builder-topbar flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 px-3 py-3 sm:px-4">
       <div className="min-w-0 flex-1">
+        <Link
+          href="/dashboard"
+          className="mb-1 inline-block text-xs font-medium text-gray-500 hover:text-gray-800"
+        >
+          ← Dashboard
+        </Link>
         <h1 className="text-sm font-semibold text-gray-900">{siteName}</h1>
         <p className="hidden text-xs text-gray-500 sm:block">Page builder — click any text to edit inline</p>
       </div>
@@ -67,14 +75,16 @@ export default function BuilderTopBar() {
         <span className={`max-w-[11rem] truncate text-xs ${statusClass}`} aria-live="polite">
           {statusText}
         </span>
-        <a
-          href="/"
-          target="_blank"
-          rel="noreferrer"
-          className="hidden text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline sm:inline"
-        >
-          View live site
-        </a>
+        {websiteSlug ? (
+          <a
+            href={`/w/${websiteSlug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="hidden text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline sm:inline"
+          >
+            View live site
+          </a>
+        ) : null}
         <button
           type="button"
           className="builder-save-btn"

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPublishedSiteData } from "@/lib/site-store";
 import { SiteRenderer } from "@/lib/renderer";
 import type { PageData, WebsiteData } from "@/lib/types";
+import { getPublishedWebsiteDataBySlug } from "@/lib/website-store";
 
 function resolveSlug(slug?: string[]): string {
   return `/${(slug ?? []).join("/")}`.replace(/\/+$/, "") || "/";
@@ -15,9 +15,13 @@ function findPage(site: WebsiteData, requestedSlug: string): PageData | undefine
 export async function generateMetadata({
   params,
 }: {
-  params: { slug?: string[] };
+  params: { websiteSlug: string; slug?: string[] };
 }): Promise<Metadata> {
-  const site = await getPublishedSiteData();
+  const site = await getPublishedWebsiteDataBySlug(params.websiteSlug);
+  if (!site) {
+    return { title: "Site not found" };
+  }
+
   const requestedSlug = resolveSlug(params.slug);
   const page = findPage(site, requestedSlug);
 
@@ -40,12 +44,16 @@ export async function generateMetadata({
   return metadata;
 }
 
-export default async function PublicPage({
+export default async function PublicWebsitePage({
   params,
 }: {
-  params: { slug?: string[] };
+  params: { websiteSlug: string; slug?: string[] };
 }) {
-  const site = await getPublishedSiteData();
+  const site = await getPublishedWebsiteDataBySlug(params.websiteSlug);
+  if (!site) {
+    notFound();
+  }
+
   const requestedSlug = resolveSlug(params.slug);
   const page = findPage(site, requestedSlug);
 

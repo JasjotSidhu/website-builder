@@ -11,7 +11,7 @@ import RightSidebar from "./RightSidebar";
 import SectionLibraryModal, { type SectionLibraryMode } from "./SectionLibraryModal";
 import SectionOutline from "./SectionOutline";
 
-export default function BuilderLayout() {
+export default function BuilderLayout({ websiteId }: { websiteId: string }) {
   const site = useBuilderStore((state) => state.site);
   const isLoading = useBuilderStore((state) => state.isLoading);
   const isDirty = useBuilderStore((state) => state.isDirty);
@@ -27,8 +27,8 @@ export default function BuilderLayout() {
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
   useEffect(() => {
-    void loadSite();
-  }, [loadSite]);
+    void loadSite(websiteId);
+  }, [loadSite, websiteId]);
 
   useEffect(() => {
     if (!isDirty || !autosaveEnabled || isSaving || isPublishing) {
