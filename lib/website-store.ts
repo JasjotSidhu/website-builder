@@ -30,20 +30,49 @@ export interface WebsiteSummary {
   updatedAt: Date;
 }
 
-export async function listWebsitesForUser(userId: string): Promise<WebsiteSummary[]> {
-  const rows = await prisma.website.findMany({
-    where: { ownerId: userId },
-    orderBy: { updatedAt: "desc" },
-  });
+export interface WebsiteManageContext extends WebsiteSummary {
+  pageCount: number;
+}
 
-  return rows.map((row) => ({
+function toWebsiteSummary(row: {
+  id: string;
+  name: string;
+  slug: string;
+  publishedAt: Date | null;
+  draftData: string;
+  publishedData: string;
+  updatedAt: Date;
+}): WebsiteSummary {
+  return {
     id: row.id,
     name: row.name,
     slug: row.slug,
     publishedAt: row.publishedAt,
     hasUnpublishedChanges: row.draftData !== row.publishedData,
     updatedAt: row.updatedAt,
-  }));
+  };
+}
+
+export async function getWebsiteManageContext(
+  userId: string,
+  websiteId: string,
+): Promise<WebsiteManageContext> {
+  const row = await getOwnedWebsite(userId, websiteId);
+  const draft = parseWebsiteData(row.draftData);
+
+  return {
+    ...toWebsiteSummary(row),
+    pageCount: draft.pages.length,
+  };
+}
+
+export async function listWebsitesForUser(userId: string): Promise<WebsiteSummary[]> {
+  const rows = await prisma.website.findMany({
+    where: { ownerId: userId },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return rows.map((row) => toWebsiteSummary(row));
 }
 
 export async function getOwnedWebsite(userId: string, websiteId: string) {

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, MoreHorizontal } from "lucide-react";
 import type { WebsiteSummary } from "@/lib/website-store";
@@ -70,14 +71,12 @@ export default function WebsiteCard({ website }: { website: WebsiteSummary }) {
           >
             Edit
           </a>
-          <a
-            href={builderHref}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={`/dashboard/sites/${website.id}`}
             className="dash-btn dash-btn--outline dash-btn--settings"
           >
             Settings
-          </a>
+          </Link>
           <div className="dash-site-card__more" ref={menuRef}>
             <button
               type="button"
