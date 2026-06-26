@@ -34,23 +34,21 @@ export default function BuilderTopBar() {
   const statusClass = saveError
     ? "text-red-600"
     : isDirty || hasUnpublishedChanges
-      ? "text-amber-600"
-      : "text-gray-500";
+      ? "builder-topbar__status--warn"
+      : "builder-topbar__status--muted";
 
   return (
-    <header className="builder-topbar flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 px-3 py-3 sm:px-4">
-      <div className="min-w-0 flex-1">
-        <Link
-          href="/dashboard"
-          className="mb-1 inline-block text-xs font-medium text-gray-500 hover:text-gray-800"
-        >
+    <header className="builder-topbar flex items-center justify-between gap-3 border-b px-3 py-2.5 sm:px-4">
+      <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+        <Link href="/dashboard" className="builder-topbar__back shrink-0 text-xs font-medium">
           ← Dashboard
         </Link>
-        <h1 className="text-sm font-semibold text-gray-900">{siteName}</h1>
-        <p className="hidden text-xs text-gray-500 sm:block">Page builder — click any text to edit inline</p>
+        <span className="builder-topbar__divider hidden h-4 w-px shrink-0 sm:block" aria-hidden />
+        <h1 className="builder-topbar__title min-w-0 truncate text-sm font-semibold">{siteName}</h1>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:gap-3">
-        <div className="flex items-center gap-1">
+
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="hidden items-center gap-1 sm:flex">
           <button
             type="button"
             className="builder-icon-btn"
@@ -72,7 +70,7 @@ export default function BuilderTopBar() {
             <Redo2 size={16} strokeWidth={1.75} aria-hidden />
           </button>
         </div>
-        <span className={`max-w-[11rem] truncate text-xs ${statusClass}`} aria-live="polite">
+        <span className={`builder-topbar__status hidden max-w-[11rem] truncate text-xs sm:inline ${statusClass}`} aria-live="polite">
           {statusText}
         </span>
         {websiteSlug ? (
@@ -80,9 +78,9 @@ export default function BuilderTopBar() {
             href={`/w/${websiteSlug}`}
             target="_blank"
             rel="noreferrer"
-            className="hidden text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline sm:inline"
+            className="builder-topbar__link hidden text-xs font-medium underline-offset-2 hover:underline md:inline"
           >
-            View live site
+            View live
           </a>
         ) : null}
         <button

@@ -1,0 +1,254 @@
+/* WEBEIX builder color scheme */
+
+body.builder-active {
+  --builder-canvas: #f5f1eb;
+  --builder-surface: #ffffff;
+  --builder-text: #111827;
+  --builder-text-secondary: #6b7280;
+  --builder-text-muted: #9ca3af;
+  --builder-border: #e5e7eb;
+  --builder-accent: #f79433;
+  --builder-accent-end: #e85c2b;
+  --builder-accent-hover: #e85c2b;
+  --builder-accent-soft: #fff1e7;
+  --builder-accent-text: #b85c00;
+  --builder-navy: #1a1a2e;
+  --builder-focus-ring: rgba(243, 129, 72, 0.22);
+}
+
+body.builder-active .builder-shell {
+  background: var(--builder-surface);
+  color: var(--builder-text);
+}
+
+body.builder-active .builder-topbar {
+  border-color: var(--builder-border);
+  background: var(--builder-surface);
+  min-height: 3rem;
+}
+
+body.builder-active .builder-topbar__divider {
+  background: var(--builder-border);
+}
+
+body.builder-active .builder-topbar__back,
+body.builder-active .builder-topbar__hint {
+  color: var(--builder-text-secondary);
+}
+
+body.builder-active .builder-topbar__back:hover {
+  color: var(--builder-text);
+}
+
+body.builder-active .builder-topbar__title {
+  color: var(--builder-text);
+}
+
+body.builder-active .builder-topbar__status--muted {
+  color: var(--builder-text-secondary);
+}
+
+body.builder-active .builder-topbar__status--warn {
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .builder-topbar__link {
+  color: var(--builder-text-secondary);
+}
+
+body.builder-active .builder-topbar__link:hover {
+  color: var(--builder-text);
+}
+
+body.builder-active .builder-sidebar {
+  border-color: var(--builder-border);
+  background: var(--builder-surface);
+}
+
+body.builder-active .builder-canvas {
+  background: var(--builder-canvas);
+}
+
+body.builder-active .builder-save-btn {
+  border: 1px solid var(--builder-border);
+  background: var(--builder-surface);
+  color: var(--builder-text);
+  height: 36px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+body.builder-active .builder-save-btn:hover:not(:disabled) {
+  background: #faf9f7;
+  border-color: #d1d5db;
+}
+
+body.builder-active .builder-icon-btn {
+  border-color: var(--builder-border);
+  background: var(--builder-surface);
+  color: #374151;
+}
+
+body.builder-active .builder-icon-btn:hover:not(:disabled) {
+  background: #faf9f7;
+  border-color: #d1d5db;
+}
+
+body.builder-active .right-sidebar-tab--active {
+  color: var(--builder-text);
+  box-shadow: inset 0 -2px 0 var(--builder-accent);
+}
+
+body.builder-active .settings-tab--active {
+  background: var(--builder-accent-soft);
+  color: var(--builder-accent-text);
+  box-shadow: none;
+}
+
+body.builder-active .settings-field:focus,
+body.builder-active .new-page-dialog__input:focus {
+  outline: 2px solid var(--builder-focus-ring);
+  border-color: var(--builder-accent);
+}
+
+body.builder-active .pages-list__item--active {
+  border-color: transparent;
+  background: var(--builder-accent-soft);
+}
+
+body.builder-active .pages-list__item--active .pages-list__select {
+  color: var(--builder-accent-text);
+  font-weight: 600;
+}
+
+body.builder-active .pages-list__heading {
+  color: var(--builder-text-muted);
+}
+
+body.builder-active .add-page-btn:hover {
+  border-color: var(--builder-accent);
+  color: var(--builder-accent);
+  background: var(--builder-accent-soft);
+}
+
+body.builder-active .device-preview-bar {
+  border-color: var(--builder-border);
+  background: var(--builder-surface);
+}
+
+body.builder-active .device-preview-bar__tabs {
+  background: #f3f1ec;
+}
+
+body.builder-active .device-preview-bar__tab--active {
+  background: var(--builder-navy);
+  color: #fff;
+  box-shadow: none;
+}
+
+body.builder-active .outline-item--active {
+  border-color: rgba(243, 129, 72, 0.35);
+  background: var(--builder-accent-soft);
+}
+
+body.builder-active .section-wrapper--highlighted {
+  outline: 2px solid var(--builder-accent);
+  outline-offset: -2px;
+}
+
+body.builder-active .section-wrapper--highlighted .section-label-badge {
+  background: var(--builder-accent);
+  color: #fff;
+}
+
+body.builder-active .add-section-divider {
+  --add-section-blue: rgb(232, 92, 43);
+}
+
+body.builder-active .style-subtab--active {
+  background: var(--builder-accent-soft);
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .style-theme-card:hover {
+  border-color: rgba(243, 129, 72, 0.45);
+}
+
+body.builder-active .style-theme-card--active,
+body.builder-active .style-theme-card-wrap--active .style-theme-card {
+  border-color: var(--builder-accent);
+  box-shadow: 0 0 0 1px var(--builder-accent);
+}
+
+body.builder-active .style-panel__link-btn {
+  color: var(--builder-accent);
+}
+
+body.builder-active .style-pairing-btn:hover {
+  border-color: rgba(243, 129, 72, 0.45);
+  background: var(--builder-accent-soft);
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .picker-sidebar button.active {
+  background: var(--builder-accent-soft);
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .outline-replace-btn:hover {
+  border-color: rgba(243, 129, 72, 0.45);
+  background: var(--builder-accent-soft);
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .section-library-category--active {
+  background: var(--builder-accent-soft);
+}
+
+body.builder-active .section-library-category-icon {
+  color: var(--builder-accent);
+}
+
+body.builder-active .section-library-category--active .section-library-category-icon {
+  background: rgba(243, 129, 72, 0.18);
+}
+
+body.builder-active .section-library-category--active .section-library-category-name {
+  color: var(--builder-accent-text);
+}
+
+body.builder-active .section-library-card:hover {
+  border-color: rgba(243, 129, 72, 0.45);
+  box-shadow: 0 4px 12px rgba(243, 129, 72, 0.1);
+}
+
+body.builder-active .section-library-card--selected {
+  border-color: var(--builder-accent);
+  box-shadow: 0 0 0 3px rgba(243, 129, 72, 0.15);
+}
+
+body.builder-active .section-library-card--current {
+  border-color: rgba(243, 129, 72, 0.55);
+}
+
+body.builder-active .section-library-card-check {
+  background: linear-gradient(135deg, rgb(247, 148, 51), rgb(232, 92, 43));
+}
+
+body.builder-active .editable-field {
+  border-color: rgba(243, 129, 72, 0.55);
+}
+
+body.builder-active .editable-field:focus {
+  border-color: var(--builder-accent);
+  background: rgba(243, 129, 72, 0.06);
+}
+
+body.builder-active .editable-link:focus-within {
+  outline-color: var(--builder-accent);
+}
+
+body.builder-active .style-panel__hint,
+body.builder-active .popover-field__hint {
+  color: var(--builder-text-muted);
+}

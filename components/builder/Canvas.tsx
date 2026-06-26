@@ -72,7 +72,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
   return (
     <EditModeProvider>
       <SiteProvider pages={pages}>
-        <div className="flex h-full flex-col bg-gray-100">
+        <div className="builder-canvas flex h-full flex-col">
           <DevicePreviewBar />
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6">
             <div

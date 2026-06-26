@@ -24,7 +24,7 @@ export default function PagesList() {
     <>
       <div className="pages-list border-b border-gray-200 px-3 py-3">
         <div className="mb-2 flex items-center justify-between">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">Pages</h4>
+          <h4 className="pages-list__heading text-xs font-semibold uppercase tracking-wide">Pages</h4>
         </div>
         <div className="space-y-1">
           {site.pages.map((page) => (

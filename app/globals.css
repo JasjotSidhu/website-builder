@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "./builder-theme.css";
+
 @layer base {
   html,
   body {
@@ -996,21 +998,20 @@ select.popover-input--inline-select {
   color: var(--popover-text);
 }
 
-.editor-popover-btn--primary,
-.popover-btn--primary {
-  background: var(--popover-text);
-  color: #fff;
-}
-
-.editor-popover-btn--primary:hover,
-.popover-btn--primary:hover {
-  background: #333;
-}
-
 .editor-popover-btn--primary:disabled,
 .popover-btn--primary:disabled {
-  opacity: 0.4;
+  opacity: 0.55;
   cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+}
+
+.popover-btn--primary.popover-btn--xs,
+.popover-btn--primary.popover-btn--sm,
+.editor-popover-btn--primary.popover-btn--xs,
+.editor-popover-btn--primary.popover-btn--sm {
+  padding: 9px 20px;
+  font-size: 13.5px;
 }
 
 .popover-toolbar-tag-value {
@@ -1341,26 +1342,13 @@ select.popover-input--inline-select {
 .add-section-divider__btn {
   position: relative;
   z-index: 1;
-  padding: 10px 22px;
-  font-size: 13px;
-  font-weight: 700;
   letter-spacing: 0.08em;
-  line-height: 1;
-  border: none;
-  border-radius: 6px;
-  background: var(--add-section-blue);
-  color: #ffffff;
-  cursor: pointer;
   white-space: nowrap;
   pointer-events: auto;
-  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.35);
-  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .add-section-divider__btn:hover {
-  background: #0069d9;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.4);
 }
 
 .add-section-zone {
@@ -2654,24 +2642,33 @@ select.popover-input--inline-select {
   color: #4f46e5;
 }
 
-.builder-save-btn {
+.builder-save-btn,
+.builder-publish-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   min-width: 4.5rem;
-  padding: 0.45rem 0.9rem;
-  border: none;
-  border-radius: 0.5rem;
-  background: #007bff;
-  color: white;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  height: 36px;
+  padding: 0 20px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.builder-save-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
 .builder-save-btn:hover:not(:disabled) {
-  background: #0069d9;
+  background: #faf9f7;
+  border-color: #d1d5db;
 }
 
 .builder-save-btn:disabled {
@@ -2679,29 +2676,59 @@ select.popover-input--inline-select {
   cursor: not-allowed;
 }
 
-.builder-publish-btn {
+/* Orange primary buttons */
+.btn-orange,
+.builder-publish-btn,
+.dash-btn--orange,
+.add-section-divider__btn,
+.editor-popover-btn--primary,
+.popover-btn--primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 4.5rem;
-  padding: 0.45rem 0.9rem;
+  padding: 9px 20px;
   border: none;
-  border-radius: 0.5rem;
-  background: #059669;
-  color: white;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgb(247, 148, 51), rgb(232, 92, 43));
+  color: #fff;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  box-shadow: rgba(232, 92, 43, 0.26) 0 8px 18px;
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
 }
 
-.builder-publish-btn:hover:not(:disabled) {
-  background: #047857;
+.btn-orange:hover:not(:disabled),
+.builder-publish-btn:hover:not(:disabled),
+.dash-btn--orange:hover:not(:disabled),
+.add-section-divider__btn:hover:not(:disabled),
+.editor-popover-btn--primary:hover:not(:disabled),
+.popover-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.04);
+  box-shadow: rgba(232, 92, 43, 0.32) 0 10px 20px;
 }
 
-.builder-publish-btn:disabled {
+.btn-orange:disabled,
+.builder-publish-btn:disabled,
+.dash-btn--orange:disabled,
+.add-section-divider__btn:disabled,
+.editor-popover-btn--primary:disabled,
+.popover-btn--primary:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+}
+
+/* Topbar publish uses fixed height from .builder-publish-btn group above */
+.builder-publish-btn.btn-orange,
+.builder-publish-btn {
+  height: 36px;
+  padding: 0 20px;
+  min-width: 4.5rem;
 }
 
 .right-sidebar-tab {
@@ -3590,14 +3617,11 @@ select.settings-field {
 }
 
 .dash-btn--orange {
-  padding: 0.625rem 1rem;
-  background: #f37335;
   color: #fff !important;
-  box-shadow: 0 4px 14px rgba(243, 115, 53, 0.28);
 }
 
-.dash-btn--orange:hover:not(:disabled) {
-  background: #e5652b;
+.dash-btn--orange.dash-btn--full {
+  width: 100%;
 }
 
 .dash-btn--navy {

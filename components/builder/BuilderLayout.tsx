@@ -27,6 +27,11 @@ export default function BuilderLayout({ websiteId }: { websiteId: string }) {
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
   useEffect(() => {
+    document.body.classList.add("builder-active");
+    return () => document.body.classList.remove("builder-active");
+  }, []);
+
+  useEffect(() => {
     void loadSite(websiteId);
   }, [loadSite, websiteId]);
 
@@ -92,18 +97,18 @@ export default function BuilderLayout({ websiteId }: { websiteId: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white text-sm text-gray-500">
+      <div className="builder-shell flex h-screen items-center justify-center text-sm text-gray-500">
         Loading site…
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="builder-shell flex h-screen flex-col">
       <BuilderTopBar />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px]">
-        <aside className="hidden min-h-0 flex-col border-r border-gray-200 bg-white lg:flex">
+        <aside className="builder-sidebar hidden min-h-0 flex-col border-r lg:flex">
           {leftSidebarMode === "header-settings" ? (
             <HeaderSettingsSidebar />
           ) : (
@@ -133,7 +138,7 @@ export default function BuilderLayout({ websiteId }: { websiteId: string }) {
           <Canvas onOpenSectionLibrary={openSectionLibrary} />
         </section>
 
-        <aside className="hidden min-h-0 border-l border-gray-200 bg-white lg:block">
+        <aside className="builder-sidebar hidden min-h-0 border-l lg:block">
           <RightSidebar />
         </aside>
       </div>
