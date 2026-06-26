@@ -6,7 +6,7 @@ import { migrateFooterProps, migrateNavigation, migrateSectionProps } from "@/li
 import { isFixedSlotType } from "@/lib/section-placement";
 import type { SectionInstance, WebsiteData } from "@/lib/types";
 import { buildVariantSettings } from "./registry";
-import { normalizeTestimonialsCollections } from "@/lib/collections/normalize-testimonials";
+import { normalizeSiteCollections } from "@/lib/collections/normalize-collections";
 
 function migrateLegacyStyle(section: SectionInstance): Record<string, unknown> {
   const legacy: Record<string, unknown> = {};
@@ -98,7 +98,7 @@ export function normalizeSiteSections(site: WebsiteData): WebsiteData {
       : site.footer.settings,
   };
 
-  return normalizeTestimonialsCollections({
+  return normalizeSiteCollections({
     ...site,
     navigation,
     footer,

@@ -7,18 +7,21 @@ import { SectionDataProvider } from "@/lib/editor/SectionDataContext";
 import { SectionSettingsProvider } from "@/lib/traits/context";
 import { buildSectionTypographyStyle } from "@/lib/theme-utils";
 import { resolveSectionSettings } from "@/lib/traits/normalize";
+import { isListSectionType, LIST_SECTION_CONFIG } from "@/lib/collections/list-section-config";
 import {
-  isTestimonialsCollectionMode,
+  isSectionCollectionMode,
   resolveSectionRenderProps,
 } from "@/lib/collections/resolve-section-props";
-import { DEFAULT_TESTIMONIALS_COLLECTION_ID } from "@/lib/collections/types";
+import type { ListSectionType } from "@/lib/collections/list-section-config";
+import type { TeamMemberDisplayItem } from "@/lib/collections/team";
 import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
 import { useCloseOnOutsideClick } from "@/lib/hooks/use-close-on-outside-click";
 import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
+import CollectionShareToggle from "./CollectionShareToggle";
 import SaveSectionPopover from "./SaveSectionPopover";
 import SectionSettingsPanel from "./SectionSettingsPanel";
-import TestimonialsShareToggle from "./TestimonialsShareToggle";
+import SharedContentBanner from "./SharedContentBanner";
 import {
   IconArrowDown,
   IconArrowUp,
@@ -74,7 +77,7 @@ export default function SectionWrapper({
     removeSection,
     toggleSectionHidden,
     reorderSections,
-    setTestimonialsCollectionItems,
+    setSectionListItems,
   } = useBuilderStore();
   const site = useBuilderStore((state) => state.site);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
@@ -82,36 +85,52 @@ export default function SectionWrapper({
   const definition = sectionRegistry[section.type];
   const variant = definition?.variants.find((entry) => entry.id === section.variant);
   const isFixed = section.type === "header" || section.type === "footer";
+  const listSectionType = isListSectionType(section.type) ? section.type : null;
+  const listConfig = listSectionType ? LIST_SECTION_CONFIG[listSectionType] : null;
+  const isSharedListSection = Boolean(listConfig && isSectionCollectionMode(section.props));
+
   const resolvedProps = useMemo(
     () => resolveSectionRenderProps(site, section),
     [site, section],
   );
-  const isSharedTestimonials =
-    section.type === "testimonials" && isTestimonialsCollectionMode(section.props);
 
   const updateField = useCallback(
     (key: string, value: unknown) => {
-      if (key === "testimonials" && isSharedTestimonials) {
-        setTestimonialsCollectionItems(
-          DEFAULT_TESTIMONIALS_COLLECTION_ID,
-          value as TestimonialDisplayItem[],
+      if (listSectionType && listConfig && key === listConfig.inlineKey && isSharedListSection) {
+        setSectionListItems(
+          listSectionType,
+          listConfig.defaultCollectionId,
+          value as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
         );
         return;
       }
 
       patchSectionProps(section.id, { [key]: value });
     },
-    [patchSectionProps, section.id, setTestimonialsCollectionItems, isSharedTestimonials],
+    [
+      patchSectionProps,
+      section.id,
+      setSectionListItems,
+      listSectionType,
+      listConfig,
+      isSharedListSection,
+    ],
   );
 
   const updateFields = useCallback(
     (partial: Record<string, unknown>) => {
-      if (isSharedTestimonials && "testimonials" in partial) {
-        setTestimonialsCollectionItems(
-          DEFAULT_TESTIMONIALS_COLLECTION_ID,
-          partial.testimonials as TestimonialDisplayItem[],
+      if (
+        listSectionType &&
+        listConfig &&
+        isSharedListSection &&
+        listConfig.inlineKey in partial
+      ) {
+        setSectionListItems(
+          listSectionType,
+          listConfig.defaultCollectionId,
+          partial[listConfig.inlineKey] as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
         );
-        const { testimonials: _ignored, ...rest } = partial;
+        const { [listConfig.inlineKey]: _ignored, ...rest } = partial;
         if (Object.keys(rest).length > 0) {
           patchSectionProps(section.id, rest);
         }
@@ -120,7 +139,14 @@ export default function SectionWrapper({
 
       patchSectionProps(section.id, partial);
     },
-    [patchSectionProps, section.id, setTestimonialsCollectionItems, isSharedTestimonials],
+    [
+      patchSectionProps,
+      section.id,
+      setSectionListItems,
+      listSectionType,
+      listConfig,
+      isSharedListSection,
+    ],
   );
 
   useCloseOnOutsideClick(
@@ -168,12 +194,12 @@ export default function SectionWrapper({
           {hovered ? <AddSectionButton onClick={() => onAddSection(index)} /> : null}
           {hovered || settingsOpen || saveOpen ? (
             <>
-              <span className="section-label-badge">
-                {variant.label}
-                {section.type === "testimonials" && isTestimonialsCollectionMode(section.props)
-                  ? " · Shared"
-                  : ""}
-              </span>
+              <div className="section-label-stack">
+                <span className="section-label-badge">{variant.label}</span>
+                {isSharedListSection && listConfig ? (
+                  <SharedContentBanner label={listConfig.shareItemLabel} />
+                ) : null}
+              </div>
               <div className="section-toolbar">
                 <div className="relative">
                   <SectionToolbarButton
@@ -198,8 +224,9 @@ export default function SectionWrapper({
                       onUpdate={(partial) => updateSectionSettings(section.id, partial)}
                       onClose={() => setSettingsOpen(false)}
                       headerContent={
-                        section.type === "testimonials" ? (
-                          <TestimonialsShareToggle
+                        listSectionType ? (
+                          <CollectionShareToggle
+                            sectionType={listSectionType as ListSectionType}
                             sectionId={section.id}
                             sectionProps={section.props}
                           />

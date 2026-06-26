@@ -129,8 +129,8 @@
   pointer-events: auto;
 }
 
-/* Nudge camera left/down when a remove badge shares the top-right corner */
-:has(> .editor-remove-btn-wrap) .image-edit-surface__toolbar:not(.image-edit-surface__toolbar--compact) {
+/* Nudge camera when a sibling remove badge shares the top-right corner */
+:has(> .editor-remove-btn-wrap) .image-edit-surface__toolbar:not(.image-edit-surface__toolbar--compact):not(.image-edit-surface__toolbar--overlay) {
   top: 18px;
   right: 46px;
 }
@@ -1172,11 +1172,20 @@ select.popover-input--inline-select {
   position: relative;
 }
 
-.section-label-badge {
+.section-label-stack {
   position: absolute;
   top: 8px;
   left: 8px;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: calc(100% - 5.5rem);
+  overflow: visible;
+}
+
+.section-label-badge {
   padding: 4px 8px;
   font-size: 11px;
   font-weight: 600;
@@ -1184,6 +1193,27 @@ select.popover-input--inline-select {
   background: rgba(255, 255, 255, 0.95);
   color: #374151;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-shared-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 4px;
+  background: #fff4ec;
+  color: #9a4d1a;
+  border: 1px solid #f5d9c4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}
+
+.section-shared-tag svg {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .section-toolbar {
@@ -1256,7 +1286,7 @@ select.popover-input--inline-select {
 
 .ui-tooltip__bubble {
   position: absolute;
-  z-index: 200;
+  z-index: 300;
   padding: 5px 8px;
   font-size: 11px;
   font-weight: 500;
@@ -1270,16 +1300,38 @@ select.popover-input--inline-select {
   transition: opacity 0.12s ease;
 }
 
+.ui-tooltip--bottom .ui-tooltip__bubble {
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ui-tooltip--bottom.ui-tooltip--align-start .ui-tooltip__bubble {
+  left: 0;
+  transform: none;
+}
+
+.ui-tooltip--bottom.ui-tooltip--align-end .ui-tooltip__bubble {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 .ui-tooltip--top .ui-tooltip__bubble {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
 }
 
-.ui-tooltip--bottom .ui-tooltip__bubble {
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+.ui-tooltip--top.ui-tooltip--align-start .ui-tooltip__bubble {
+  left: 0;
+  transform: none;
+}
+
+.ui-tooltip--top.ui-tooltip--align-end .ui-tooltip__bubble {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 
 .ui-tooltip--left .ui-tooltip__bubble {
@@ -1294,9 +1346,45 @@ select.popover-input--inline-select {
   transform: translateY(-50%);
 }
 
+.ui-tooltip--right.ui-tooltip--align-start .ui-tooltip__bubble {
+  top: 0;
+  transform: none;
+}
+
+.ui-tooltip--right.ui-tooltip--align-end .ui-tooltip__bubble {
+  top: auto;
+  bottom: 0;
+  transform: none;
+}
+
+.ui-tooltip--left.ui-tooltip--align-start .ui-tooltip__bubble {
+  top: 0;
+  transform: none;
+}
+
+.ui-tooltip--left.ui-tooltip--align-end .ui-tooltip__bubble {
+  top: auto;
+  bottom: 0;
+  transform: none;
+}
+
 .ui-tooltip:hover .ui-tooltip__bubble,
 .ui-tooltip:focus-within .ui-tooltip__bubble {
   opacity: 1;
+}
+
+.ui-tooltip--multiline .ui-tooltip__bubble {
+  box-sizing: border-box;
+  width: 260px;
+  max-width: 260px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  padding: 8px 10px;
+}
+
+.section-label-stack .ui-tooltip {
+  overflow: visible;
 }
 
 .hidden-badge {
@@ -1976,6 +2064,112 @@ select.popover-input--inline-select {
   color: #f59e0b;
 }
 
+.team-card {
+  position: relative;
+  overflow: visible;
+  border-radius: var(--card-radius);
+  background: var(--color-card-background);
+  color: var(--color-card-text);
+  border: 1px solid color-mix(in srgb, var(--color-card-text) 8%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem 1.25rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.image-edit-surface__toolbar--overlay {
+  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.image-edit-surface:hover .image-edit-surface__toolbar--overlay,
+.image-edit-surface:focus-within .image-edit-surface__toolbar--overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.image-edit-surface__toolbar--overlay .image-upload-btn {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.image-edit-surface__toolbar--overlay .image-upload-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.team-avatar-surface.image-edit-surface {
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.team-avatar-surface .image-edit-surface__toolbar--overlay {
+  border-radius: 9999px;
+}
+
+.team-avatar-surface .render-div-image,
+.team-avatar-surface > .avatar-initials {
+  border-radius: 9999px;
+}
+
+.avatar-initials {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary, #ffffff);
+  font-weight: 600;
+}
+
+.avatar-initials--lg {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.avatar-initials--sm {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.team-card :is(h3, h4, .font-semibold) {
+  color: var(--color-card-title-text);
+}
+
+.team-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+@container (min-width: 640px) {
+  .team-card {
+    padding: 1.75rem;
+  }
+}
+
+.list-section-empty {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px dashed color-mix(in srgb, var(--color-text) 18%, transparent);
+  border-radius: 0.75rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+
 .cta-button {
   border-radius: var(--radius);
   background: white;
@@ -2611,6 +2805,12 @@ select.popover-input--inline-select {
 .fixed-slot-badge,
 .fixed-slot-toolbar {
   z-index: 60;
+}
+
+.fixed-slot-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
 }
 
 .header-interaction-overlay {

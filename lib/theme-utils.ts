@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { buildFontFamily, normalizeFontConfig } from "./fonts/font-utils";
 import { normalizeTheme } from "./theme-defaults";
+import { getContrastingTextColor } from "./theme-color-utils";
 import type { ButtonStyleConfig, ThemeConfig } from "./types";
 
 const BORDER_RADIUS_MAP: Record<ThemeConfig["borderRadius"], string> = {
@@ -95,6 +96,7 @@ export function buildThemeCssVariables(
 
   const cssVariables = {
     "--color-primary": normalized.colors.primary,
+    "--color-on-primary": getContrastingTextColor(normalized.colors.primary),
     "--color-secondary": normalized.colors.secondary,
     "--color-background": normalized.colors.background,
     "--color-title-text": normalized.colors.titleText,

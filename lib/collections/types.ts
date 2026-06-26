@@ -7,6 +7,9 @@ export const CURRENT_SITE_SCHEMA_VERSION = 2;
 /** Single shared testimonials pool per website. */
 export const DEFAULT_TESTIMONIALS_COLLECTION_ID = "testimonials-default";
 
+/** Single shared team pool per website. */
+export const DEFAULT_TEAM_COLLECTION_ID = "team-default";
+
 /** Discriminator for collection item shape. Defined in code, not per-site. */
 export type CollectionType =
   | "testimonials"

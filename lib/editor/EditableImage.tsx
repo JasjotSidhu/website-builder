@@ -12,6 +12,7 @@ interface EditableImageProps {
   altKey?: string;
   titleKey?: string;
   compact?: boolean;
+  showTooltip?: boolean;
   renderChildren: (
     image: string,
     uploadBtn: React.ReactNode,
@@ -25,6 +26,7 @@ export default function EditableImage({
   altKey,
   titleKey,
   compact = false,
+  showTooltip = true,
   renderChildren,
 }: EditableImageProps) {
   const { isEditing } = useEditMode();
@@ -56,23 +58,35 @@ export default function EditableImage({
     [altKey, data, dataKey, resolvedAltKey, resolvedTitleKey, updateFields],
   );
 
-  const uploadBtn = isEditing ? (
+  const uploadButton = (
+    <button
+      ref={setAnchorEl}
+      type="button"
+      className={`image-upload-btn${compact ? " image-upload-btn--sm" : ""}`}
+      aria-label="Change image"
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        setPickerOpen(true);
+      }}
+    >
+      <Camera size={compact ? 12 : 16} strokeWidth={1.75} aria-hidden />
+    </button>
+  );
+
+  const uploadBtn = isEditing
+    ? showTooltip
+      ? (
+          <Tooltip label="Change image" side="top">
+            {uploadButton}
+          </Tooltip>
+        )
+      : uploadButton
+    : null;
+
+  return (
     <>
-      <Tooltip label="Change image" side="left">
-        <button
-          ref={setAnchorEl}
-          type="button"
-          className={`image-upload-btn${compact ? " image-upload-btn--sm" : ""}`}
-          aria-label="Change image"
-          onMouseDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            setPickerOpen(true);
-          }}
-        >
-          <Camera size={compact ? 12 : 16} strokeWidth={1.75} aria-hidden />
-        </button>
-      </Tooltip>
+      {renderChildren(image, uploadBtn, altText, titleText)}
       {pickerOpen ? (
         <ImageUrlPopover
           anchorEl={anchorEl}
@@ -84,9 +98,7 @@ export default function EditableImage({
         />
       ) : null}
     </>
-  ) : null;
-
-  return <>{renderChildren(image, uploadBtn, altText, titleText)}</>;
+  );
 }
 
 export function RenderDivImage({

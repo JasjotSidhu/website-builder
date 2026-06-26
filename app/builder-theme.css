@@ -161,6 +161,12 @@ body.builder-active .section-wrapper--highlighted .section-label-badge {
   color: #fff;
 }
 
+body.builder-active .section-wrapper--highlighted .section-shared-tag {
+  background: var(--builder-accent-soft);
+  border-color: rgba(243, 129, 72, 0.35);
+  color: var(--builder-accent-text);
+}
+
 body.builder-active .add-section-divider {
   --add-section-blue: rgb(232, 92, 43);
 }

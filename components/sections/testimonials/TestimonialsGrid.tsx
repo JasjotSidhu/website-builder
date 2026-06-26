@@ -68,6 +68,10 @@ export default function TestimonialsGrid() {
           <SectionHeader align="center" eyebrowFallback="Testimonials" />
         </div>
 
+        {isEditing && testimonials.length === 0 ? (
+          <p className="list-section-empty">No testimonials yet — add one below</p>
+        ) : null}
+
         <div className={`grid ${colsClass} ${gapClass}`}>
           {testimonials.map((item, index) => {
             const applyItemPatchForIndex = (partial: Record<string, unknown>) => {
@@ -117,7 +121,7 @@ export default function TestimonialsGrid() {
                             className="h-full w-full rounded-full ring-2 ring-white shadow-md"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-semibold text-white shadow-md ring-2 ring-white">
+                          <div className="avatar-initials avatar-initials--sm shadow-md ring-2 ring-white">
                             {(item.name ?? "?")[0]}
                           </div>
                         )}

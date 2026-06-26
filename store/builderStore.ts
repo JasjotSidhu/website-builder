@@ -9,12 +9,15 @@ import { findSectionVariant } from "@/lib/registry";
 import { normalizePageSlug, validatePageSlug } from "@/lib/page-slugs";
 import { parseAndMigrateWebsiteData } from "@/lib/site-migrations";
 import {
-  setTestimonialsSectionShared,
-  updateTestimonialsCollectionItems,
-} from "@/lib/collections/collection-mutations";
-import { DEFAULT_TESTIMONIALS_COLLECTION_ID } from "@/lib/collections/types";
-import { findSectionInSite } from "@/lib/collections/normalize-testimonials";
-import { isTestimonialsCollectionMode } from "@/lib/collections/resolve-section-props";
+  setListSectionShared,
+  siteHasSharedListSection,
+  updateListSectionItems,
+} from "@/lib/collections/section-share";
+import { isListSectionType, LIST_SECTION_CONFIG } from "@/lib/collections/list-section-config";
+import { findSectionInSite } from "@/lib/collections/normalize-collections";
+import { isSectionCollectionMode } from "@/lib/collections/resolve-section-props";
+import type { ListSectionType } from "@/lib/collections/list-section-config";
+import type { TeamMemberDisplayItem } from "@/lib/collections/team";
 import type { TestimonialDisplayItem } from "@/lib/collections/testimonials";
 import { migrateThemeBoundSectionSettings } from "@/lib/theme-color-utils";
 import { buildVariantSettings } from "@/lib/traits/registry";
@@ -122,11 +125,12 @@ interface BuilderState {
   removeSavedSection: (savedId: string) => void;
   addSavedSection: (savedId: string, atIndex?: number) => void;
   updateSectionCustomClass: (sectionId: string, customClass: string) => void;
-  setTestimonialsCollectionItems: (
+  setSectionListItems: (
+    sectionType: ListSectionType,
     collectionId: string,
-    items: TestimonialDisplayItem[],
+    items: TestimonialDisplayItem[] | TeamMemberDisplayItem[],
   ) => void;
-  setTestimonialsShared: (sectionId: string, shared: boolean) => void;
+  setSectionShared: (sectionType: ListSectionType, sectionId: string, shared: boolean) => void;
 }
 
 function createSectionId() {
@@ -522,8 +526,18 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const sections = [...activePage.sections];
       const index = atIndex ?? sections.length;
       sections.splice(index, 0, section);
+
+      let site = updateActivePageSections(state.site, state.activePageId, sections);
+
+      if (isListSectionType(type) && siteHasSharedListSection(site, type, section.id)) {
+        const addedSection = findSectionInSite(site, section.id);
+        if (addedSection) {
+          site = normalizeSiteSections(setListSectionShared(site, addedSection, type, true));
+        }
+      }
+
       return {
-        site: updateActivePageSections(state.site, state.activePageId, sections),
+        site,
         isDirty: true,
       };
     });
@@ -563,8 +577,22 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       };
 
       sections.splice(index + 1, 0, clone);
+
+      let site = updateActivePageSections(state.site, state.activePageId, sections);
+
+      if (
+        isListSectionType(clone.type) &&
+        !isSectionCollectionMode(clone.props) &&
+        siteHasSharedListSection(site, clone.type, clone.id)
+      ) {
+        const addedSection = findSectionInSite(site, clone.id);
+        if (addedSection) {
+          site = normalizeSiteSections(setListSectionShared(site, addedSection, clone.type, true));
+        }
+      }
+
       return {
-        site: updateActivePageSections(state.site, state.activePageId, sections),
+        site,
         isDirty: true,
       };
     });
@@ -609,19 +637,19 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   patchSectionProps: (id, partial) => {
     set((state) => {
       const section = findSectionInSite(state.site, id);
-      if (
-        section?.type === "testimonials" &&
-        isTestimonialsCollectionMode(section.props) &&
-        "testimonials" in partial
-      ) {
-        return {
-          site: updateTestimonialsCollectionItems(
-            state.site,
-            DEFAULT_TESTIMONIALS_COLLECTION_ID,
-            partial.testimonials as TestimonialDisplayItem[],
-          ),
-          isDirty: true,
-        };
+      if (section && isListSectionType(section.type) && isSectionCollectionMode(section.props)) {
+        const config = LIST_SECTION_CONFIG[section.type];
+        if (config.inlineKey in partial) {
+          return {
+            site: updateListSectionItems(
+              state.site,
+              section.type,
+              config.defaultCollectionId,
+              partial[config.inlineKey] as TestimonialDisplayItem[] | TeamMemberDisplayItem[],
+            ),
+            isDirty: true,
+          };
+        }
       }
 
       const activePage = getActivePage(state);
@@ -643,8 +671,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
               }
             }
 
-            if (entry.type === "testimonials" && isTestimonialsCollectionMode(next)) {
-              delete next.testimonials;
+            if (isListSectionType(entry.type) && isSectionCollectionMode(next)) {
+              delete next[LIST_SECTION_CONFIG[entry.type].inlineKey];
             }
 
             return { ...entry, props: next };
@@ -1043,8 +1071,17 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const index = atIndex ?? sections.length;
       sections.splice(index, 0, section);
 
+      let site = updateActivePageSections(state.site, state.activePageId, sections);
+
+      if (isListSectionType(preset.type) && siteHasSharedListSection(site, preset.type, section.id)) {
+        const addedSection = findSectionInSite(site, section.id);
+        if (addedSection) {
+          site = normalizeSiteSections(setListSectionShared(site, addedSection, preset.type, true));
+        }
+      }
+
       return {
-        site: updateActivePageSections(state.site, state.activePageId, sections),
+        site,
         isDirty: true,
       };
     });
@@ -1066,14 +1103,14 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     });
   },
 
-  setTestimonialsCollectionItems: (collectionId, items) => {
+  setSectionListItems: (sectionType, collectionId, items) => {
     set((state) => ({
-      site: updateTestimonialsCollectionItems(state.site, collectionId, items),
+      site: updateListSectionItems(state.site, sectionType, collectionId, items),
       isDirty: true,
     }));
   },
 
-  setTestimonialsShared: (sectionId, shared) => {
+  setSectionShared: (sectionType, sectionId, shared) => {
     set((state) => {
       const section = findSectionInSite(state.site, sectionId);
       if (!section) {
@@ -1081,9 +1118,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       }
 
       return {
-        site: normalizeSiteSections(
-          setTestimonialsSectionShared(state.site, section, shared),
-        ),
+        site: normalizeSiteSections(setListSectionShared(state.site, section, sectionType, shared)),
         isDirty: true,
       };
     });

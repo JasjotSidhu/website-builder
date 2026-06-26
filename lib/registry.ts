@@ -10,6 +10,7 @@ import FeaturesAlternating, {
 import TestimonialsGrid, {
   testimonialsGridSchema,
 } from "@/components/sections/testimonials/TestimonialsGrid";
+import TeamGrid, { teamGridSchema } from "@/components/sections/team/TeamGrid";
 import CtaBanner, { ctaBannerSchema } from "@/components/sections/cta/CtaBanner";
 import FooterSimple, { footerSimpleSchema } from "@/components/sections/footer/FooterSimple";
 
@@ -162,6 +163,30 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
             { quote: "Great work!", name: "Alex", role: "CEO" },
             { quote: "Highly recommend.", name: "Sam", role: "Founder" },
             { quote: "Excellent team.", name: "Jordan", role: "Director" },
+          ],
+        },
+      },
+    ],
+  },
+  team: {
+    type: "team",
+    label: "Team",
+    category: "content",
+    variants: [
+      {
+        id: "team-grid",
+        label: "Team grid",
+        component: TeamGrid as ComponentType<Record<string, unknown>>,
+        propsSchema: teamGridSchema,
+        traits: ["grid", "background", "textColor", "spacing", "sectionFonts"],
+        defaultProps: {
+          eyebrow: "Team",
+          heading: "Meet the team",
+          subheading: "The people behind the work",
+          members: [
+            { name: "Alex Morgan", role: "Founder", bio: "Leads strategy and partnerships." },
+            { name: "Sam Lee", role: "Design Director", bio: "Shapes the visual identity of every project." },
+            { name: "Jordan Kim", role: "Lead Developer", bio: "Builds fast, accessible web experiences." },
           ],
         },
       },
