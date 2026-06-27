@@ -4984,7 +4984,10 @@ select.settings-field {
   position: absolute;
   inset: 0;
   border: none;
-  background: rgba(22, 18, 42, 0.52);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 210, 175, 0.42), transparent 48%),
+    radial-gradient(circle at 50% 32%, rgba(237, 230, 255, 0.72), transparent 52%),
+    #fff;
   cursor: pointer;
 }
 
@@ -4993,18 +4996,11 @@ select.settings-field {
   z-index: 1;
   width: 100%;
   max-width: 28rem;
-  padding: 1px;
-  border-radius: 1.375rem;
-  background: linear-gradient(
-    135deg,
-    rgba(59, 160, 255, 0.55),
-    rgba(124, 111, 240, 0.5) 40%,
-    rgba(247, 148, 51, 0.65) 75%,
-    rgba(232, 92, 43, 0.55)
-  );
+  border-radius: 1.25rem;
+  background: #fff;
   box-shadow:
-    0 28px 70px rgba(28, 23, 51, 0.28),
-    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    0 24px 60px rgba(28, 23, 51, 0.1),
+    0 0 0 1px rgba(236, 230, 221, 0.9);
   animation: login-modal-in 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
@@ -5020,43 +5016,11 @@ select.settings-field {
   }
 }
 
-.login-modal__glow {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(12px);
-}
-
-.login-modal__glow--orange {
-  top: -3rem;
-  right: -1.5rem;
-  width: 10rem;
-  height: 10rem;
-  background: radial-gradient(circle, rgba(247, 148, 51, 0.34), transparent 70%);
-}
-
-.login-modal__glow--violet {
-  bottom: -2.5rem;
-  left: -2rem;
-  width: 9rem;
-  height: 9rem;
-  background: radial-gradient(circle, rgba(124, 111, 240, 0.28), transparent 70%);
-}
-
 .login-modal__dialog {
   position: relative;
   overflow: hidden;
-  border-radius: 1.3125rem;
-  background: linear-gradient(160deg, #fff 0%, #fffaf5 52%, #fff6ee 100%);
-}
-
-.login-modal__accent {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(135deg, #3ba0ff, #7c6ff0 40%, #f79433 75%, #e85c2b);
+  border-radius: 1.25rem;
+  background: #fff;
 }
 
 .login-modal__header {
@@ -5083,13 +5047,6 @@ select.settings-field {
   letter-spacing: -0.03em;
   line-height: 1.15;
   color: #1c1733;
-}
-
-.login-modal__gradient-text {
-  background: linear-gradient(135deg, #3ba0ff, #7c6ff0 40%, #f79433 75%, #e85c2b);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .login-modal__lead {

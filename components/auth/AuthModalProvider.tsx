@@ -153,26 +153,19 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
             onClick={closeAuth}
           />
           <div className="login-modal__shell">
-            <div className="login-modal__glow login-modal__glow--orange" aria-hidden />
-            <div className="login-modal__glow login-modal__glow--violet" aria-hidden />
             <div className="login-modal__dialog">
-              <div className="login-modal__accent" aria-hidden />
               <div className="login-modal__header">
                 <div>
                   {mode === "login" ? (
                     <>
                       <p className="login-modal__eyebrow">Welcome back</p>
-                      <h2 id={titleId}>
-                        Sign in to <span className="login-modal__gradient-text">Webeix</span>
-                      </h2>
+                      <h2 id={titleId}>Sign in to Webeix</h2>
                       <p className="login-modal__lead">Access your dashboard and website builder.</p>
                     </>
                   ) : (
                     <>
                       <p className="login-modal__eyebrow">Get started free</p>
-                      <h2 id={titleId}>
-                        Create your <span className="login-modal__gradient-text">account</span>
-                      </h2>
+                      <h2 id={titleId}>Create your account</h2>
                       <p className="login-modal__lead">Free to start · No credit card required.</p>
                     </>
                   )}
