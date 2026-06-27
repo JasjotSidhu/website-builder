@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { buildUserSignupUrl } from "@/lib/auth/user-login-url";
 import {
   FileText,
   Home,
@@ -38,7 +39,7 @@ export default function MarketingHomeIntro() {
 
   function startBuilding(nextPrompt?: string) {
     const value = (nextPrompt ?? prompt).trim() || "Create a modern website for my dental clinic";
-    router.push(`/signup?prompt=${encodeURIComponent(value)}`);
+    router.push(buildUserSignupUrl({ prompt: value }));
   }
 
   return (
@@ -170,7 +171,7 @@ export default function MarketingHomeIntro() {
               </Link>
               <span className="wx-hero__blank">
                 or{" "}
-                <Link href="/signup" className="wx-hero__blank-link">
+                <Link href="/?signup=1" className="wx-hero__blank-link">
                   start from blank
                 </Link>
               </span>

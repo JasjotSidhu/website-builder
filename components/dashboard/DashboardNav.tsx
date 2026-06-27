@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { USER_ROLES } from "@/lib/auth/roles";
 import { useEffect, useRef, useState } from "react";
 import type { SessionUser } from "@/lib/auth/session";
 import WebeixLogo from "./WebeixLogo";
@@ -32,7 +34,7 @@ export default function DashboardNav({ user, onNewWebsite }: DashboardNavProps) 
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 
@@ -75,6 +77,11 @@ export default function DashboardNav({ user, onNewWebsite }: DashboardNavProps) 
             {menuOpen ? (
               <div className="dash-nav__menu" role="menu">
                 <p className="dash-nav__menu-email">{user.email}</p>
+                {user.role === USER_ROLES.ADMIN ? (
+                  <Link href="/admin" role="menuitem" className="dash-nav__menu-item" onClick={() => setMenuOpen(false)}>
+                    Admin panel
+                  </Link>
+                ) : null}
                 <button type="button" role="menuitem" className="dash-nav__menu-item" onClick={() => void handleLogout()}>
                   Sign out
                 </button>

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getPostAuthRedirectPath } from "@/lib/auth/admin";
 import MarketingHomeIntro from "@/components/marketing/MarketingHomeIntro";
 import MarketingEditorSection from "@/components/marketing/MarketingEditorSection";
 import MarketingFooter from "@/components/marketing/MarketingFooter";
@@ -11,7 +12,7 @@ import { getSessionUser } from "@/lib/auth/session";
 export default async function HomePage() {
   const user = await getSessionUser();
   if (user) {
-    redirect("/dashboard");
+    redirect(getPostAuthRedirectPath(user));
   }
 
   return (

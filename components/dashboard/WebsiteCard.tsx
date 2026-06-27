@@ -45,14 +45,9 @@ export default function WebsiteCard({ website }: { website: WebsiteSummary }) {
         </p>
 
         <div className="dash-site-card__actions">
-          <a
-            href={builderHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="dash-btn dash-btn--navy dash-btn--edit"
-          >
+          <Link href={builderHref} className="dash-btn dash-btn--navy dash-btn--edit">
             Edit
-          </a>
+          </Link>
           <Link
             href={`/dashboard/sites/${website.id}`}
             className="dash-btn dash-btn--outline dash-btn--settings"

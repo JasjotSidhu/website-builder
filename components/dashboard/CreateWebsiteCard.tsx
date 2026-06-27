@@ -64,12 +64,11 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
       }
 
       const builderUrl = `/dashboard/sites/${payload.website.id}/builder`;
-      window.open(builderUrl, "_blank", "noopener,noreferrer");
       setName("");
       setSlug("");
       setTemplateId("blank");
       onClose();
-      router.refresh();
+      router.push(builderUrl);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -108,7 +107,7 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
                 <X size={18} strokeWidth={1.75} />
               </button>
             </div>
-            <p className="dash-modal__lead">Pick a template, name your site, then open the builder in a new tab.</p>
+            <p className="dash-modal__lead">Pick a template, name your site, then open the builder.</p>
 
             <form onSubmit={handleSubmit} className="dash-modal__form">
               <div className="dash-field">

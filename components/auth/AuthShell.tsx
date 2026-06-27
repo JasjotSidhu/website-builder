@@ -4,6 +4,7 @@ import MarketingLogo from "@/components/marketing/MarketingLogo";
 
 interface AuthShellProps {
   mode: "login" | "signup";
+  admin?: boolean;
   children: React.ReactNode;
 }
 
@@ -14,7 +15,7 @@ const features = [
   { icon: Rocket, text: "Publish to your own live URL" },
 ];
 
-export default function AuthShell({ mode, children }: AuthShellProps) {
+export default function AuthShell({ mode, admin = false, children }: AuthShellProps) {
   const isLogin = mode === "login";
 
   return (
@@ -26,11 +27,13 @@ export default function AuthShell({ mode, children }: AuthShellProps) {
               <MarketingLogo variant="light" />
             </div>
             <h1 className="platform-auth__headline">
-              {isLogin ? "Welcome back" : "Create your account"}
+              {isLogin ? (admin ? "Admin sign in" : "Welcome back") : "Create your account"}
             </h1>
             <p className="platform-auth__tagline">
               {isLogin
-                ? "Sign in to manage your websites, edit drafts, and publish updates."
+                ? admin
+                  ? "Sign in with an admin account to manage users, websites, and platform settings."
+                  : "Sign in to manage your websites, edit drafts, and publish updates."
                 : "Generate a complete site with AI, then refine it with the simple visual editor."}
             </p>
             <ul className="platform-auth__features">
@@ -51,9 +54,13 @@ export default function AuthShell({ mode, children }: AuthShellProps) {
             <Link href="/" className="platform-auth__back">
               ← Back to home
             </Link>
-            <h2 className="platform-auth__title">{isLogin ? "Sign in" : "Create account"}</h2>
+            <h2 className="platform-auth__title">{isLogin ? (admin ? "Admin sign in" : "Sign in") : "Create account"}</h2>
             <p className="platform-auth__subtitle">
-              {isLogin ? "Access your dashboard and website builder." : "Free to start · No credit card required."}
+              {isLogin
+                ? admin
+                  ? "Use your admin credentials to access the platform panel."
+                  : "Access your dashboard and website builder."
+                : "Free to start · No credit card required."}
             </p>
             {children}
           </div>

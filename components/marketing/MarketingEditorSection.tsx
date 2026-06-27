@@ -30,7 +30,7 @@ export default function MarketingEditorSection() {
             ))}
           </div>
 
-          <Link href="/signup" className="wx-btn wx-btn--ghost" style={{ marginTop: "1.875rem" }}>
+          <Link href="/?signup=1" className="wx-btn wx-btn--ghost" style={{ marginTop: "1.875rem" }}>
             See the editor →
           </Link>
         </div>

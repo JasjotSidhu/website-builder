@@ -165,9 +165,9 @@ export const addOns = [
 ];
 
 export const footerProductLinks = [
-  { label: "AI generation", href: "/signup" },
+  { label: "AI generation", href: "/?signup=1" },
   { label: "Templates", href: "/templates" },
-  { label: "Editor", href: "/signup" },
+  { label: "Editor", href: "/?signup=1" },
   { label: "Pricing", href: "/#pricing" },
 ];
 

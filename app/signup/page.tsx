@@ -1,18 +1,22 @@
 import { redirect } from "next/navigation";
-import SignupForm from "@/components/auth/SignupForm";
-import AuthShell from "@/components/auth/AuthShell";
-import { isGoogleAuthConfigured } from "@/lib/auth/google";
+import { getPostAuthRedirectPath } from "@/lib/auth/admin";
+import { buildUserSignupUrl } from "@/lib/auth/user-login-url";
 import { getSessionUser } from "@/lib/auth/session";
 
-export default async function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams?: { prompt?: string; error?: string };
+}) {
   const user = await getSessionUser();
   if (user) {
-    redirect("/dashboard");
+    redirect(getPostAuthRedirectPath(user));
   }
 
-  return (
-    <AuthShell mode="signup">
-      <SignupForm googleEnabled={isGoogleAuthConfigured()} />
-    </AuthShell>
+  redirect(
+    buildUserSignupUrl({
+      prompt: searchParams?.prompt ?? null,
+      error: searchParams?.error ?? null,
+    }),
   );
 }

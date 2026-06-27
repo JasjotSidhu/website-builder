@@ -36,7 +36,7 @@ export default function TemplatePreviewCard({
           <div className="wx-tpl-card__cat">{template.category}</div>
         </div>
         {isLight ? (
-          <Link href="/signup" className="wx-tpl-card__use">
+          <Link href="/?signup=1" className="wx-tpl-card__use">
             Use
           </Link>
         ) : null}

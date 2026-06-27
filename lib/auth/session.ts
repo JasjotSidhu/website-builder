@@ -1,11 +1,14 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
+import type { UserRole } from "@/lib/auth/roles";
+import { syncAdminRoleForUser } from "./admin";
 import { SESSION_COOKIE_NAME, SESSION_MAX_AGE_SECONDS } from "./constants";
 
 export interface SessionUser {
   id: string;
   email: string;
   name: string | null;
+  role: UserRole;
 }
 
 function createSessionToken(): string {
@@ -50,10 +53,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     return null;
   }
 
+  const role = await syncAdminRoleForUser(session.user.id, session.user.email, session.user.role);
+
   return {
     id: session.user.id,
     email: session.user.email,
     name: session.user.name,
+    role,
   };
 }
 

@@ -4939,6 +4939,210 @@ select.settings-field {
   color: #e85c2b !important;
 }
 
+.platform-auth__switch-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: #e85c2b;
+  cursor: pointer;
+}
+
+.platform-auth__switch-btn:hover {
+  color: #c2541e;
+}
+
+.platform-auth__prompt-preview {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid #ece6dd;
+  border-radius: 0.625rem;
+  background: #fbf8f4;
+  font-size: 0.8125rem;
+  color: #6a6480;
+}
+
+.platform-auth__prompt-preview span {
+  display: block;
+  margin-top: 0.25rem;
+  font-weight: 600;
+  color: #1c1733;
+}
+
+.login-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(22, 18, 42, 0.52);
+  cursor: pointer;
+}
+
+.login-modal__shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 28rem;
+  padding: 1px;
+  border-radius: 1.375rem;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 160, 255, 0.55),
+    rgba(124, 111, 240, 0.5) 40%,
+    rgba(247, 148, 51, 0.65) 75%,
+    rgba(232, 92, 43, 0.55)
+  );
+  box-shadow:
+    0 28px 70px rgba(28, 23, 51, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  animation: login-modal-in 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes login-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-modal__glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(12px);
+}
+
+.login-modal__glow--orange {
+  top: -3rem;
+  right: -1.5rem;
+  width: 10rem;
+  height: 10rem;
+  background: radial-gradient(circle, rgba(247, 148, 51, 0.34), transparent 70%);
+}
+
+.login-modal__glow--violet {
+  bottom: -2.5rem;
+  left: -2rem;
+  width: 9rem;
+  height: 9rem;
+  background: radial-gradient(circle, rgba(124, 111, 240, 0.28), transparent 70%);
+}
+
+.login-modal__dialog {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.3125rem;
+  background: linear-gradient(160deg, #fff 0%, #fffaf5 52%, #fff6ee 100%);
+}
+
+.login-modal__accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #3ba0ff, #7c6ff0 40%, #f79433 75%, #e85c2b);
+}
+
+.login-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.625rem 1.625rem 0;
+}
+
+.login-modal__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e85c2b;
+}
+
+.login-modal__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #1c1733;
+}
+
+.login-modal__gradient-text {
+  background: linear-gradient(135deg, #3ba0ff, #7c6ff0 40%, #f79433 75%, #e85c2b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.login-modal__lead {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6a6480;
+}
+
+.login-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #ece6dd;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #6a6480;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.login-modal__close:hover {
+  background: #fff;
+  border-color: #ddd8ce;
+  color: #1c1733;
+}
+
+.login-modal__body {
+  padding: 0 1.625rem 1.625rem;
+}
+
+.login-modal .platform-auth__form {
+  margin-top: 1.125rem;
+}
+
+.login-modal .platform-auth__prompt-preview {
+  border-color: rgba(247, 148, 51, 0.22);
+  background: rgba(255, 250, 245, 0.92);
+}
+
+.login-modal .platform-field input {
+  border-color: #ece6dd;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.login-modal .platform-btn--google {
+  border-color: #ece6dd;
+  background: rgba(255, 255, 255, 0.94);
+}
+
 .platform-form {
   display: grid;
   gap: 1rem;
@@ -4969,8 +5173,8 @@ select.settings-field {
 
 .platform-field input:focus {
   outline: none;
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: #f79433;
+  box-shadow: 0 0 0 3px rgba(247, 148, 51, 0.18);
 }
 
 .platform-form__error {
@@ -4985,9 +5189,9 @@ select.settings-field {
   justify-content: center;
   gap: 0.5rem;
   border: none;
-  border-radius: 0.625rem;
+  border-radius: 999px;
   font-size: 0.9375rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
   text-decoration: none;
@@ -5001,18 +5205,20 @@ select.settings-field {
 
 .platform-btn--primary {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: #4f46e5;
+  padding: 0.8125rem 1.25rem;
+  background: linear-gradient(135deg, #f79433, #e85c2b);
   color: #fff !important;
+  box-shadow: 0 8px 22px rgba(232, 92, 43, 0.26);
 }
 
 .platform-btn--primary:hover:not(:disabled) {
-  background: #4338ca;
+  background: linear-gradient(135deg, #f79433, #c2541e);
+  box-shadow: 0 12px 26px rgba(232, 92, 43, 0.34);
 }
 
 .platform-btn--google {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.8125rem 1.25rem;
   background: #fff;
   border: 1px solid #cbd5e1;
   color: #0f172a !important;

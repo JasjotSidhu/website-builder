@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getPostAuthRedirectPath, syncAdminRoleForUser } from "@/lib/auth/admin";
 import { createSession, sessionCookieOptions } from "@/lib/auth/session";
 import { hashPassword, validatePassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/db";
@@ -39,12 +40,15 @@ export async function POST(req: Request) {
       },
     });
 
+    const role = await syncAdminRoleForUser(user.id, user.email, user.role);
+
     const token = await createSession(user.id);
     const cookieStore = await cookies();
     cookieStore.set(sessionCookieOptions(token));
 
     return NextResponse.json({
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, role },
+      redirectTo: getPostAuthRedirectPath({ email: user.email, role }),
     });
   } catch (error) {
     if (error instanceof SyntaxError) {

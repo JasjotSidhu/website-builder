@@ -1,18 +1,42 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { USER_ROLES } from "@/lib/auth/roles";
 import AuthDivider from "./AuthDivider";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 interface LoginFormProps {
-  googleEnabled: boolean;
   initialError?: string | null;
+  nextPath?: string | null;
+  onOpenSignup?: () => void;
 }
 
-export default function LoginForm({ googleEnabled, initialError = null }: LoginFormProps) {
-  const router = useRouter();
+function resolveLoginDestination(
+  payload: { redirectTo?: "/admin" | "/dashboard"; user?: { role?: string } },
+  nextPath: string | null,
+): string {
+  const defaultDestination =
+    payload.redirectTo ?? (payload.user?.role === USER_ROLES.ADMIN ? "/admin" : "/dashboard");
+
+  if (!nextPath?.startsWith("/") || nextPath.startsWith("//")) {
+    return defaultDestination;
+  }
+
+  if (nextPath.startsWith("/admin")) {
+    return defaultDestination === "/admin" ? nextPath : defaultDestination;
+  }
+
+  return nextPath;
+}
+
+export default function LoginForm({
+  initialError = null,
+  nextPath: nextPathProp,
+  onOpenSignup,
+}: LoginFormProps) {
+  const searchParams = useSearchParams();
+  const nextPath = nextPathProp !== undefined ? nextPathProp : searchParams.get("next");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(initialError);
@@ -30,14 +54,17 @@ export default function LoginForm({ googleEnabled, initialError = null }: LoginF
         body: JSON.stringify({ email, password }),
       });
 
-      const payload = (await res.json()) as { error?: string };
+      const payload = (await res.json()) as {
+        error?: string;
+        user?: { role?: string };
+        redirectTo?: "/admin" | "/dashboard";
+      };
       if (!res.ok) {
         setError(payload.error ?? "Login failed.");
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      window.location.assign(resolveLoginDestination(payload, nextPath));
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -47,18 +74,14 @@ export default function LoginForm({ googleEnabled, initialError = null }: LoginF
 
   return (
     <div className="platform-auth__form">
-      {googleEnabled ? (
-        <>
-          <GoogleSignInButton />
-          <AuthDivider />
-        </>
-      ) : null}
+      <GoogleSignInButton redirectTo={nextPath?.startsWith("/") ? nextPath : "/dashboard"} />
+      <AuthDivider />
 
       <form onSubmit={handleSubmit} className="platform-form">
         <div className="platform-field">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="login-email">Email</label>
           <input
-            id="email"
+            id="login-email"
             type="email"
             autoComplete="email"
             required
@@ -68,9 +91,9 @@ export default function LoginForm({ googleEnabled, initialError = null }: LoginF
           />
         </div>
         <div className="platform-field">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="login-password">Password</label>
           <input
-            id="password"
+            id="login-password"
             type="password"
             autoComplete="current-password"
             required
@@ -87,7 +110,13 @@ export default function LoginForm({ googleEnabled, initialError = null }: LoginF
 
       <p className="platform-auth__switch">
         No account?{" "}
-        <Link href="/signup">Create one</Link>
+        {onOpenSignup ? (
+          <button type="button" className="platform-auth__switch-btn" onClick={onOpenSignup}>
+            Create one
+          </button>
+        ) : (
+          <a href="/?signup=1">Create one</a>
+        )}
       </p>
     </div>
   );

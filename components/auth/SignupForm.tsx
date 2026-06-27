@@ -1,21 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { USER_ROLES } from "@/lib/auth/roles";
 import AuthDivider from "./AuthDivider";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 interface SignupFormProps {
-  googleEnabled: boolean;
+  initialError?: string | null;
+  initialPrompt?: string | null;
+  onOpenLogin?: () => void;
 }
 
-export default function SignupForm({ googleEnabled }: SignupFormProps) {
-  const router = useRouter();
+export default function SignupForm({
+  initialError = null,
+  initialPrompt = null,
+  onOpenLogin,
+}: SignupFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -30,14 +34,24 @@ export default function SignupForm({ googleEnabled }: SignupFormProps) {
         body: JSON.stringify({ name, email, password }),
       });
 
-      const payload = (await res.json()) as { error?: string };
+      const payload = (await res.json()) as {
+        error?: string;
+        user?: { role?: string };
+        redirectTo?: "/admin" | "/dashboard";
+      };
       if (!res.ok) {
         setError(payload.error ?? "Signup failed.");
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      const destination =
+        payload.redirectTo ?? (payload.user?.role === USER_ROLES.ADMIN ? "/admin" : "/dashboard");
+
+      if (initialPrompt) {
+        sessionStorage.setItem("webeix-signup-prompt", initialPrompt);
+      }
+
+      window.location.assign(destination);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -47,18 +61,20 @@ export default function SignupForm({ googleEnabled }: SignupFormProps) {
 
   return (
     <div className="platform-auth__form">
-      {googleEnabled ? (
-        <>
-          <GoogleSignInButton label="Sign up with Google" />
-          <AuthDivider />
-        </>
+      {initialPrompt ? (
+        <p className="platform-auth__prompt-preview">
+          Starting with: <span>{initialPrompt}</span>
+        </p>
       ) : null}
+
+      <GoogleSignInButton label="Sign up with Google" />
+      <AuthDivider />
 
       <form onSubmit={handleSubmit} className="platform-form">
         <div className="platform-field">
-          <label htmlFor="name">Name</label>
+          <label htmlFor="signup-name">Name</label>
           <input
-            id="name"
+            id="signup-name"
             type="text"
             autoComplete="name"
             value={name}
@@ -67,9 +83,9 @@ export default function SignupForm({ googleEnabled }: SignupFormProps) {
           />
         </div>
         <div className="platform-field">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="signup-email">Email</label>
           <input
-            id="email"
+            id="signup-email"
             type="email"
             autoComplete="email"
             required
@@ -79,9 +95,9 @@ export default function SignupForm({ googleEnabled }: SignupFormProps) {
           />
         </div>
         <div className="platform-field">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="signup-password">Password</label>
           <input
-            id="password"
+            id="signup-password"
             type="password"
             autoComplete="new-password"
             required
@@ -99,7 +115,13 @@ export default function SignupForm({ googleEnabled }: SignupFormProps) {
 
       <p className="platform-auth__switch">
         Already have an account?{" "}
-        <Link href="/login">Sign in</Link>
+        {onOpenLogin ? (
+          <button type="button" className="platform-auth__switch-btn" onClick={onOpenLogin}>
+            Sign in
+          </button>
+        ) : (
+          <a href="/?login=1">Sign in</a>
+        )}
       </p>
     </div>
   );

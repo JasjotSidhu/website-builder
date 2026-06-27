@@ -1,7 +1,18 @@
+import dynamic from "next/dynamic";
 import { notFound, redirect } from "next/navigation";
-import BuilderLayout from "@/components/builder/BuilderLayout";
 import { getSessionUser } from "@/lib/auth/session";
 import { getOwnedWebsite } from "@/lib/website-store";
+
+const BuilderLayout = dynamic(() => import("@/components/builder/BuilderLayout"), {
+  ssr: false,
+  loading: () => (
+    <div className="builder-route">
+      <div className="builder-shell flex h-screen items-center justify-center text-sm text-gray-500">
+        Loading builder…
+      </div>
+    </div>
+  ),
+});
 
 interface BuilderPageProps {
   params: { websiteId: string };
@@ -10,7 +21,7 @@ interface BuilderPageProps {
 export default async function BuilderPage({ params }: BuilderPageProps) {
   const user = await getSessionUser();
   if (!user) {
-    redirect("/login");
+    redirect(`/login?next=/dashboard/sites/${params.websiteId}/builder`);
   }
 
   try {

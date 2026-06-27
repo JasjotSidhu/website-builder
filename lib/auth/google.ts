@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isAdminUser, syncAdminRoleForUser } from "./admin";
 import { createSession } from "./session";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -97,13 +98,17 @@ async function exchangeCodeForProfile(code: string): Promise<GoogleProfile> {
   return profile;
 }
 
-export async function signInWithGoogleCode(code: string): Promise<string> {
+export async function signInWithGoogleCode(code: string): Promise<{ token: string; isAdmin: boolean }> {
   const profile = await exchangeCodeForProfile(code);
   const email = profile.email.trim().toLowerCase();
 
   const byGoogleId = await prisma.user.findUnique({ where: { googleId: profile.sub } });
   if (byGoogleId) {
-    return createSession(byGoogleId.id);
+    const role = await syncAdminRoleForUser(byGoogleId.id, byGoogleId.email, byGoogleId.role);
+    return {
+      token: await createSession(byGoogleId.id),
+      isAdmin: isAdminUser({ email: byGoogleId.email, role }),
+    };
   }
 
   const byEmail = await prisma.user.findUnique({ where: { email } });
@@ -115,7 +120,11 @@ export async function signInWithGoogleCode(code: string): Promise<string> {
         name: byEmail.name ?? profile.name ?? null,
       },
     });
-    return createSession(user.id);
+    const role = await syncAdminRoleForUser(user.id, user.email, user.role);
+    return {
+      token: await createSession(user.id),
+      isAdmin: isAdminUser({ email: user.email, role }),
+    };
   }
 
   const user = await prisma.user.create({
@@ -126,5 +135,9 @@ export async function signInWithGoogleCode(code: string): Promise<string> {
     },
   });
 
-  return createSession(user.id);
+  const role = await syncAdminRoleForUser(user.id, user.email, user.role);
+  return {
+    token: await createSession(user.id),
+    isAdmin: isAdminUser({ email: user.email, role }),
+  };
 }

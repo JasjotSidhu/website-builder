@@ -26,7 +26,7 @@ export default function MarketingPricingSection() {
             <p className="wx-plan__features">
               All templates · 50 pages · Inline editing · Custom branding · SEO-ready
             </p>
-            <Link href="/signup" className="wx-btn wx-btn--ghost" style={{ marginTop: "1.75rem" }}>
+            <Link href="/?signup=1" className="wx-btn wx-btn--ghost" style={{ marginTop: "1.75rem" }}>
               Start free trial
             </Link>
           </article>
@@ -41,7 +41,7 @@ export default function MarketingPricingSection() {
             <p className="wx-plan__features">
               Everything in monthly · 15-day full free trial · Priority generation
             </p>
-            <Link href="/signup" className="wx-btn wx-btn--primary" style={{ marginTop: "1.75rem" }}>
+            <Link href="/?signup=1" className="wx-btn wx-btn--primary" style={{ marginTop: "1.75rem" }}>
               Start free trial
             </Link>
           </article>
