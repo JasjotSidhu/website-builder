@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MarketingLogo from "@/components/marketing/MarketingLogo";
 import { useAuthModal } from "@/components/auth/AuthModalProvider";
+import { useBuildWebsiteFlow } from "@/components/marketing/BuildWebsiteModalProvider";
 import { marketingNavLinks } from "@/lib/marketing/content";
 
 function isLinkActive(pathname: string, href: string) {
@@ -18,7 +19,8 @@ function isLinkActive(pathname: string, href: string) {
 
 export default function MarketingNav() {
   const pathname = usePathname();
-  const { openLogin, openSignup } = useAuthModal();
+  const { openLogin } = useAuthModal();
+  const { openBuildWebsite } = useBuildWebsiteFlow();
 
   return (
     <header className="wx-nav">
@@ -45,7 +47,7 @@ export default function MarketingNav() {
           <button type="button" className="wx-nav__login" onClick={() => openLogin()}>
             Log in
           </button>
-          <button type="button" className="wx-btn wx-btn--primary" onClick={() => openSignup()}>
+          <button type="button" className="wx-btn wx-btn--primary" onClick={() => openBuildWebsite()}>
             Build a website <span aria-hidden>→</span>
           </button>
         </div>

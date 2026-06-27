@@ -1,35 +1,52 @@
-# Website Builder
+# Webeix — Website Builder
 
-A section-based visual website builder built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Zustand**. Compose pages from pre-built sections, edit text/images/buttons inline on the canvas, and customize section design settings.
+A section-based visual website builder with a **Webeix marketing site**, **user dashboard**, **full-page build flow**, and **admin panel**. Built with **Next.js**, **TypeScript**, **Tailwind CSS**, and **Zustand**.
 
 ## Quick start
 
 ```bash
 npm install
+npx prisma migrate deploy
 npm run dev
 ```
 
 | URL | Description |
 |-----|-------------|
-| http://localhost:3000 | Published site preview |
-| http://localhost:3000/builder | Visual page builder |
+| http://localhost:3000 | Marketing homepage (logged-out visitors) |
+| http://localhost:3000/build | Build a website — AI, templates, migrate, or blank |
+| http://localhost:3000/templates | Template gallery |
+| http://localhost:3000/dashboard | User dashboard (requires sign-in) |
+| http://localhost:3000/admin | Admin panel (admin role only) |
+| http://localhost:3000/login | Admin sign-in (full page); users sign in via modal |
 
 ## Features
 
+### Marketing & onboarding
+- **Homepage** with AI prompt hero and category-based template discovery
+- **`/build` flow** — generate with AI, pick a template, migrate a site, or start blank
+- **Auth modals** — sign in / sign up via `/?login=1` or `/?signup=1`; closing returns to the page that opened the modal
+- **Template gallery** at `/templates` with industry filters
+
+### Builder
 - **Section library** — hero, features, testimonials, CTA, header, footer variants
 - **Inline editing** — click text, images, buttons, and links directly on the canvas
 - **Floating toolbars** — text styling, partial highlights, button settings, image upload
 - **Section settings** — background, spacing, grid, colors via trait panel
 - **Theme panel** — global color and font tokens
-- **Image upload** — browse or drag-and-drop from your computer (client-side, no server required)
+- **Draft / publish** — edit draft in builder; visitors see published data
+
+### Platform
+- **User accounts** — email/password and Google OAuth
+- **Multi-site dashboard** — create and manage websites per user
+- **Admin panel** — users, websites, roles, JSON export/import
 
 ## Tech stack
 
-Next.js 14 · TypeScript · Tailwind CSS v3 · Zustand · Zod · Lucide React
+Next.js (App Router) · TypeScript · Tailwind CSS · Zustand · Prisma · SQLite · Zod · Lucide React · Ant Design (admin)
 
 ## Documentation
 
-Full project documentation — architecture, editor features, data model, file structure, and session changelog:
+Full project documentation — architecture, routes, editor features, auth, build flow, and changelog:
 
 **[docs/PROJECT_DOCUMENTATION.md](./docs/PROJECT_DOCUMENTATION.md)**
 
@@ -45,17 +62,27 @@ npm run lint     # ESLint
 ## Project layout
 
 ```
-app/              Next.js routes (/builder, /)
+app/
+  page.tsx              Marketing homepage
+  build/                Full-page build website flow
+  templates/            Template gallery
+  dashboard/            User dashboard & per-site builder
+  admin/                Admin panel
+  login/                Admin login page
+  w/[websiteSlug]/      Published customer sites
 components/
-  builder/        Canvas, outline, modals, section wrapper
-  sections/       Section components + Zod schemas
+  marketing/            Homepage, nav, build flow, template cards
+  auth/                 Login/signup modals and forms
+  admin/                Admin shell and pages
+  builder/              Canvas, outline, modals
+  sections/             Section components + Zod schemas
 lib/
-  editor/         Inline editing (text, image, button, link)
-  traits/         Section settings system
-  registry.ts     Section catalog
-store/            Zustand site state
-data/             Sample site JSON
-docs/             Project documentation
+  build-website-intent.ts   Session intent for post-signup resume
+  auth/                 Session, OAuth, login URL helpers
+  editor/               Inline editing
+  traits/               Section settings
+store/                  Zustand site state
+docs/                   Project documentation
 ```
 
 ## License

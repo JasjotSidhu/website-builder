@@ -10,26 +10,29 @@ This document describes the **website-builder-antd** project: what it is, how it
 2. [Tech stack](#tech-stack)
 3. [Getting started](#getting-started)
 4. [Application routes](#application-routes)
-5. [Builder layout](#builder-layout)
-6. [Section system](#section-system)
-7. [Visual editor features](#visual-editor-features)
-8. [Popover & toolbar system](#popover--toolbar-system)
-9. [Data model & state](#data-model--state)
-10. [Traits & section settings](#traits--section-settings)
-11. [Image upload](#image-upload)
-12. [Rich text & inline styling](#rich-text--inline-styling)
-13. [CSS design system](#css-design-system)
-14. [Project structure](#project-structure)
-15. [Session changelog](#session-changelog)
-16. [Known limitations](#known-limitations)
+5. [Marketing site & build flow](#marketing-site--build-flow)
+6. [Authentication](#authentication)
+7. [Admin panel](#admin-panel)
+8. [Builder layout](#builder-layout)
+9. [Section system](#section-system)
+10. [Visual editor features](#visual-editor-features)
+11. [Popover & toolbar system](#popover--toolbar-system)
+12. [Data model & state](#data-model--state)
+13. [Traits & section settings](#traits--section-settings)
+14. [Image upload](#image-upload)
+15. [Rich text & inline styling](#rich-text--inline-styling)
+16. [CSS design system](#css-design-system)
+17. [Project structure](#project-structure)
+18. [Session changelog](#session-changelog)
+19. [Known limitations](#known-limitations)
 
 ---
 
 ## Overview
 
-A **section-based website builder** built with Next.js. Users compose pages from pre-built section variants (hero, features, testimonials, CTA, header, footer), edit content inline on the canvas, and customize section-level design settings (background, spacing, colors, grid).
+**Webeix** is a section-based website builder with a public marketing site, authenticated user dashboard, full-page onboarding flow, and admin panel.
 
-The builder lives at `/builder`. The public homepage at `/` renders the site from stored JSON data.
+Users compose pages from pre-built section variants (hero, features, testimonials, CTA, header, footer), edit content inline on the canvas, and customize section-level design settings (background, spacing, colors, grid).
 
 **Core ideas:**
 
@@ -37,9 +40,10 @@ The builder lives at `/builder`. The public homepage at `/` renders the site fro
 - **Props** hold content (text, images, buttons).
 - **Settings** hold layout/visual traits (background, spacing, grid).
 - **Inline editing** — click text, images, buttons, and links directly on the canvas.
-- **Zustand store** holds the full site JSON during editing; draft is persisted to SQLite via the API.
+- **Zustand store** holds the full site JSON during editing; draft is persisted via the API.
+- **Build flow** at `/build` guides new users through AI generation, template pick, migration, or a blank start.
 
-**Draft vs published:** The builder edits a **draft** copy. Visitors see the **published** copy at `/` until you click **Publish** in the top bar.
+**Draft vs published:** The builder edits a **draft** copy. Visitors see the **published** copy at `/w/{slug}` until you click **Publish** in the top bar.
 
 ---
 
@@ -74,23 +78,117 @@ npm run dev
 
 **Key URLs:**
 
-- `/` — Published site (read-only render from **published** data)
-- `/about`, etc. — Additional published pages by slug
-- `/builder` — Visual page builder (edits **draft** data)
+- `/` — Marketing homepage (logged-out); redirects logged-in users to dashboard/admin
+- `/build` — Full-page “build a website” flow (AI, template, migrate, blank)
+- `/templates` — Template gallery with industry filters
+- `/dashboard` — User dashboard and site list (requires sign-in)
+- `/dashboard/sites/{id}/builder` — Visual page builder (edits **draft** data)
+- `/w/{websiteSlug}` — Published customer site (read-only)
+- `/admin` — Admin panel (admin role only)
+- `/login` — Full-page admin login; regular users use auth modals on `/`
 
 ---
 
 ## Application routes
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `/`, `/about`, … | `app/[[...slug]]/page.tsx` | Renders **published** pages; `generateMetadata` for SEO |
-| `/builder` | `app/builder/page.tsx` | Full builder UI (draft editing) |
-| `GET/PUT /api/site` | `app/api/site/route.ts` | Load/save **draft** site JSON |
-| `POST /api/site/publish` | `app/api/site/publish/route.ts` | Copy draft → published |
-| `POST /api/upload` | `app/api/upload/route.ts` | Image upload to `public/uploads/` |
+| Route | Purpose |
+|-------|---------|
+| `/` | Marketing homepage |
+| `/build` | Build website onboarding flow |
+| `/templates` | Marketing template gallery |
+| `/login` | Admin login (full page); non-admin redirects to `/?login=1` modal |
+| `/signup` | Redirects to `/?signup=1` modal |
+| `/dashboard` | User dashboard |
+| `/dashboard/sites/{id}/builder` | Per-site visual builder |
+| `/w/{slug}` | Published customer websites |
+| `/admin`, `/admin/users`, `/admin/websites`, … | Admin panel |
+| `GET/PUT /api/site` | Load/save draft site JSON (legacy single-site API) |
+| `POST /api/site/publish` | Copy draft → published |
+| `POST /api/websites` | Create website (supports creation mode: ai, template, migrate, blank) |
+| `POST /api/upload` | Image upload to `public/uploads/` |
 
-Rendering logic is centralized in `lib/renderer.tsx`, which validates section props against Zod schemas and wraps sections in `SectionDataProvider` for consistent data access.
+Rendering logic for customer sites is in `app/w/[websiteSlug]/`. The visual builder UI is under `app/dashboard/sites/[websiteId]/builder/`.
+
+---
+
+## Marketing site & build flow
+
+### Marketing pages
+
+| Component / route | Description |
+|-------------------|-------------|
+| `app/page.tsx` | Homepage with hero (AI prompt or category picker), product peek, editor section, templates teaser, pricing |
+| `app/templates/page.tsx` | Full template gallery with category filters |
+| `app/marketing.css` | Webeix marketing design tokens and component styles |
+
+CTAs (“Build a website”, nav button, AI generate) navigate to `/build` via `useBuildWebsiteFlow()` in `BuildWebsiteModalProvider`.
+
+### Build flow (`/build`)
+
+Implemented in `components/marketing/BuildWebsiteFlow.tsx`.
+
+| Step | Mode | Behavior |
+|------|------|----------|
+| Options | — | Choose AI, template, migrate, or blank |
+| AI | `ai` | Prompt → creates site → builder with `?flow=ai` |
+| Template | `template` | Category → template pick → creates site from marketing template |
+| Migrate | `migrate` | URL input → creates site → builder with `?flow=migrate` |
+| Blank | `blank` | Creates empty site → builder |
+
+**Unauthenticated users:** Intent is saved to `sessionStorage` (`lib/build-website-intent.ts`), signup modal opens **without leaving `/build`**. After sign-up, `BuildWebsiteIntentResume` executes the saved intent and redirects to the builder.
+
+**Key files:**
+
+- `components/marketing/BuildWebsiteFlow.tsx` — full-page UI
+- `components/marketing/BuildWebsiteModalProvider.tsx` — `openBuildWebsite()` → `router.push('/build')`
+- `components/marketing/BuildWebsiteIntentResume.tsx` — resumes flow after auth
+- `lib/build-website-intent.ts` — intent storage and website creation
+
+Template cards in the build flow reuse `TemplatePreviewCard` (`wx-tpl-card` styles) — same as `/templates`.
+
+---
+
+## Authentication
+
+### User auth (modals)
+
+Regular users sign in/up via modals, not the `/login` page.
+
+| URL param | Opens |
+|-----------|-------|
+| `/?login=1` | Sign-in modal |
+| `/?signup=1` | Sign-up modal |
+| `?next=/path` | Post-login redirect (non-admin paths) |
+| `?from=/path` | Return path when modal is closed without signing in |
+
+**Return path:** `AuthModalProvider` remembers where the user was when the modal opened. Closing the modal (X, backdrop, Escape) navigates back to that path — e.g. closing signup on `/build` keeps you on `/build`.
+
+Helpers in `lib/auth/user-login-url.ts`: `buildUserLoginUrl`, `buildUserSignupUrl`, `captureAuthReturnPath`, `sanitizeAuthReturnPath`.
+
+### Admin auth
+
+- Full-page login at `/login?next=/admin`
+- Admin routes guarded by `lib/auth/admin.ts`
+- Google OAuth supported for both user and admin flows
+
+### Dashboard gate
+
+Unauthenticated `/dashboard` requests redirect to `/?login=1&next=/dashboard&from=/`.
+
+---
+
+## Admin panel
+
+Routes under `/admin` (admin role required):
+
+| Route | Purpose |
+|-------|---------|
+| `/admin` | Overview |
+| `/admin/users` | User list and role management |
+| `/admin/websites` | Website list; name links open live site in new tab |
+| `/admin/templates` | Placeholder |
+
+Features: JSON export/import, secure delete confirm via portal popover, themed admin shell (`app/admin.css`).
 
 ---
 
@@ -583,39 +681,31 @@ Primary styles in `app/globals.css`.
 ```
 website-builder-antd/
 ├── app/
-│   ├── builder/page.tsx      # Builder route
-│   ├── page.tsx              # Public site
-│   ├── layout.tsx
-│   └── globals.css           # Global + editor design system
+│   ├── page.tsx                    # Marketing homepage
+│   ├── build/page.tsx              # Build website flow
+│   ├── templates/page.tsx          # Template gallery
+│   ├── dashboard/                  # User dashboard + per-site builder
+│   ├── admin/                      # Admin panel
+│   ├── login/                      # Admin login page
+│   ├── w/[websiteSlug]/            # Published customer sites
+│   ├── marketing.css               # Marketing styles
+│   └── globals.css                 # Global + editor design system
 ├── components/
-│   ├── builder/              # Builder chrome (canvas, outline, modals)
-│   └── sections/             # Section components + Zod schemas
-│       ├── hero/
-│       ├── features/
-│       ├── testimonials/
-│       ├── cta/
-│       ├── header/
-│       ├── footer/
-│       └── shared/
-├── data/
-│   └── sample-site.json      # Initial site data
+│   ├── marketing/                  # Homepage, build flow, template cards
+│   ├── auth/                       # Auth modals and forms
+│   ├── admin/                      # Admin UI
+│   ├── builder/                    # Builder chrome
+│   └── sections/                   # Section components + Zod schemas
+├── lib/
+│   ├── build-website-intent.ts     # Post-signup build resume
+│   ├── auth/                       # Session, OAuth, login URLs
+│   ├── editor/                     # Inline editing system
+│   ├── traits/                     # Section settings traits
+│   └── marketing/content.ts        # Marketing copy, templates, categories
 ├── docs/
 │   └── PROJECT_DOCUMENTATION.md
-├── lib/
-│   ├── editor/               # Inline editing system
-│   ├── traits/               # Section settings traits
-│   ├── feature-icons.ts      # Feature card icon catalog
-│   ├── button-styles.ts      # Global button class helpers
-│   ├── theme-defaults.ts     # Theme normalization + card derivation
-│   ├── theme-utils.ts        # CSS variable builder
-│   ├── registry.ts           # Section catalog
-│   ├── renderer.tsx          # Site renderer
-│   ├── schemas.ts            # Zod site schema
-│   ├── preview-props.ts      # Section library preview content
-│   ├── image-upload.ts       # Client-side image processing
-│   └── types.ts
 └── store/
-    └── builderStore.ts       # Zustand state
+    └── builderStore.ts             # Zustand state
 ```
 
 ---
@@ -712,6 +802,18 @@ Everything implemented across the builder editing sessions:
 
 - [x] Committed and pushed to `main` (`6953f21`)
 
+### Marketing site & platform (2026)
+
+- [x] Webeix marketing homepage with AI hero and category/template discovery
+- [x] Template gallery at `/templates`
+- [x] Full-page build flow at `/build` (AI, template, migrate, blank)
+- [x] Build intent session storage + resume after sign-up
+- [x] User auth modals (`/?login=1`, `/?signup=1`) with return-path on close
+- [x] Admin panel (`/admin`) — users, websites, roles, export/import
+- [x] User dashboard with multi-site management
+- [x] Google OAuth sign-in
+- [x] Published sites at `/w/{websiteSlug}`
+
 ---
 
 ## Known limitations
@@ -722,7 +824,8 @@ Everything implemented across the builder editing sessions:
 | Rich text | Only `<span>` highlights; no lists, links inside text, etc. |
 | Header/footer | Single variant each in registry (extensible) |
 | Image size | Large uploads increase JSON size; 8 MB upload cap, 1920px max dimension |
-| Accounts | Single site, no authentication or multi-tenancy |
+| Accounts | Multi-user with roles; admin panel for management |
+| AI / migrate build | UI and intent storage in place; generation/migration logic is placeholder |
 | Version history | No rollback beyond re-publishing draft |
 
 ---
@@ -752,4 +855,4 @@ Everything implemented across the builder editing sessions:
 
 ---
 
-*Last updated: June 2026 — reflects section library previews, icon picker, and global style system on `main`.*
+*Last updated: June 2026 — reflects marketing site, `/build` flow, auth modals, admin panel, and builder on `main`.*

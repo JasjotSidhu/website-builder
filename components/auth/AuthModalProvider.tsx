@@ -6,19 +6,27 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
+import {
+  captureAuthReturnPath,
+  resolveAuthReferrerReturnPath,
+  sanitizeAuthReturnPath,
+} from "@/lib/auth/user-login-url";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+
+const AUTH_RETURN_PATH_KEY = "wb_auth_return_path";
 
 type AuthMode = "login" | "signup";
 
 interface AuthModalContextValue {
-  openLogin: (next?: string | null, error?: string | null) => void;
-  openSignup: (prompt?: string | null, error?: string | null) => void;
+  openLogin: (next?: string | null, error?: string | null, from?: string | null) => void;
+  openSignup: (prompt?: string | null, error?: string | null, from?: string | null) => void;
   closeAuth: () => void;
 }
 
@@ -41,6 +49,35 @@ interface AuthModalProviderProps {
   children: ReactNode;
 }
 
+function resolveStoredReturnPath(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return sanitizeAuthReturnPath(sessionStorage.getItem(AUTH_RETURN_PATH_KEY));
+}
+
+function AuthModalReturnPathTracker() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("login") === "1" || searchParams.get("signup") === "1") {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    const query = params.toString();
+    const path = query ? `${pathname}?${query}` : pathname;
+
+    if (!path.startsWith("/admin") && !path.startsWith("/login")) {
+      sessionStorage.setItem(AUTH_RETURN_PATH_KEY, path);
+    }
+  }, [pathname, searchParams]);
+
+  return null;
+}
+
 function AuthModalUrlSync({
   openLogin,
   openSignup,
@@ -60,10 +97,16 @@ function AuthModalUrlSync({
       return;
     }
 
+    const from =
+      sanitizeAuthReturnPath(searchParams.get("from")) ??
+      resolveStoredReturnPath() ??
+      resolveAuthReferrerReturnPath() ??
+      captureAuthReturnPath();
+
     if (isLogin) {
-      openLogin(searchParams.get("next"), searchParams.get("error"));
+      openLogin(searchParams.get("next"), searchParams.get("error"), from);
     } else {
-      openSignup(searchParams.get("prompt"), searchParams.get("error"));
+      openSignup(searchParams.get("prompt"), searchParams.get("error"), from);
     }
 
     const params = new URLSearchParams(searchParams.toString());
@@ -72,6 +115,7 @@ function AuthModalUrlSync({
     params.delete("next");
     params.delete("prompt");
     params.delete("error");
+    params.delete("from");
 
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -81,13 +125,17 @@ function AuthModalUrlSync({
 }
 
 export default function AuthModalProvider({ children }: AuthModalProviderProps) {
+  const router = useRouter();
+  const returnPathRef = useRef<string | null>(null);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
   const [nextPath, setNextPath] = useState<string | null>(null);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const [initialError, setInitialError] = useState<string | null>(null);
 
-  const openLogin = useCallback((next?: string | null, error?: string | null) => {
+  const openLogin = useCallback((next?: string | null, error?: string | null, from?: string | null) => {
+    returnPathRef.current = sanitizeAuthReturnPath(from) ?? captureAuthReturnPath();
+
     setMode("login");
     setNextPath(next?.startsWith("/") ? next : null);
     setInitialPrompt(null);
@@ -95,7 +143,9 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
     setOpen(true);
   }, []);
 
-  const openSignup = useCallback((prompt?: string | null, error?: string | null) => {
+  const openSignup = useCallback((prompt?: string | null, error?: string | null, from?: string | null) => {
+    returnPathRef.current = sanitizeAuthReturnPath(from) ?? captureAuthReturnPath();
+
     setMode("signup");
     setNextPath(null);
     setInitialPrompt(prompt?.trim() ? prompt : null);
@@ -107,7 +157,19 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
     setOpen(false);
     setInitialError(null);
     setInitialPrompt(null);
-  }, []);
+
+    const target = returnPathRef.current;
+    returnPathRef.current = null;
+
+    if (!target || typeof window === "undefined") {
+      return;
+    }
+
+    const current = `${window.location.pathname}${window.location.search}`;
+    if (target !== current) {
+      router.replace(target, { scroll: false });
+    }
+  }, [router]);
 
   useEffect(() => {
     if (!open) {
@@ -142,6 +204,7 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
     <AuthModalContext.Provider value={{ openLogin, openSignup, closeAuth }}>
       {children}
       <Suspense fallback={null}>
+        <AuthModalReturnPathTracker />
         <AuthModalUrlSync openLogin={openLogin} openSignup={openSignup} />
       </Suspense>
       {open ? (
@@ -179,13 +242,13 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
                   <LoginForm
                     initialError={initialError}
                     nextPath={nextPath}
-                    onOpenSignup={() => openSignup(initialPrompt)}
+                    onOpenSignup={() => openSignup(initialPrompt, null, returnPathRef.current)}
                   />
                 ) : (
                   <SignupForm
                     initialError={initialError}
                     initialPrompt={initialPrompt}
-                    onOpenLogin={() => openLogin(nextPath)}
+                    onOpenLogin={() => openLogin(nextPath, null, returnPathRef.current)}
                   />
                 )}
               </div>

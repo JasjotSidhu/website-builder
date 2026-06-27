@@ -27,6 +27,7 @@ export default async function LoginPage({
       buildUserLoginUrl({
         next,
         error: searchParams?.error ?? null,
+        from: "/",
       }),
     );
   }

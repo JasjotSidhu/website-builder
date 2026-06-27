@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { buildUserSignupUrl } from "@/lib/auth/user-login-url";
+import { useBuildWebsiteFlow } from "@/components/marketing/BuildWebsiteModalProvider";
 import {
   FileText,
   Home,
@@ -33,13 +32,14 @@ const categoryIcons = {
 } as const;
 
 export default function MarketingHomeIntro() {
-  const router = useRouter();
+  const { openBuildWebsite } = useBuildWebsiteFlow();
   const [variant, setVariant] = useState<HeroVariant>("ai");
   const [prompt, setPrompt] = useState("");
 
   function startBuilding(nextPrompt?: string) {
     const value = (nextPrompt ?? prompt).trim() || "Create a modern website for my dental clinic";
-    router.push(buildUserSignupUrl({ prompt: value }));
+    setPrompt(value);
+    openBuildWebsite("ai", { prompt: value });
   }
 
   return (
@@ -126,10 +126,6 @@ export default function MarketingHomeIntro() {
           </div>
         ) : (
           <div className="wx-hero__panel">
-            <div className="wx-hero__badge wx-hero__badge--muted">
-              200+ templates · built for your industry
-            </div>
-
             <h1 className="wx-hero__title">
               Launch a professional
               <br />
@@ -171,7 +167,14 @@ export default function MarketingHomeIntro() {
               </Link>
               <span className="wx-hero__blank">
                 or{" "}
-                <Link href="/?signup=1" className="wx-hero__blank-link">
+                <Link
+                  href="#"
+                  className="wx-hero__blank-link"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    openBuildWebsite();
+                  }}
+                >
                   start from blank
                 </Link>
               </span>

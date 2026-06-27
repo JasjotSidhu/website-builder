@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import AuthModalRoot from "@/components/auth/AuthModalRoot";
+import BuildWebsiteModalRoot from "@/components/marketing/BuildWebsiteModalRoot";
 import "./globals.css";
 import "./marketing.css";
 
@@ -30,7 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plusJakarta.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased">
-        <AuthModalRoot>{children}</AuthModalRoot>
+        <AuthModalRoot>
+          <BuildWebsiteModalRoot>{children}</BuildWebsiteModalRoot>
+        </AuthModalRoot>
       </body>
     </html>
   );

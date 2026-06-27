@@ -7,7 +7,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await getSessionUser();
   if (!user) {
     const pathname = (await headers()).get("x-pathname") ?? "/dashboard";
-    redirect(buildUserLoginUrl({ next: pathname }));
+    redirect(buildUserLoginUrl({ next: pathname, from: "/" }));
   }
 
   return children;

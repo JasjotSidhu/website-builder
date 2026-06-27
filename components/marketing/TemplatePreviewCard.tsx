@@ -4,16 +4,21 @@ import type { MarketingTemplate } from "@/lib/marketing/content";
 interface TemplatePreviewCardProps {
   template: MarketingTemplate;
   variant?: "light" | "dark";
+  onSelect?: () => void;
+  disabled?: boolean;
 }
 
 export default function TemplatePreviewCard({
   template,
   variant = "light",
+  onSelect,
+  disabled = false,
 }: TemplatePreviewCardProps) {
   const isLight = variant === "light";
+  const className = `wx-tpl-card${isLight ? " wx-tpl-card--light" : ""}${onSelect ? " wx-tpl-card--pick" : ""}`;
 
-  return (
-    <article className={`wx-tpl-card${isLight ? " wx-tpl-card--light" : ""}`}>
+  const body = (
+    <>
       <div className="wx-tpl-card__preview" style={{ background: template.tint }}>
         <div className={`wx-tpl-card__browser${isLight ? " wx-tpl-card__browser--light" : ""}`}>
           <span className="wx-tpl-card__accent-bar" style={{ background: template.accent }} />
@@ -36,11 +41,25 @@ export default function TemplatePreviewCard({
           <div className="wx-tpl-card__cat">{template.category}</div>
         </div>
         {isLight ? (
-          <Link href="/?signup=1" className="wx-tpl-card__use">
-            Use
-          </Link>
+          onSelect ? (
+            <span className="wx-tpl-card__use">Use</span>
+          ) : (
+            <Link href="/?signup=1" className="wx-tpl-card__use">
+              Use
+            </Link>
+          )
         ) : null}
       </div>
-    </article>
+    </>
   );
+
+  if (onSelect) {
+    return (
+      <button type="button" className={className} disabled={disabled} onClick={onSelect}>
+        {body}
+      </button>
+    );
+  }
+
+  return <article className={className}>{body}</article>;
 }

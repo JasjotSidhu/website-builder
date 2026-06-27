@@ -25,8 +25,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = (await req.json()) as { name?: string; slug?: string; templateId?: string };
-    const name = body.name?.trim() || "Untitled website";
+    const body = (await req.json()) as {
+      name?: string;
+      slug?: string;
+      templateId?: string;
+      creationMode?: string;
+      prompt?: string;
+      migrateUrl?: string;
+      marketingTemplate?: string;
+    };
+    const name = body.name?.trim() || body.marketingTemplate?.trim() || "Untitled website";
     const website = await createWebsiteForUser(user.id, {
       name,
       slug: body.slug,
