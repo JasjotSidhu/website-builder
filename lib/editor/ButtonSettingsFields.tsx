@@ -1,9 +1,9 @@
 "use client";
 
 import type { LinkValue } from "@/lib/types";
+import LinkSettingsFields from "./LinkSettingsFields";
 import PopoverSegmented from "./PopoverSegmented";
 import type { SitePageSummary } from "./SiteContext";
-import { PopoverField } from "./PopoverShell";
 
 import type { ButtonToolbarVariant } from "./button-toolbar-settings";
 
@@ -24,10 +24,6 @@ export default function ButtonSettingsFields({
   onLinkChange,
   showVariant = true,
 }: ButtonSettingsFieldsProps) {
-  const navType = link.type;
-  const pageId = link.type === "page" ? link.pageId : pages[0]?.id ?? "";
-  const href = link.type === "url" ? link.href : "";
-
   return (
     <div className="popover-toolbar-stack">
       {showVariant !== false ? (
@@ -45,49 +41,7 @@ export default function ButtonSettingsFields({
         />
       ) : null}
 
-      <PopoverSegmented
-        label="Link type"
-        value={navType}
-        options={[
-          { value: "page", label: "Page" },
-          { value: "url", label: "URL" },
-        ]}
-        onChange={(value) => {
-          if (value === "page") {
-            onLinkChange({ type: "page", pageId: pages[0]?.id ?? "home" });
-            return;
-          }
-          onLinkChange({ type: "url", href: "" });
-        }}
-      />
-
-      {navType === "page" ? (
-        <PopoverField label="Page" inline>
-          <select
-            className="popover-input popover-input--inline-select"
-            value={pageId}
-            onChange={(event) =>
-              onLinkChange({ type: "page", pageId: event.target.value })
-            }
-          >
-            {pages.map((page) => (
-              <option key={page.id} value={page.id}>
-                {page.title}
-              </option>
-            ))}
-          </select>
-        </PopoverField>
-      ) : (
-        <PopoverField label="URL">
-          <input
-            type="url"
-            className="popover-input"
-            value={href}
-            onChange={(event) => onLinkChange({ type: "url", href: event.target.value })}
-            placeholder="https://..."
-          />
-        </PopoverField>
-      )}
+      <LinkSettingsFields link={link} pages={pages} onChange={onLinkChange} />
     </div>
   );
 }

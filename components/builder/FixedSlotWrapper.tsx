@@ -20,6 +20,7 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
   const openHeaderSettings = useBuilderStore((state) => state.openHeaderSettings);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
   const headerProps = getHeaderProps(navigation);
+  const headerVariant = findSectionVariant("header", getHeaderVariantId(navigation));
 
   const updateField = useCallback(
     (key: string, value: unknown) => {
@@ -47,10 +48,12 @@ function HeaderSlot({ onReplace }: { onReplace: () => void }) {
       {hovered ? (
         <>
           <div className="header-interaction-overlay" aria-hidden />
-          <span className="section-label-badge fixed-slot-badge">Header</span>
+          <span className="section-label-badge fixed-slot-badge">
+            {headerVariant?.label ?? "Header"}
+          </span>
           <button type="button" className="header-edit-overlay-btn" onClick={openHeaderSettings}>
             <IconSettings />
-            Edit Header
+            Edit header
           </button>
           <div className="section-toolbar fixed-slot-toolbar">
             <SectionToolbarButton title="Replace header" onClick={onReplace}>
@@ -124,7 +127,9 @@ function FooterSlot({ onReplace }: { onReplace: () => void }) {
       >
         {hovered || settingsOpen ? (
           <>
-            <span className="section-label-badge fixed-slot-badge">Footer</span>
+            <span className="section-label-badge fixed-slot-badge">
+              {variant.label}
+            </span>
             <div className="section-toolbar fixed-slot-toolbar">
               <div className="relative">
                 <SectionToolbarButton

@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { Pencil, RefreshCw } from "lucide-react";
 import Tooltip from "@/lib/editor/Tooltip";
 import { findSectionVariant, sectionRegistry } from "@/lib/registry";
 import { getHeaderVariantId } from "@/lib/header-utils";
@@ -19,6 +19,7 @@ export default function SectionOutline({
   const activePageId = useBuilderStore((state) => state.activePageId);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
   const scrollToSection = useBuilderStore((state) => state.scrollToSection);
+  const openHeaderSettings = useBuilderStore((state) => state.openHeaderSettings);
   const page =
     site.pages.find((entry) => entry.id === activePageId) ?? site.pages[0];
   const sections = page?.sections ?? [];
@@ -43,14 +44,32 @@ export default function SectionOutline({
               <button
                 type="button"
                 className={outlineItemClass("header", "flex-1 bg-transparent")}
-                onClick={() => scrollToSection("header")}
+                onClick={() => {
+                  scrollToSection("header");
+                  openHeaderSettings();
+                }}
               >
                 <span className="block text-xs text-gray-400">Top</span>
-                <span className="block text-sm font-medium text-gray-800">Header</span>
+                <span className="block text-sm font-medium text-gray-800">
+                  {sectionRegistry.header.label}
+                </span>
                 <span className="block text-xs text-gray-500">
                   {headerVariant?.label ?? getHeaderVariantId(site.navigation)}
                 </span>
               </button>
+              <Tooltip label="Edit header" side="left">
+                <button
+                  type="button"
+                  className="outline-replace-btn"
+                  aria-label="Edit header"
+                  onClick={() => {
+                    scrollToSection("header");
+                    openHeaderSettings();
+                  }}
+                >
+                  <Pencil size={14} strokeWidth={1.75} aria-hidden />
+                </button>
+              </Tooltip>
               <Tooltip label="Replace header" side="left">
                 <button
                   type="button"
@@ -102,7 +121,9 @@ export default function SectionOutline({
                 onClick={() => scrollToSection("footer")}
               >
                 <span className="block text-xs text-gray-400">Bottom</span>
-                <span className="block text-sm font-medium text-gray-800">Footer</span>
+                <span className="block text-sm font-medium text-gray-800">
+                  {sectionRegistry.footer.label}
+                </span>
                 <span className="block text-xs text-gray-500">
                   {footerVariant?.label ?? site.footer.variant}
                 </span>

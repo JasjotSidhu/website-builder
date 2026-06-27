@@ -425,6 +425,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   openHeaderSettings: () =>
     set({
       leftSidebarMode: "header-settings",
+      highlightedSectionId: "header",
     }),
 
   closeHeaderSettings: () =>

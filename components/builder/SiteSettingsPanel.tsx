@@ -118,29 +118,35 @@ export default function SiteSettingsPanel() {
       <div className="border-b border-gray-200 px-4 py-3">
         <h2 className="text-sm font-semibold text-gray-900">Settings</h2>
         <p className="text-xs text-gray-500">Site and page metadata</p>
-        <div className="mt-3 flex gap-1 rounded-lg bg-gray-100 p-1">
-          <button
-            type="button"
-            className={`settings-tab ${tab === "site" ? "settings-tab--active" : ""}`}
-            onClick={() => setTab("site")}
-          >
-            Site
-          </button>
-          <button
-            type="button"
-            className={`settings-tab ${tab === "page" ? "settings-tab--active" : ""}`}
-            onClick={() => setTab("page")}
-          >
-            Page
-          </button>
-          <button
-            type="button"
-            className={`settings-tab ${tab === "data" ? "settings-tab--active" : ""}`}
-            onClick={() => setTab("data")}
-          >
-            Data
-          </button>
-        </div>
+      </div>
+      <div className="style-subtabs" role="tablist" aria-label="Settings categories">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "site"}
+          className={`style-subtab${tab === "site" ? " style-subtab--active" : ""}`}
+          onClick={() => setTab("site")}
+        >
+          Site
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "page"}
+          className={`style-subtab${tab === "page" ? " style-subtab--active" : ""}`}
+          onClick={() => setTab("page")}
+        >
+          Page
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "data"}
+          className={`style-subtab${tab === "data" ? " style-subtab--active" : ""}`}
+          onClick={() => setTab("data")}
+        >
+          Data
+        </button>
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">

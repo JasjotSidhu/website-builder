@@ -14,6 +14,13 @@ body.builder-active {
   --builder-accent-text: #b85c00;
   --builder-navy: #1a1a2e;
   --builder-focus-ring: rgba(243, 129, 72, 0.22);
+  --builder-font-family: var(--font-platform), system-ui, sans-serif;
+  --builder-font-size: 13px;
+  --builder-font-size-sm: 12px;
+  --builder-font-size-xs: 11px;
+  --builder-font-weight: 500;
+  --builder-font-weight-strong: 600;
+  --builder-line-height: 1.45;
 }
 
 body.builder-active .builder-shell {
@@ -99,12 +106,6 @@ body.builder-active .right-sidebar-tab--active {
   box-shadow: inset 0 -2px 0 var(--builder-accent);
 }
 
-body.builder-active .settings-tab--active {
-  background: var(--builder-accent-soft);
-  color: var(--builder-accent-text);
-  box-shadow: none;
-}
-
 body.builder-active .settings-field:focus,
 body.builder-active .new-page-dialog__input:focus {
   outline: 2px solid var(--builder-focus-ring);
@@ -118,7 +119,6 @@ body.builder-active .pages-list__item--active {
 
 body.builder-active .pages-list__item--active .pages-list__select {
   color: var(--builder-accent-text);
-  font-weight: 600;
 }
 
 body.builder-active .pages-list__heading {
@@ -174,6 +174,11 @@ body.builder-active .add-section-divider {
 body.builder-active .style-subtab--active {
   background: var(--builder-accent-soft);
   color: var(--builder-accent-text);
+}
+
+body.builder-active .style-subtab:hover:not(.style-subtab--active) {
+  color: var(--builder-text);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 body.builder-active .style-theme-card:hover {
@@ -254,7 +259,212 @@ body.builder-active .editable-link:focus-within {
   outline-color: var(--builder-accent);
 }
 
-body.builder-active .style-panel__hint,
 body.builder-active .popover-field__hint {
   color: var(--builder-text-muted);
+}
+
+/* ── Builder typography (chrome only; site preview keeps theme fonts) ── */
+body.builder-active .builder-shell {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size);
+  font-weight: var(--builder-font-weight);
+  line-height: var(--builder-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.builder-active .site-theme-root {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: normal;
+  -webkit-font-smoothing: auto;
+}
+
+body.builder-active :is(
+  .builder-topbar,
+  .builder-sidebar,
+  .device-preview-bar,
+  .section-library-panel,
+  .new-page-dialog,
+  .popover,
+  .section-toolbar,
+  .section-label-stack,
+  .section-label-badge,
+  .header-edit-overlay-btn,
+  .add-section-divider,
+  .fixed-slot-toolbar,
+  .fixed-slot-badge
+) {
+  font-family: var(--builder-font-family);
+}
+
+body.builder-active .builder-topbar,
+body.builder-active .builder-sidebar,
+body.builder-active .device-preview-bar,
+body.builder-active .section-library-panel,
+body.builder-active .new-page-dialog,
+body.builder-active .popover {
+  font-size: var(--builder-font-size);
+  font-weight: var(--builder-font-weight);
+  line-height: var(--builder-line-height);
+}
+
+body.builder-active :is(
+  .builder-topbar,
+  .builder-sidebar,
+  .device-preview-bar,
+  .section-library-panel,
+  .new-page-dialog,
+  .popover
+) :is(
+  button,
+  input,
+  select,
+  textarea,
+  optgroup,
+  option
+) {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+body.builder-active .builder-save-btn,
+body.builder-active .builder-publish-btn,
+body.builder-active .add-page-btn,
+body.builder-active .header-settings__primary-btn,
+body.builder-active .header-settings__ghost-btn,
+body.builder-active .header-settings__chip-btn,
+body.builder-active .header-settings__add-btn,
+body.builder-active .editor-popover-btn--primary,
+body.builder-active .popover-btn--primary {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size);
+  font-weight: var(--builder-font-weight-strong);
+}
+
+body.builder-active :is(
+  .right-sidebar-tab,
+  .style-subtab,
+  .device-preview-bar__tab,
+  .settings-tabs__btn,
+  .popover-toolbar-tabs__btn
+) {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size-sm);
+  font-weight: var(--builder-font-weight);
+}
+
+body.builder-active :is(
+  .right-sidebar-tab--active,
+  .style-subtab--active,
+  .device-preview-bar__tab--active,
+  .settings-tabs__btn--active,
+  .popover-toolbar-tabs__btn--active,
+  .pages-list__item--active .pages-list__select
+) {
+  font-weight: var(--builder-font-weight-strong);
+}
+
+body.builder-active :is(
+  .settings-field,
+  .header-settings__input,
+  .header-settings__select,
+  .new-page-dialog__input,
+  .popover-input,
+  .popover-input--inline-select,
+  .popover-input--toolbar-size
+) {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size);
+  font-weight: var(--builder-font-weight);
+}
+
+body.builder-active :is(
+  .pages-list__heading,
+  .header-settings__field > span,
+  .header-settings__nested-label,
+  .popover-toolbar-label,
+  .popover-field__label,
+  .section-library-sidebar-label
+) {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size-xs);
+  font-weight: var(--builder-font-weight-strong);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.builder-active :is(
+  .builder-topbar__title,
+  .header-settings__title,
+  .popover__title,
+  .popover-toolbar-title,
+  .section-library-title,
+  .new-page-dialog h3
+) {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size);
+  font-weight: var(--builder-font-weight-strong);
+}
+
+body.builder-active :is(
+  .builder-topbar__back,
+  .builder-topbar__status,
+  .builder-topbar__link,
+  .header-settings__subtitle,
+  .popover__subtitle,
+  .section-library-subtitle,
+  .device-preview-bar__label,
+  .device-preview-bar__size,
+  .header-settings__hint,
+  .style-panel__hint
+) {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size-sm);
+  font-weight: var(--builder-font-weight);
+}
+
+body.builder-active :is(
+  .builder-topbar,
+  .builder-sidebar,
+  .device-preview-bar,
+  .section-library-panel,
+  .new-page-dialog,
+  .popover
+) :is(.text-xs, .text-sm, .text-base) {
+  line-height: var(--builder-line-height);
+}
+
+body.builder-active :is(.builder-topbar, .builder-sidebar, .device-preview-bar, .section-library-panel, .new-page-dialog, .popover) :where(.text-xs) {
+  font-size: var(--builder-font-size-sm);
+}
+
+body.builder-active :is(.builder-topbar, .builder-sidebar, .device-preview-bar, .section-library-panel, .new-page-dialog, .popover) :where(.text-sm, .text-base) {
+  font-size: var(--builder-font-size);
+}
+
+body.builder-active :is(.builder-topbar, .builder-sidebar, .device-preview-bar, .section-library-panel, .new-page-dialog, .popover) :where(.font-medium, .font-normal) {
+  font-weight: var(--builder-font-weight);
+}
+
+body.builder-active :is(.builder-topbar, .builder-sidebar, .device-preview-bar, .section-library-panel, .new-page-dialog, .popover) :where(.font-semibold, .font-bold) {
+  font-weight: var(--builder-font-weight-strong);
+}
+
+body.builder-active .section-label-badge,
+body.builder-active .section-shared-tag,
+body.builder-active .header-edit-overlay-btn {
+  font-family: var(--builder-font-family);
+  font-size: var(--builder-font-size-xs);
+  font-weight: var(--builder-font-weight-strong);
+}
+
+body.builder-active .builder-icon-btn,
+body.builder-active .pages-list__icon-btn,
+body.builder-active .outline-replace-btn {
+  font-family: var(--builder-font-family);
+  font-weight: var(--builder-font-weight-strong);
 }
