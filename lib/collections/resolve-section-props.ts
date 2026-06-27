@@ -1,5 +1,6 @@
 import type { SectionInstance, WebsiteData } from "@/lib/types";
 import { resolveBlogSectionProps } from "./resolve-blog-section";
+import { resolveFormSectionProps } from "./resolve-form-section";
 import { resolveSectionListItems } from "./resolve";
 import { collectionItemToFaq } from "./faq";
 import { collectionItemToTestimonial } from "./testimonials";
@@ -34,6 +35,10 @@ export function resolveSectionRenderProps(
 ): Record<string, unknown> {
   if (section.type === "blog") {
     return resolveBlogSectionProps(site, section);
+  }
+
+  if (section.type === "form") {
+    return resolveFormSectionProps(site, section);
   }
 
   if (!isListSectionType(section.type)) {

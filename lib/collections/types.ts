@@ -16,13 +16,17 @@ export const DEFAULT_BLOG_COLLECTION_ID = "blog-default";
 /** Single shared FAQ pool per website. */
 export const DEFAULT_FAQ_COLLECTION_ID = "faq-default";
 
+/** Single shared forms pool per website. */
+export const DEFAULT_FORMS_COLLECTION_ID = "forms-default";
+
 /** Discriminator for collection item shape. Defined in code, not per-site. */
 export type CollectionType =
   | "testimonials"
   | "team"
   | "features"
   | "blog"
-  | "faq";
+  | "faq"
+  | "forms";
 
 export interface CollectionItemBase {
   id: string;
@@ -75,12 +79,48 @@ export interface FaqCollectionItem extends CollectionItemBase {
   answer: string;
 }
 
+export type FormFieldType =
+  | "text"
+  | "email"
+  | "phone"
+  | "textarea"
+  | "select"
+  | "checkbox"
+  | "date"
+  | "time"
+  | "number";
+
+export type FormTemplateId = "contact" | "booking-salon" | "newsletter" | "custom";
+
+export interface FormField {
+  id: string;
+  type: FormFieldType;
+  label: string;
+  placeholder?: string;
+  required: boolean;
+  options?: string[];
+  width?: "full" | "half";
+}
+
+export interface FormCollectionItem extends CollectionItemBase {
+  name: string;
+  slug: string;
+  templateId?: FormTemplateId;
+  fields: FormField[];
+  settings: {
+    submitLabel: string;
+    successMessage: string;
+    redirectUrl?: string;
+  };
+}
+
 export type CollectionItemByType = {
   testimonials: TestimonialCollectionItem;
   team: TeamCollectionItem;
   features: FeatureCollectionItem;
   blog: BlogCollectionItem;
   faq: FaqCollectionItem;
+  forms: FormCollectionItem;
 };
 
 export interface Collection<T extends CollectionType = CollectionType> {

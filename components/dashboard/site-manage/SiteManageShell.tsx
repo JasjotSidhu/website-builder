@@ -16,7 +16,7 @@ interface SiteManageShellProps {
 export default function SiteManageShell({ user, website, children }: SiteManageShellProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const isBlogPage = pathname.endsWith("/blog");
+  const isFullWidthToolPage = pathname.endsWith("/blog") || pathname.endsWith("/forms");
 
   return (
     <div className="dash site-manage">
@@ -25,9 +25,9 @@ export default function SiteManageShell({ user, website, children }: SiteManageS
       <div className="site-manage__layout">
         <SiteManageSidebar websiteId={website.id} />
 
-        <main className={`site-manage__main${isBlogPage ? " site-manage__main--blog" : ""}`}>
-          {!isBlogPage ? <SiteManageHeader website={website} /> : null}
-          <div className={`site-manage__content${isBlogPage ? " site-manage__content--blog" : ""}`}>
+        <main className={`site-manage__main${isFullWidthToolPage ? " site-manage__main--tool" : ""}`}>
+          {!isFullWidthToolPage ? <SiteManageHeader website={website} /> : null}
+          <div className={`site-manage__content${isFullWidthToolPage ? " site-manage__content--tool" : ""}`}>
             {children}
           </div>
         </main>

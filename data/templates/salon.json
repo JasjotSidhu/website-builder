@@ -1,0 +1,251 @@
+{
+  "siteId": "__TEMPLATE__",
+  "schemaVersion": 2,
+  "meta": {
+    "name": "Bella Salon",
+    "seo": {
+      "title": "Bella Salon — Hair & Beauty",
+      "description": "Book appointments online for cuts, color, and spa services."
+    }
+  },
+  "theme": {
+    "colors": {
+      "primary": "#C45C3E",
+      "secondary": "#F4D9C6",
+      "background": "#FFFBF8",
+      "titleText": "#2A1F1A",
+      "bodyText": "#4B4038",
+      "accent": "#8B6F5C"
+    },
+    "cards": {
+      "background": "#FFFFFF",
+      "titleColor": "#2A1F1A",
+      "textColor": "#4B4038",
+      "borderRadius": "inherit",
+      "borderColor": "#EDE4DC",
+      "iconColor": "#C45C3E"
+    },
+    "fonts": {
+      "heading": "Georgia, 'Times New Roman', serif",
+      "body": "'Helvetica Neue', Arial, sans-serif"
+    },
+    "borderRadius": "md",
+    "spacing": "comfortable"
+  },
+  "navigation": {
+    "variant": "header-simple",
+    "logo": { "type": "text", "value": "Bella Salon" },
+    "links": [
+      { "label": "Services", "link": { "type": "url", "href": "#services" } },
+      { "label": "Book", "link": { "type": "page", "pageId": "page-book" } },
+      { "label": "Contact", "link": { "type": "url", "href": "#contact" } }
+    ],
+    "cta": {
+      "label": "Book now",
+      "link": { "type": "page", "pageId": "page-book" },
+      "variant": "primary"
+    }
+  },
+  "collections": {
+    "forms-default": {
+      "id": "forms-default",
+      "type": "forms",
+      "name": "Forms",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "items": [
+        {
+          "id": "form-booking",
+          "order": 0,
+          "name": "Book an appointment",
+          "slug": "book-appointment",
+          "templateId": "booking-salon",
+          "fields": [
+            { "id": "field-1", "type": "text", "label": "Full name", "required": true, "width": "half" },
+            { "id": "field-2", "type": "phone", "label": "Phone", "required": true, "width": "half" },
+            {
+              "id": "field-3",
+              "type": "select",
+              "label": "Service",
+              "required": true,
+              "width": "full",
+              "options": ["Haircut", "Color", "Blowout", "Nails"]
+            },
+            { "id": "field-4", "type": "date", "label": "Preferred date", "required": true, "width": "half" },
+            { "id": "field-5", "type": "time", "label": "Preferred time", "required": true, "width": "half" },
+            {
+              "id": "field-6",
+              "type": "textarea",
+              "label": "Notes",
+              "required": false,
+              "width": "full",
+              "placeholder": "Any allergies or special requests?"
+            }
+          ],
+          "settings": {
+            "submitLabel": "Request booking",
+            "successMessage": "Thanks! We'll confirm your appointment shortly."
+          },
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "form-contact",
+          "order": 1,
+          "name": "Contact us",
+          "slug": "contact",
+          "templateId": "contact",
+          "fields": [
+            { "id": "field-1", "type": "text", "label": "Name", "required": true, "width": "full" },
+            { "id": "field-2", "type": "email", "label": "Email", "required": true, "width": "full" },
+            { "id": "field-3", "type": "textarea", "label": "Message", "required": true, "width": "full" }
+          ],
+          "settings": {
+            "submitLabel": "Send message",
+            "successMessage": "Message sent. We'll get back to you soon."
+          },
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "updatedAt": "2026-01-01T00:00:00.000Z"
+        }
+      ]
+    }
+  },
+  "pages": [
+    {
+      "id": "home",
+      "slug": "/",
+      "title": "Home",
+      "sections": [
+        {
+          "id": "hero-salon",
+          "type": "hero",
+          "variant": "hero-centered",
+          "props": {
+            "heading": "Look and feel your best",
+            "subheading": "Cuts, color, and spa services from stylists who listen first and deliver every time.",
+            "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=960&h=540&fit=crop",
+            "imageAlt": "Salon interior with styling chairs",
+            "buttons": [
+              {
+                "label": "Book appointment",
+                "link": { "type": "page", "pageId": "page-book" },
+                "variant": "primary"
+              },
+              {
+                "label": "View services",
+                "link": { "type": "url", "href": "#services" },
+                "variant": "secondary"
+              }
+            ]
+          },
+          "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
+            "paddingY": "lg",
+            "textColor": "auto"
+          }
+        },
+        {
+          "id": "services-salon",
+          "type": "features",
+          "variant": "features-grid-3",
+          "props": {
+            "heading": "Our services",
+            "subheading": "From everyday cuts to special-occasion styling.",
+            "items": [
+              {
+                "icon": "scissors",
+                "title": "Haircuts & styling",
+                "description": "Precision cuts and finishing for every hair type."
+              },
+              {
+                "icon": "palette",
+                "title": "Color & highlights",
+                "description": "Balayage, gloss, and full color with gentle formulas."
+              },
+              {
+                "icon": "sparkle",
+                "title": "Spa & nails",
+                "description": "Manicures, treatments, and relaxing add-ons."
+              }
+            ]
+          },
+          "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
+            "columns": 3,
+            "gap": "md",
+            "paddingY": "lg",
+            "textColor": "auto"
+          }
+        },
+        {
+          "id": "contact-form-home",
+          "type": "form",
+          "variant": "form-stacked",
+          "props": {
+            "eyebrow": "Contact",
+            "heading": "Questions before you book?",
+            "subheading": "Send us a message and we'll reply within one business day.",
+            "formId": "form-contact",
+            "anchorId": "contact"
+          },
+          "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
+            "paddingY": "lg",
+            "textColor": "auto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "page-book",
+      "slug": "/book",
+      "title": "Book",
+      "sections": [
+        {
+          "id": "booking-form",
+          "type": "form",
+          "variant": "form-stacked",
+          "props": {
+            "eyebrow": "Appointments",
+            "heading": "Book your visit",
+            "subheading": "Choose a service and preferred time — we'll confirm by text.",
+            "formId": "form-booking",
+            "anchorId": "booking"
+          },
+          "settings": {
+            "type": "solid",
+            "color": "var(--color-background)",
+            "paddingY": "lg",
+            "textColor": "auto"
+          }
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "variant": "footer-simple",
+    "props": {
+      "logo": { "type": "text", "value": "Bella Salon" },
+      "blurb": "Hair, color, and spa services in a welcoming neighborhood salon.",
+      "columns": [
+        {
+          "title": "Visit",
+          "links": [
+            { "label": "Book online", "link": { "type": "page", "pageId": "page-book" } },
+            { "label": "Contact", "link": { "type": "url", "href": "#contact" } }
+          ]
+        },
+        {
+          "title": "Hours",
+          "links": [
+            { "label": "Tue–Sat 9am–7pm", "link": { "type": "url", "href": "#" } }
+          ]
+        }
+      ],
+      "copyright": "© 2026 Bella Salon. All rights reserved."
+    }
+  }
+}

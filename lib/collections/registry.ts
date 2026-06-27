@@ -51,6 +51,13 @@ export const COLLECTION_TYPE_REGISTRY: Record<CollectionType, CollectionTypeDefi
     compatibleSectionTypes: ["faq"],
     softItemLimit: 50,
   },
+  forms: {
+    type: "forms",
+    label: "Form",
+    pluralLabel: "Forms",
+    compatibleSectionTypes: ["form"],
+    softItemLimit: 20,
+  },
 };
 
 export function isCollectionType(value: string): value is CollectionType {

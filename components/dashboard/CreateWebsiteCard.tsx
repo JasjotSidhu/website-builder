@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Plus, X } from "lucide-react";
+import type { WebsiteTemplateId } from "@/lib/templates/catalog";
+import { WEBSITE_TEMPLATE_CATALOG } from "@/lib/templates/catalog";
 
 interface CreateWebsiteCardProps {
   open: boolean;
@@ -16,6 +18,7 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
   const dialogRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [templateId, setTemplateId] = useState<WebsiteTemplateId>("blank");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,6 +49,7 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
         body: JSON.stringify({
           name: name.trim() || "Untitled website",
           slug: slug.trim() || undefined,
+          templateId,
         }),
       });
 
@@ -63,6 +67,7 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
       window.open(builderUrl, "_blank", "noopener,noreferrer");
       setName("");
       setSlug("");
+      setTemplateId("blank");
       onClose();
       router.refresh();
     } catch {
@@ -103,9 +108,25 @@ export default function CreateWebsiteCard({ open, onOpen, onClose, triggerRef }:
                 <X size={18} strokeWidth={1.75} />
               </button>
             </div>
-            <p className="dash-modal__lead">Give your site a name. The builder opens in a new tab.</p>
+            <p className="dash-modal__lead">Pick a template, name your site, then open the builder in a new tab.</p>
 
             <form onSubmit={handleSubmit} className="dash-modal__form">
+              <div className="dash-field">
+                <span className="dash-field__label">Template</span>
+                <div className="create-site-templates">
+                  {WEBSITE_TEMPLATE_CATALOG.map((template) => (
+                    <button
+                      key={template.id}
+                      type="button"
+                      className={`create-site-template${templateId === template.id ? " create-site-template--active" : ""}`}
+                      onClick={() => setTemplateId(template.id)}
+                    >
+                      <strong>{template.name}</strong>
+                      <span>{template.description}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="dash-field">
                 <label htmlFor="create-site-name">Site name</label>
                 <input

@@ -78,7 +78,7 @@ export default function Canvas({ onOpenSectionLibrary }: CanvasProps) {
           <DevicePreviewBar />
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6">
             <div
-              className="canvas-preview-frame @container mx-auto w-full max-w-full rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
+              className="canvas-preview-frame @container mx-auto w-full max-w-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-[max-width] duration-200"
               data-preview-device={previewDevice}
               style={previewMaxWidth ? { maxWidth: previewMaxWidth } : undefined}
             >

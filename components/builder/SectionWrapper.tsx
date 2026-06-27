@@ -19,6 +19,7 @@ import { useBuilderStore } from "@/store/builderStore";
 import AddSectionButton from "./AddSectionButton";
 import CollectionShareToggle from "./CollectionShareToggle";
 import BlogSectionSettings from "./BlogSectionSettings";
+import FormSectionSettings from "./FormSectionSettings";
 import SaveSectionPopover from "./SaveSectionPopover";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import SharedContentBanner from "./SharedContentBanner";
@@ -80,6 +81,7 @@ export default function SectionWrapper({
     setSectionListItems,
   } = useBuilderStore();
   const site = useBuilderStore((state) => state.site);
+  const websiteId = useBuilderStore((state) => state.websiteId);
   const highlightedSectionId = useBuilderStore((state) => state.highlightedSectionId);
 
   const definition = sectionRegistry[section.type];
@@ -237,7 +239,21 @@ export default function SectionWrapper({
                                 ),
                               },
                             ]
-                          : undefined
+                          : section.type === "form"
+                            ? [
+                                {
+                                  id: "form",
+                                  label: "Form",
+                                  content: (
+                                    <FormSectionSettings
+                                      sectionId={section.id}
+                                      sectionProps={section.props}
+                                      websiteId={websiteId ?? undefined}
+                                    />
+                                  ),
+                                },
+                              ]
+                            : undefined
                       }
                       headerContent={
                         listSectionType ? (

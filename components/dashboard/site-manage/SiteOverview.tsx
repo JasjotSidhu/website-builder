@@ -17,7 +17,7 @@ export default function SiteOverview({ website }: { website: WebsiteManageContex
         <article className="site-manage__stat-card">
           <p className="site-manage__stat-label">Form leads</p>
           <p className="site-manage__stat-value">—</p>
-          <p className="site-manage__stat-hint site-manage__stat-hint--accent">Forms coming soon</p>
+          <p className="site-manage__stat-hint site-manage__stat-hint--accent">View in Forms</p>
         </article>
 
         <article className="site-manage__stat-card">
@@ -51,7 +51,7 @@ export default function SiteOverview({ website }: { website: WebsiteManageContex
             </span>
             <span className="site-manage__quick-text">
               <strong>View leads</strong>
-              <span>Form submissions — coming soon</span>
+              <span>View and manage form submissions</span>
             </span>
           </a>
         </div>

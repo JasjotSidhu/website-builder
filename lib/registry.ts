@@ -13,6 +13,7 @@ import TestimonialsGrid, {
 import TeamGrid, { teamGridSchema } from "@/components/sections/team/TeamGrid";
 import BlogList, { blogListSchema } from "@/components/sections/blog/BlogList";
 import FaqAccordion, { faqAccordionSchema } from "@/components/sections/faq/FaqAccordion";
+import FormSection, { formSectionSchema } from "@/components/sections/form/FormSection";
 import CtaBanner, { ctaBannerSchema } from "@/components/sections/cta/CtaBanner";
 import FooterSimple, { footerSimpleSchema } from "@/components/sections/footer/FooterSimple";
 
@@ -249,6 +250,27 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
               answer: "Absolutely. The builder lets you edit content, images, and pages without touching code.",
             },
           ],
+        },
+      },
+    ],
+  },
+  form: {
+    type: "form",
+    label: "Form",
+    category: "content",
+    variants: [
+      {
+        id: "form-stacked",
+        label: "Contact form",
+        component: FormSection as ComponentType<Record<string, unknown>>,
+        propsSchema: formSectionSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        defaultProps: {
+          eyebrow: "Contact",
+          heading: "Get in touch",
+          subheading: "Send us a message and we'll reply shortly.",
+          formId: "",
+          anchorId: "contact",
         },
       },
     ],

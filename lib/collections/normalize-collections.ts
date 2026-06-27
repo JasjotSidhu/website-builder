@@ -2,12 +2,14 @@ import type { SectionInstance, WebsiteData } from "@/lib/types";
 import {
   DEFAULT_BLOG_COLLECTION_ID,
   DEFAULT_FAQ_COLLECTION_ID,
+  DEFAULT_FORMS_COLLECTION_ID,
   DEFAULT_TEAM_COLLECTION_ID,
   DEFAULT_TESTIMONIALS_COLLECTION_ID,
 } from "./types";
 import type {
   BlogCollectionItem,
   FaqCollectionItem,
+  FormCollectionItem,
   TeamCollectionItem,
   TestimonialCollectionItem,
 } from "./types";
@@ -22,7 +24,8 @@ type NormalizableCollectionItem =
   | TestimonialCollectionItem
   | TeamCollectionItem
   | BlogCollectionItem
-  | FaqCollectionItem;
+  | FaqCollectionItem
+  | FormCollectionItem;
 
 function normalizeDefaultCollection<T extends NormalizableCollectionItem>(
   collections: Record<string, unknown>,
@@ -33,7 +36,9 @@ function normalizeDefaultCollection<T extends NormalizableCollectionItem>(
       ? "team"
       : T extends BlogCollectionItem
         ? "blog"
-        : "faq",
+        : T extends FormCollectionItem
+          ? "forms"
+          : "faq",
   collectionName: string,
 ): T[] {
   const existing = collections[defaultId] as { type?: string; items?: T[]; createdAt?: string } | undefined;
@@ -118,6 +123,12 @@ export function normalizeSiteCollections(site: WebsiteData): WebsiteData {
     DEFAULT_FAQ_COLLECTION_ID,
     "faq",
     "FAQs",
+  );
+  normalizeDefaultCollection<FormCollectionItem>(
+    collections,
+    DEFAULT_FORMS_COLLECTION_ID,
+    "forms",
+    "Forms",
   );
 
   const pages = site.pages.map((page) => ({

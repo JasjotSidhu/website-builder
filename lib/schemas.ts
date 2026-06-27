@@ -227,7 +227,7 @@ export const collectionItemSchema = z
 
 export const collectionSchema = z.object({
   id: z.string().min(1),
-  type: z.enum(["testimonials", "team", "features", "blog", "faq"]),
+  type: z.enum(["testimonials", "team", "features", "blog", "faq", "forms"]),
   name: z.string().min(1),
   items: z.array(collectionItemSchema),
   meta: z.record(z.string(), z.unknown()).optional(),

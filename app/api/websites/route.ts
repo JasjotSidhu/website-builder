@@ -25,9 +25,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = (await req.json()) as { name?: string; slug?: string };
+    const body = (await req.json()) as { name?: string; slug?: string; templateId?: string };
     const name = body.name?.trim() || "Untitled website";
-    const website = await createWebsiteForUser(user.id, { name, slug: body.slug });
+    const website = await createWebsiteForUser(user.id, {
+      name,
+      slug: body.slug,
+      templateId: body.templateId,
+    });
 
     return NextResponse.json({
       website: {

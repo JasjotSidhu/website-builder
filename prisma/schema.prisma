@@ -42,5 +42,22 @@ model Website {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  formSubmissions FormSubmission[]
+
   @@index([ownerId])
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  websiteId String
+  website   Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  formId    String
+  formSlug  String
+  formName  String
+  data      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([websiteId])
+  @@index([websiteId, formSlug])
 }
