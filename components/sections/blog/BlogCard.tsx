@@ -3,23 +3,7 @@
 import Link from "next/link";
 import { ensureBlogPostExcerpt } from "@/lib/blog/posts";
 import type { BlogPostDisplayItem } from "@/lib/collections/blog";
-
-function formatDate(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(parsed));
-}
+import { formatDateLabel } from "@/lib/format-datetime";
 
 export default function BlogCard({
   post,
@@ -32,7 +16,7 @@ export default function BlogCard({
   interactive?: boolean;
   showFeaturedBadge?: boolean;
 }) {
-  const dateLabel = formatDate(post.publishedAt);
+  const dateLabel = formatDateLabel(post.publishedAt);
   const excerpt = ensureBlogPostExcerpt(post);
   const initial = (post.title ?? "B")[0]?.toUpperCase() ?? "B";
 

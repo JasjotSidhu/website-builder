@@ -25,8 +25,24 @@ interface SiteFormsManagerProps {
 
 type FormsListView = "grid" | "submissions";
 
+const EMPTY_FORM_DRAFT: FormDisplayItem = {
+  id: "draft-form",
+  name: "",
+  slug: "form",
+  templateId: "custom",
+  fields: [],
+  settings: {
+    submitLabel: "Submit",
+    successMessage: "Thank you for your submission.",
+  },
+};
+
 function emptyDraft(): FormDisplayItem {
-  return collectionItemToForm(createFormFromTemplate("custom"));
+  return {
+    ...EMPTY_FORM_DRAFT,
+    fields: [],
+    settings: { ...EMPTY_FORM_DRAFT.settings },
+  };
 }
 
 function templateName(templateId?: FormTemplateId) {
@@ -47,7 +63,7 @@ export default function SiteFormsManager({ websiteId }: SiteFormsManagerProps) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
-  const [draft, setDraft] = useState<FormDisplayItem>(emptyDraft);
+  const [draft, setDraft] = useState<FormDisplayItem>(() => emptyDraft());
   const [submissionsView, setSubmissionsView] = useState<"table" | "detail">("table");
   const [submissionsFormId, setSubmissionsFormId] = useState<string | null>(null);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);

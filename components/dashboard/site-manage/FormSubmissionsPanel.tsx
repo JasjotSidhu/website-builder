@@ -3,15 +3,9 @@
 import { ArrowLeft } from "lucide-react";
 import type { FormDisplayItem } from "@/lib/forms/forms";
 import type { FormSubmissionRecord } from "@/lib/form-submissions-store";
+import { formatDateTime } from "@/lib/format-datetime";
 
 export type SubmissionsView = "table" | "detail";
-
-function formatDateTime(value: Date, style: "short" | "full" = "short") {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: style === "full" ? "full" : "medium",
-    timeStyle: "short",
-  }).format(value);
-}
 
 function getFieldLabel(form: FormDisplayItem | undefined, fieldId: string) {
   return form?.fields.find((field) => field.id === fieldId)?.label ?? fieldId;
@@ -59,7 +53,7 @@ export default function FormSubmissionsPanel({
           <div className="site-forms__submission-detail-header">
             <div>
               <h2>{selectedSubmission.formName}</h2>
-              <p>{formatDateTime(selectedSubmission.createdAt, "full")}</p>
+              <p suppressHydrationWarning>{formatDateTime(selectedSubmission.createdAt, "full")}</p>
             </div>
             <button
               type="button"
@@ -132,7 +126,7 @@ export default function FormSubmissionsPanel({
                       className="site-forms__table-link"
                       onClick={() => onSelectSubmission(submission.id)}
                     >
-                      {formatDateTime(submission.createdAt)}
+                      <span suppressHydrationWarning>{formatDateTime(submission.createdAt)}</span>
                     </button>
                   </td>
                   {tableFields.map((field) => (

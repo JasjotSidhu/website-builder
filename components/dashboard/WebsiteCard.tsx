@@ -4,28 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, MoreHorizontal } from "lucide-react";
 import type { WebsiteSummary } from "@/lib/website-store";
+import ClientRelativeTime from "@/components/shared/ClientRelativeTime";
 import WebsitePreviewMock from "./WebsitePreviewMock";
-
-function formatRelativeTime(date: Date): string {
-  const diffMs = Date.now() - date.getTime();
-  const minutes = Math.max(1, Math.floor(diffMs / 60000));
-
-  if (minutes < 60) {
-    return `edited ${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `edited ${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  if (days < 7) {
-    return `edited ${days} ${days === 1 ? "day" : "days"} ago`;
-  }
-
-  return `edited ${new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date)}`;
-}
 
 function statusMeta(website: WebsiteSummary): { label: string; tone: "live" | "draft" } {
   const isLive = Boolean(website.publishedAt && !website.hasUnpublishedChanges);
@@ -60,7 +40,9 @@ export default function WebsiteCard({ website }: { website: WebsiteSummary }) {
 
       <div className="dash-site-card__body">
         <h2 className="dash-site-card__title">{website.name}</h2>
-        <p className="dash-site-card__meta">Website · {formatRelativeTime(website.updatedAt)}</p>
+        <p className="dash-site-card__meta">
+          Website · <ClientRelativeTime date={website.updatedAt} />
+        </p>
 
         <div className="dash-site-card__actions">
           <a

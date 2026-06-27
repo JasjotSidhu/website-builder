@@ -4,24 +4,8 @@ import Link from "next/link";
 import { ensureBlogPostExcerpt } from "@/lib/blog/posts";
 import { sanitizeBlogHtml } from "@/lib/blog/html";
 import type { BlogPostDisplayItem } from "@/lib/collections/blog";
+import { formatDateLabel } from "@/lib/format-datetime";
 import { SectionShell } from "../shared/SectionShell";
-
-function formatDate(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(parsed));
-}
 
 export default function BlogPostDetail({
   post,
@@ -30,7 +14,7 @@ export default function BlogPostDetail({
   post: BlogPostDisplayItem;
   backHref?: string;
 }) {
-  const dateLabel = formatDate(post.publishedAt);
+  const dateLabel = formatDateLabel(post.publishedAt, "long");
   const excerpt = ensureBlogPostExcerpt(post);
   const initial = (post.title ?? "B")[0]?.toUpperCase() ?? "B";
 
