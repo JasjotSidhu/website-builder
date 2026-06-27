@@ -4797,9 +4797,9 @@ select.settings-field {
 .platform-auth__brand {
   display: none;
   background:
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.35), transparent 45%),
-    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.25), transparent 40%),
-    linear-gradient(145deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+    radial-gradient(circle at 20% 20%, rgba(247, 148, 51, 0.22), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(124, 111, 240, 0.18), transparent 40%),
+    linear-gradient(145deg, #16122a 0%, #1c1733 55%, #221b3d 100%);
   color: #f8fafc;
   padding: 3rem;
 }
@@ -4817,10 +4817,6 @@ select.settings-field {
 
 .platform-auth__logo {
   display: inline-block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #c7d2fe !important;
 }
 
 .platform-auth__headline {
@@ -4862,7 +4858,7 @@ select.settings-field {
   height: 2rem;
   border-radius: 0.625rem;
   background: rgba(255, 255, 255, 0.1);
-  color: #c7d2fe;
+  color: #f79433;
 }
 
 .platform-auth__panel {
@@ -4940,7 +4936,7 @@ select.settings-field {
 
 .platform-auth__switch a {
   font-weight: 600;
-  color: #4f46e5 !important;
+  color: #e85c2b !important;
 }
 
 .platform-form {

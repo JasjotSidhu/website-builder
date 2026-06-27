@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Layers, Palette, Rocket } from "lucide-react";
+import { Layers, Palette, Rocket, Sparkles } from "lucide-react";
+import MarketingLogo from "@/components/marketing/MarketingLogo";
 
 interface AuthShellProps {
   mode: "login" | "signup";
@@ -7,6 +8,7 @@ interface AuthShellProps {
 }
 
 const features = [
+  { icon: Sparkles, text: "AI website generation from a single prompt" },
   { icon: Layers, text: "Drag-and-drop section builder" },
   { icon: Palette, text: "Global themes, fonts, and styles" },
   { icon: Rocket, text: "Publish to your own live URL" },
@@ -20,16 +22,16 @@ export default function AuthShell({ mode, children }: AuthShellProps) {
       <div className="platform-auth__layout">
         <aside className="platform-auth__brand" aria-hidden={false}>
           <div className="platform-auth__brand-inner">
-            <Link href="/" className="platform-auth__logo">
-              Website Builder
-            </Link>
+            <div className="platform-auth__logo">
+              <MarketingLogo variant="light" />
+            </div>
             <h1 className="platform-auth__headline">
-              {isLogin ? "Welcome back" : "Start building today"}
+              {isLogin ? "Welcome back" : "Create your account"}
             </h1>
             <p className="platform-auth__tagline">
               {isLogin
                 ? "Sign in to manage your websites, edit drafts, and publish updates."
-                : "Create beautiful multi-page sites with a visual editor and one-click publish."}
+                : "Generate a complete site with AI, then refine it with the simple visual editor."}
             </p>
             <ul className="platform-auth__features">
               {features.map(({ icon: Icon, text }) => (
@@ -51,7 +53,7 @@ export default function AuthShell({ mode, children }: AuthShellProps) {
             </Link>
             <h2 className="platform-auth__title">{isLogin ? "Sign in" : "Create account"}</h2>
             <p className="platform-auth__subtitle">
-              {isLogin ? "Access your dashboard and website builder." : "Free to start — no credit card required."}
+              {isLogin ? "Access your dashboard and website builder." : "Free to start · No credit card required."}
             </p>
             {children}
           </div>

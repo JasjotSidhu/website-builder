@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "./marketing.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-platform",
 });
 
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["italic"],
+  variable: "--font-serif",
+});
+
 export const metadata: Metadata = {
-  title: "Website Builder",
-  description: "Section-based website builder powered by JSON and Tailwind CSS",
+  title: "Webeix — Launch a professional website, faster",
+  description:
+    "Generate a complete site with AI, then refine it with the simple visual editor. The easiest way to launch a professional website.",
 };
 
 export default function RootLayout({
@@ -18,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={plusJakarta.variable}>
+    <html lang="en" className={`${plusJakarta.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );
