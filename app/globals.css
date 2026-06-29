@@ -1507,7 +1507,7 @@ select.popover-input--inline-select {
   flex-direction: column;
   overflow: hidden;
   border-radius: 1rem;
-  background: #fafafa;
+  background: #f5f1eb;
   box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px rgba(0, 0, 0, 0.05);
@@ -1570,6 +1570,11 @@ select.popover-input--inline-select {
   grid-template-columns: 1fr;
 }
 
+.section-library-body > :last-child {
+  min-width: 0;
+  min-height: 0;
+}
+
 .section-library-sidebar {
   overflow-y: auto;
   border-right: 1px solid #e5e7eb;
@@ -1606,7 +1611,7 @@ select.popover-input--inline-select {
 }
 
 .section-library-category--active {
-  background: #eef2ff;
+  background: #fff4ec;
 }
 
 .section-library-category-icon {
@@ -1617,13 +1622,13 @@ select.popover-input--inline-select {
   height: 2rem;
   flex-shrink: 0;
   border-radius: 0.5rem;
-  background: #f3f4f6;
+  background: #f3eee7;
   font-size: 0.875rem;
-  color: #4f46e5;
+  color: #e85c2b;
 }
 
 .section-library-category--active .section-library-category-icon {
-  background: #c7d2fe;
+  background: rgba(247, 148, 51, 0.18);
 }
 
 .section-library-category-name {
@@ -1634,7 +1639,7 @@ select.popover-input--inline-select {
 }
 
 .section-library-category--active .section-library-category-name {
-  color: #4f46e5;
+  color: #c2541e;
 }
 
 .section-library-category-count {
@@ -1644,43 +1649,57 @@ select.popover-input--inline-select {
 }
 
 .section-library-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  align-items: start;
+  align-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow-y: auto;
   padding: 1.25rem;
 }
 
 .section-library-card {
   display: flex;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 100%;
   flex-direction: column;
   overflow: hidden;
-  border: 2px solid #e5e7eb;
+  isolation: isolate;
+  border: 2px solid #ece6dd;
   border-radius: 0.875rem;
   background: white;
   text-align: left;
   cursor: pointer;
+  font: inherit;
+  color: inherit;
   transition:
     border-color 0.15s,
-    box-shadow 0.15s,
-    transform 0.15s;
+    box-shadow 0.15s;
+}
+
+@media (min-width: 720px) {
+  .section-library-card {
+    flex: 1 1 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+  }
 }
 
 .section-library-card:hover {
-  border-color: #c7d2fe;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
-  transform: translateY(-1px);
+  border-color: rgba(247, 148, 51, 0.45);
+  box-shadow: 0 4px 12px rgba(232, 92, 43, 0.1);
 }
 
 .section-library-card--selected {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: #f79433;
+  box-shadow: 0 0 0 3px rgba(247, 148, 51, 0.15);
 }
 
 .section-library-card--current {
   border-style: dashed;
-  border-color: #a5b4fc;
+  border-color: rgba(247, 148, 51, 0.55);
 }
 
 .section-library-card-header {
@@ -1718,7 +1737,7 @@ select.popover-input--inline-select {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 9999px;
-  background: #4f46e5;
+  background: linear-gradient(135deg, #f79433, #e85c2b);
   font-size: 0.75rem;
   font-weight: 700;
   color: white;
@@ -1726,13 +1745,17 @@ select.popover-input--inline-select {
 
 .section-library-preview {
   display: block;
+  flex-shrink: 0;
   overflow: hidden;
-  background: transparent;
+  background: #f5f1eb;
 }
 
 .section-library-preview-viewport {
   position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 3;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .section-library-preview-scale {
@@ -1741,10 +1764,12 @@ select.popover-input--inline-select {
   left: 50%;
   transform-origin: top center;
   pointer-events: none;
+  will-change: transform;
 }
 
 .section-library-preview-content {
   display: block;
+  isolation: isolate;
 }
 
 .variant-preview-theme {
@@ -1761,7 +1786,7 @@ select.popover-input--inline-select {
 }
 
 .section-library-empty {
-  grid-column: 1 / -1;
+  flex: 1 1 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1862,6 +1887,25 @@ select.popover-input--inline-select {
 
 .section-typography .cta-banner :is(h1, h2, h3, h4, p, .font-heading) {
   color: inherit;
+}
+
+.hero-background {
+  color: #fff;
+}
+
+.hero-background :is(h1, h2, h3, h4, p, .font-heading, .section-eyebrow) {
+  color: inherit;
+}
+
+.hero-background .section-eyebrow {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.hero-stat {
+  position: relative;
+  overflow: visible;
+  text-align: center;
 }
 
 .feature-card {
@@ -3278,6 +3322,7 @@ select.popover-input--inline-select {
 /* Keep button labels uniform inside themed sections */
 .section-typography .site-button,
 .cta-banner .site-button,
+.hero-background .site-button,
 .site-header .site-button {
   font-family: var(--font-body);
   font-size: var(--btn-font-size, 0.875rem);
@@ -3289,7 +3334,10 @@ select.popover-input--inline-select {
 .section-typography .site-button--primary:visited,
 .cta-banner .site-button--primary,
 .cta-banner .site-button--primary:hover,
-.cta-banner .site-button--primary:visited {
+.cta-banner .site-button--primary:visited,
+.hero-background .site-button--primary,
+.hero-background .site-button--primary:hover,
+.hero-background .site-button--primary:visited {
   color: #ffffff;
 }
 
@@ -3298,7 +3346,10 @@ select.popover-input--inline-select {
 .section-typography .site-button--secondary:visited,
 .cta-banner .site-button--secondary,
 .cta-banner .site-button--secondary:hover,
-.cta-banner .site-button--secondary:visited {
+.cta-banner .site-button--secondary:visited,
+.hero-background .site-button--secondary,
+.hero-background .site-button--secondary:hover,
+.hero-background .site-button--secondary:visited {
   color: #ffffff;
 }
 
@@ -3307,7 +3358,10 @@ select.popover-input--inline-select {
 .section-typography .site-button--outline:visited,
 .cta-banner .site-button--outline,
 .cta-banner .site-button--outline:hover,
-.cta-banner .site-button--outline:visited {
+.cta-banner .site-button--outline:visited,
+.hero-background .site-button--outline,
+.hero-background .site-button--outline:hover,
+.hero-background .site-button--outline:visited {
   color: var(--color-primary);
 }
 
@@ -3316,14 +3370,18 @@ select.popover-input--inline-select {
 .section-typography .site-button--light:visited,
 .cta-banner .site-button--light,
 .cta-banner .site-button--light:hover,
-.cta-banner .site-button--light:visited {
+.cta-banner .site-button--light:visited,
+.hero-background .site-button--light,
+.hero-background .site-button--light:hover,
+.hero-background .site-button--light:visited {
   background: #ffffff;
   color: var(--color-primary);
   border-color: #ffffff;
 }
 
 [data-btn-hover-effect="outline-fill"] .section-typography .site-button--outline:hover,
-[data-btn-hover-effect="outline-fill"] .cta-banner .site-button--outline:hover {
+[data-btn-hover-effect="outline-fill"] .cta-banner .site-button--outline:hover,
+[data-btn-hover-effect="outline-fill"] .hero-background .site-button--outline:hover {
   color: #ffffff;
 }
 

@@ -3,6 +3,10 @@ import type { z } from "zod";
 import HeaderSimple, { headerSimpleSchema } from "@/components/sections/header/HeaderSimple";
 import HeroCentered, { heroCenteredSchema } from "@/components/sections/hero/HeroCentered";
 import HeroSplit, { heroSplitSchema } from "@/components/sections/hero/HeroSplit";
+import HeroMinimal, { heroMinimalSchema } from "@/components/sections/hero/HeroMinimal";
+import HeroBackground, { heroBackgroundSchema } from "@/components/sections/hero/HeroBackground";
+import HeroStats, { heroStatsSchema } from "@/components/sections/hero/HeroStats";
+import HeroOffset, { heroOffsetSchema } from "@/components/sections/hero/HeroOffset";
 import FeaturesGrid3, { featuresGrid3Schema } from "@/components/sections/features/FeaturesGrid3";
 import FeaturesAlternating, {
   featuresAlternatingSchema,
@@ -98,6 +102,82 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
           subheading: "Your subheading here",
           image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=960&h=540&fit=crop",
           imageAlt: "Hero image",
+          buttons: [defaultButton],
+        },
+      },
+      {
+        id: "hero-minimal",
+        label: "Minimal hero",
+        component: HeroMinimal as ComponentType<Record<string, unknown>>,
+        propsSchema: heroMinimalSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
+        defaultProps: {
+          eyebrow: "Welcome",
+          heading: "Clarity starts with a bold headline",
+          subheading: "A focused message and call to action — no distractions, just what matters.",
+          buttons: [defaultButton],
+        },
+      },
+      {
+        id: "hero-background",
+        label: "Background image hero",
+        component: HeroBackground as ComponentType<Record<string, unknown>>,
+        propsSchema: heroBackgroundSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        settingsDefaults: {
+          type: "solid",
+          color: "#111827",
+          textColor: "#ffffff",
+          paddingY: "lg",
+        },
+        defaultProps: {
+          eyebrow: "Discover",
+          heading: "Make a powerful first impression",
+          subheading: "Lead with a full-bleed visual and a message that stops visitors in their tracks.",
+          image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&h=900&fit=crop",
+          imageAlt: "Modern office workspace",
+          buttons: [
+            {
+              label: "Get started",
+              link: { type: "page", pageId: "home" },
+              variant: "light",
+            },
+          ],
+        },
+      },
+      {
+        id: "hero-stats",
+        label: "Hero with stats",
+        component: HeroStats as ComponentType<Record<string, unknown>>,
+        propsSchema: heroStatsSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
+        defaultProps: {
+          eyebrow: "Results",
+          heading: "Numbers that speak for themselves",
+          subheading: "Pair your value proposition with proof points that build instant credibility.",
+          buttons: [defaultButton],
+          stats: [
+            { value: "500+", label: "Projects delivered" },
+            { value: "98%", label: "Client satisfaction" },
+            { value: "12yr", label: "Industry experience" },
+          ],
+        },
+      },
+      {
+        id: "hero-offset",
+        label: "Offset image hero",
+        component: HeroOffset as ComponentType<Record<string, unknown>>,
+        propsSchema: heroOffsetSchema,
+        traits: ["background", "textColor", "spacing", "sectionFonts"],
+        settingsDefaults: { type: "solid", color: "var(--color-background)" },
+        defaultProps: {
+          eyebrow: "Studio",
+          heading: "Design with intention",
+          subheading: "A portrait-style layout that puts your story beside a striking visual.",
+          image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=720&h=960&fit=crop",
+          imageAlt: "Creative workspace detail",
           buttons: [defaultButton],
         },
       },
