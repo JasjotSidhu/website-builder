@@ -35,7 +35,7 @@ export default function HeroCentered() {
             renderChildren={(image, uploadBtn, altText, titleText) => (
               <ImageEditSurface
                 uploadBtn={uploadBtn}
-                className="aspect-[16/9] w-full rounded-[var(--radius)] bg-gray-100 shadow-2xl ring-1 ring-black/10"
+                className="aspect-[16/9] w-full rounded-[var(--radius)] bg-[color-mix(in_srgb,var(--color-body-text)_8%,transparent)] shadow-2xl ring-1 ring-black/10"
               >
                 <RenderDivImage
                   image={image}

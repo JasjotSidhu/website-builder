@@ -138,7 +138,7 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
     settings: {
       type: "solid",
       color: "#111827",
-      textColor: "#ffffff",
+      textColor: "auto",
       paddingY: "lg",
     },
   },

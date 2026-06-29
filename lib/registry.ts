@@ -128,7 +128,7 @@ export const sectionRegistry: Record<string, SectionDefinition> = {
         settingsDefaults: {
           type: "solid",
           color: "#111827",
-          textColor: "#ffffff",
+          textColor: "auto",
           paddingY: "lg",
         },
         defaultProps: {

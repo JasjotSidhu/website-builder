@@ -23,6 +23,7 @@ export default function BuilderLayout({ websiteId }: { websiteId: string }) {
   const undo = useBuilderStore((state) => state.undo);
   const redo = useBuilderStore((state) => state.redo);
   const leftSidebarMode = useBuilderStore((state) => state.leftSidebarMode);
+  const sidebarsVisible = useBuilderStore((state) => state.sidebarsVisible);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<SectionLibraryMode | null>(null);
 
@@ -107,39 +108,53 @@ export default function BuilderLayout({ websiteId }: { websiteId: string }) {
     <div className="builder-shell flex h-screen flex-col">
       <BuilderTopBar />
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px]">
-        <aside className="builder-sidebar hidden min-h-0 flex-col border-r lg:flex">
-          {leftSidebarMode === "header-settings" ? (
-            <HeaderSettingsSidebar />
-          ) : (
-            <>
-              <PagesList />
-              <div className="min-h-0 flex-1">
-                <SectionOutline
-                  onReplaceHeader={() =>
-                    openSectionLibrary({
-                      mode: "replace-header",
-                      currentVariantId: getHeaderVariantId(site.navigation),
-                    })
-                  }
-                  onReplaceFooter={() =>
-                    openSectionLibrary({
-                      mode: "replace-footer",
-                      currentVariantId: site.footer.variant,
-                    })
-                  }
-                />
-              </div>
-            </>
-          )}
+      <div
+        className={`builder-workspace min-h-0 flex-1${
+          sidebarsVisible ? "" : " builder-workspace--panels-hidden"
+        }`}
+      >
+        <aside
+          className="builder-sidebar-slot builder-sidebar-slot--left hidden lg:block"
+          aria-hidden={!sidebarsVisible}
+        >
+          <div className="builder-sidebar builder-sidebar--left flex h-full min-h-0 flex-col">
+            {leftSidebarMode === "header-settings" ? (
+              <HeaderSettingsSidebar />
+            ) : (
+              <>
+                <PagesList />
+                <div className="min-h-0 flex-1">
+                  <SectionOutline
+                    onReplaceHeader={() =>
+                      openSectionLibrary({
+                        mode: "replace-header",
+                        currentVariantId: getHeaderVariantId(site.navigation),
+                      })
+                    }
+                    onReplaceFooter={() =>
+                      openSectionLibrary({
+                        mode: "replace-footer",
+                        currentVariantId: site.footer.variant,
+                      })
+                    }
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </aside>
 
-        <section className="min-h-0 min-w-0 overflow-hidden">
+        <section className="builder-canvas-slot min-h-0 min-w-0 flex-1 overflow-hidden">
           <Canvas onOpenSectionLibrary={openSectionLibrary} />
         </section>
 
-        <aside className="builder-sidebar hidden min-h-0 border-l lg:block">
-          <RightSidebar />
+        <aside
+          className="builder-sidebar-slot builder-sidebar-slot--right hidden lg:block"
+          aria-hidden={!sidebarsVisible}
+        >
+          <div className="builder-sidebar builder-sidebar--right h-full min-h-0">
+            <RightSidebar />
+          </div>
         </aside>
       </div>
 

@@ -1889,17 +1889,12 @@ select.popover-input--inline-select {
   color: inherit;
 }
 
-.hero-background {
-  color: #fff;
+.section-typography .hero-background :is(h1, h2, h3, h4, p, .font-heading) {
+  color: inherit;
 }
 
 .hero-background :is(h1, h2, h3, h4, p, .font-heading, .section-eyebrow) {
   color: inherit;
-}
-
-.hero-background .section-eyebrow {
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.95);
 }
 
 .hero-stat {
@@ -4066,6 +4061,76 @@ select.settings-field {
   cursor: not-allowed;
 }
 
+.builder-workspace {
+  display: flex;
+  min-height: 0;
+}
+
+.builder-sidebar-slot {
+  flex-shrink: 0;
+  overflow: hidden;
+  transition:
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.builder-sidebar-slot--left {
+  width: 240px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.builder-sidebar-slot--right {
+  width: 300px;
+  border-left: 1px solid #e5e7eb;
+}
+
+.builder-workspace--panels-hidden .builder-sidebar-slot--left,
+.builder-workspace--panels-hidden .builder-sidebar-slot--right {
+  width: 0;
+  border-color: transparent;
+}
+
+.builder-sidebar--left,
+.builder-sidebar--right {
+  height: 100%;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.24s ease;
+}
+
+.builder-sidebar--left {
+  width: 240px;
+}
+
+.builder-sidebar--right {
+  width: 300px;
+}
+
+.builder-workspace--panels-hidden .builder-sidebar--left {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.builder-workspace--panels-hidden .builder-sidebar--right {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.builder-canvas-slot {
+  transition: flex-grow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-sidebar-slot,
+  .builder-sidebar--left,
+  .builder-sidebar--right,
+  .builder-canvas-slot {
+    transition: none;
+  }
+}
+
 .device-preview-bar {
   display: flex;
   align-items: center;
@@ -4106,8 +4171,30 @@ select.settings-field {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.device-preview-bar__size {
+.device-preview-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-left: auto;
+}
+
+.device-preview-bar__tab--with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.device-preview-bar__panels-label {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .device-preview-bar__panels-label {
+    display: inline;
+  }
+}
+
+.device-preview-bar__size {
   font-size: 0.75rem;
   color: #9ca3af;
 }

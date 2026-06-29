@@ -68,8 +68,15 @@ body.builder-active .builder-topbar__link:hover {
 }
 
 body.builder-active .builder-sidebar {
-  border-color: var(--builder-border);
   background: var(--builder-surface);
+}
+
+body.builder-active .builder-sidebar-slot--left {
+  border-right-color: var(--builder-border);
+}
+
+body.builder-active .builder-sidebar-slot--right {
+  border-left-color: var(--builder-border);
 }
 
 body.builder-active .builder-canvas {
@@ -140,10 +147,23 @@ body.builder-active .device-preview-bar__tabs {
   background: #f3f1ec;
 }
 
+body.builder-active .device-preview-bar__tab {
+  color: var(--builder-text-secondary);
+}
+
+body.builder-active .device-preview-bar__tab:hover:not(.device-preview-bar__tab--active) {
+  color: var(--builder-text);
+}
+
 body.builder-active .device-preview-bar__tab--active {
   background: var(--builder-navy);
   color: #fff;
   box-shadow: none;
+}
+
+body.builder-active .device-preview-bar__label,
+body.builder-active .device-preview-bar__size {
+  color: var(--builder-text-muted);
 }
 
 body.builder-active .outline-item--active {

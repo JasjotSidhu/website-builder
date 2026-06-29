@@ -68,8 +68,8 @@ export default function HeroStats() {
                     as="p"
                     dataKey="value"
                     maxLength={12}
-                    className="text-4xl font-bold tracking-tight @md:text-5xl"
-                    themeTextRole="title"
+                    inheritSectionColor={false}
+                    className="text-4xl font-bold tracking-tight text-[var(--color-primary)] @md:text-5xl"
                   />
                   <EditableText
                     as="p"

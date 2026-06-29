@@ -19,7 +19,7 @@ export default function HeroBackground() {
           renderChildren={(image, uploadBtn, altText, titleText) => (
             <ImageEditSurface
               uploadBtn={uploadBtn}
-              className="absolute inset-0 bg-gray-900"
+              className="absolute inset-0 bg-[var(--color-title-text)]"
             >
               <RenderDivImage
                 image={image}
@@ -38,6 +38,7 @@ export default function HeroBackground() {
             eyebrowFallback="Discover"
             headingAs="h1"
             size="hero"
+            onDarkSurface
             className="max-w-none"
           />
           <SectionButtons appearance="cta" />

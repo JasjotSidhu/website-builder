@@ -36,7 +36,7 @@ export default function HeroOffset() {
               renderChildren={(image, uploadBtn, altText, titleText) => (
                 <ImageEditSurface
                   uploadBtn={uploadBtn}
-                  className="relative aspect-[4/5] w-full overflow-hidden rounded-[var(--radius)] bg-gray-100 shadow-2xl ring-1 ring-black/10 @lg:aspect-[3/4]"
+                  className="relative aspect-[4/5] w-full overflow-hidden rounded-[var(--radius)] bg-[color-mix(in_srgb,var(--color-body-text)_8%,transparent)] shadow-2xl ring-1 ring-black/10 @lg:aspect-[3/4]"
                 >
                   <RenderDivImage
                     image={image}

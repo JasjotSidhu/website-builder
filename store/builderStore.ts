@@ -74,6 +74,7 @@ interface BuilderState {
   styleSubTab: StyleSubTab;
   settingsPanelTab: SettingsPanelTab;
   leftSidebarMode: LeftSidebarMode;
+  sidebarsVisible: boolean;
 
   loadSite: (websiteId: string) => Promise<void>;
   saveSite: () => Promise<void>;
@@ -89,6 +90,8 @@ interface BuilderState {
   setSettingsPanelTab: (tab: SettingsPanelTab) => void;
   openHeaderSettings: () => void;
   closeHeaderSettings: () => void;
+  toggleSidebarsVisible: () => void;
+  setSidebarsVisible: (visible: boolean) => void;
   addPage: (title: string, slug: string) => string | null;
   removePage: (id: string) => void;
   setActivePage: (id: string) => void;
@@ -229,6 +232,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   styleSubTab: "themes",
   settingsPanelTab: "site",
   leftSidebarMode: "outline",
+  sidebarsVisible: true,
 
   loadSite: async (websiteId) => {
     set({ isLoading: true, websiteId });
@@ -426,12 +430,18 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     set({
       leftSidebarMode: "header-settings",
       highlightedSectionId: "header",
+      sidebarsVisible: true,
     }),
 
   closeHeaderSettings: () =>
     set({
       leftSidebarMode: "outline",
     }),
+
+  toggleSidebarsVisible: () =>
+    set((state) => ({ sidebarsVisible: !state.sidebarsVisible })),
+
+  setSidebarsVisible: (visible) => set({ sidebarsVisible: visible }),
 
   addPage: (title, slug) => {
     const state = get();

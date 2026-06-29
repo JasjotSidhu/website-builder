@@ -10,6 +10,8 @@ interface SectionHeaderProps {
   subheadingKey?: string;
   headingAs?: "h1" | "h2";
   size?: "hero" | "section" | "cta";
+  /** Light text on dark/image surfaces — uses section text color instead of theme title/body tokens. */
+  onDarkSurface?: boolean;
   headingMaxLength?: number;
   subheadingMaxLength?: number;
   className?: string;
@@ -35,10 +37,12 @@ export function SectionHeader({
   subheadingKey = "subheading",
   headingAs = "h2",
   size = "section",
+  onDarkSurface = false,
   headingMaxLength,
   subheadingMaxLength,
   className = "",
 }: SectionHeaderProps) {
+  const useSectionTextColor = onDarkSurface || size === "cta";
   const alignClass =
     align === "center" ? "text-center items-center mx-auto" : "text-left items-start";
   const textAlign = align === "center" ? "text-center" : "text-left";
@@ -49,14 +53,14 @@ export function SectionHeader({
   return (
     <div className={`flex max-w-2xl flex-col gap-4 ${alignClass} ${className}`.trim()}>
       {eyebrowFallback ? (
-        <SectionEyebrow fallback={eyebrowFallback} light={size === "cta"} />
+        <SectionEyebrow fallback={eyebrowFallback} light={useSectionTextColor} />
       ) : null}
       <EditableText
         as={headingAs}
         dataKey={headingKey}
         maxLength={resolvedHeadingMaxLength}
         className={`${HEADING_CLASSES[size]} ${textAlign}`}
-        themeTextRole={size === "cta" ? undefined : "title"}
+        themeTextRole={useSectionTextColor ? undefined : "title"}
       />
       <EditableText
         as="p"
@@ -64,7 +68,7 @@ export function SectionHeader({
         maxLength={resolvedSubheadingMaxLength}
         required={false}
         className={`${SUBHEADING_CLASSES[size]} ${textAlign}`}
-        themeTextRole={size === "cta" ? undefined : "body"}
+        themeTextRole={useSectionTextColor ? undefined : "body"}
       />
     </div>
   );
