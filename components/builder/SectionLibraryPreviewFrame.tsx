@@ -3,6 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import GoogleFontsLoader from "@/components/shared/GoogleFontsLoader";
 import { normalizeFontConfig } from "@/lib/fonts/font-utils";
+import { normalizeTheme } from "@/lib/theme-defaults";
 import { buildThemeCssVariables } from "@/lib/theme-utils";
 import type { ThemeConfig, ThemeFontConfig } from "@/lib/types";
 
@@ -21,50 +22,34 @@ function collectThemeFonts(theme: ThemeConfig): ThemeFontConfig[] {
   ];
 }
 
-function measureScaledSectionHeight(content: HTMLElement, scale: number): number {
-  const sectionRoot = content.querySelector("section, header, footer");
-  const measured =
-    sectionRoot instanceof HTMLElement
-      ? sectionRoot.offsetHeight
-      : content.scrollHeight;
-
-  return Math.ceil(measured * scale);
-}
-
 export default function SectionLibraryPreviewFrame({
   theme,
   fonts,
   children,
 }: SectionLibraryPreviewFrameProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
-  const scaleRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [viewportHeight, setViewportHeight] = useState(0);
+  const [scale, setScale] = useState(0.25);
   const resolvedFonts = useMemo(() => fonts ?? collectThemeFonts(theme), [fonts, theme]);
-  const previewThemeStyle = buildThemeCssVariables(theme, { embed: true });
+  const normalizedTheme = useMemo(() => normalizeTheme(theme), [theme]);
+  const previewThemeStyle = buildThemeCssVariables(normalizedTheme, { embed: true });
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
-    const scaleEl = scaleRef.current;
-    const content = contentRef.current;
-    if (!viewport || !scaleEl || !content) {
+    if (!viewport) {
       return;
     }
 
-    const updateMetrics = () => {
+    const updateScale = () => {
       const viewportWidth = viewport.clientWidth;
-      const scale = viewportWidth > 0 ? viewportWidth / PREVIEW_RENDER_WIDTH : 0.25;
-      scaleEl.style.transform = `translateX(-50%) scale(${scale})`;
-      setViewportHeight(measureScaledSectionHeight(content, scale));
+      setScale(viewportWidth > 0 ? viewportWidth / PREVIEW_RENDER_WIDTH : 0.25);
     };
 
-    updateMetrics();
+    updateScale();
 
     const observer = new ResizeObserver(() => {
-      requestAnimationFrame(updateMetrics);
+      requestAnimationFrame(updateScale);
     });
     observer.observe(viewport);
-    observer.observe(content);
 
     return () => observer.disconnect();
   }, [children, theme]);
@@ -74,15 +59,16 @@ export default function SectionLibraryPreviewFrame({
       <div
         ref={viewportRef}
         className="section-library-preview-viewport"
-        style={viewportHeight > 0 ? { height: viewportHeight } : undefined}
+        style={{ backgroundColor: normalizedTheme.colors.background }}
       >
         <div
-          ref={scaleRef}
           className="section-library-preview-scale"
-          style={{ width: PREVIEW_RENDER_WIDTH }}
+          style={{
+            width: PREVIEW_RENDER_WIDTH,
+            transform: `translateX(-50%) scale(${scale})`,
+          }}
         >
           <div
-            ref={contentRef}
             className="section-library-preview-content @container site-theme-root section-typography"
             style={{
               ...previewThemeStyle,

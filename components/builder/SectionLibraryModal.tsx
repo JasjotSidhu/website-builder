@@ -348,15 +348,22 @@ export default function SectionLibraryModal({
                   selected.variantId === variant.id;
 
                 return (
-                  <button
+                  <div
                     key={variant.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     className={`section-library-card ${
                       isSelected ? "section-library-card--selected" : ""
                     } ${isCurrent ? "section-library-card--current" : ""}`}
                     onClick={() =>
                       setSelected({ type: activeType, variantId: variant.id })
                     }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelected({ type: activeType, variantId: variant.id });
+                      }
+                    }}
                   >
                     <div className="section-library-card-header">
                       <span className="section-library-card-title">
@@ -376,7 +383,7 @@ export default function SectionLibraryModal({
                       variant={variant}
                       theme={theme}
                     />
-                  </button>
+                  </div>
                 );
               })
             )}

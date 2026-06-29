@@ -66,9 +66,8 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
       ],
     },
     settings: {
-      overlayColor: "#000000",
-      opacity: 0.25,
-      backgroundColor: "#FFFBF7",
+      type: "solid",
+      color: "var(--color-background)",
       paddingY: "lg",
     },
   },
@@ -89,7 +88,105 @@ const PREVIEW_DATA: Record<string, VariantPreview> = {
       ],
     },
     settings: {
-      backgroundColor: "#FFFBF7",
+      type: "solid",
+      color: "var(--color-background)",
+      paddingY: "lg",
+    },
+  },
+  "hero-minimal": {
+    props: {
+      eyebrow: "Atelier",
+      heading: "Clarity starts with a bold headline",
+      subheading:
+        "A focused message and call to action — no distractions, just what matters.",
+      buttons: [
+        {
+          label: "Explore services",
+          link: { type: "url", href: "#" },
+          variant: "primary",
+        },
+        {
+          label: "See our work",
+          link: { type: "url", href: "#" },
+          variant: "outline",
+        },
+      ],
+    },
+    settings: {
+      type: "solid",
+      color: "var(--color-background)",
+      paddingY: "xl",
+    },
+  },
+  "hero-background": {
+    props: {
+      eyebrow: "Discover",
+      heading: "Make a powerful first impression",
+      subheading:
+        "Lead with a full-bleed visual and a message that stops visitors in their tracks.",
+      image:
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&h=900&fit=crop",
+      imageAlt: "Modern office workspace",
+      buttons: [
+        {
+          label: "Get started",
+          link: { type: "url", href: "#" },
+          variant: "light",
+        },
+      ],
+    },
+    settings: {
+      type: "solid",
+      color: "#111827",
+      textColor: "#ffffff",
+      paddingY: "lg",
+    },
+  },
+  "hero-stats": {
+    props: {
+      eyebrow: "Results",
+      heading: "Numbers that speak for themselves",
+      subheading:
+        "Pair your value proposition with proof points that build instant credibility.",
+      buttons: [
+        {
+          label: "View case studies",
+          link: { type: "url", href: "#" },
+          variant: "primary",
+        },
+      ],
+      stats: [
+        { value: "500+", label: "Projects delivered" },
+        { value: "98%", label: "Client satisfaction" },
+        { value: "12yr", label: "Industry experience" },
+      ],
+    },
+    settings: {
+      type: "solid",
+      color: "var(--color-background)",
+      paddingY: "xl",
+    },
+  },
+  "hero-offset": {
+    props: {
+      eyebrow: "Studio",
+      heading: "Design with intention",
+      subheading:
+        "A portrait-style layout that puts your story beside a striking visual.",
+      image:
+        "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=720&h=960&fit=crop",
+      imageAlt: "Creative workspace detail",
+      buttons: [
+        {
+          label: "Start a project",
+          link: { type: "url", href: "#" },
+          variant: "primary",
+        },
+      ],
+    },
+    settings: {
+      type: "solid",
+      color: "var(--color-background)",
       paddingY: "lg",
     },
   },
