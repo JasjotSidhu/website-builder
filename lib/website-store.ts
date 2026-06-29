@@ -2,6 +2,10 @@ import { prisma } from "@/lib/db";
 import { websiteSchema } from "@/lib/schemas";
 import { parseAndMigrateWebsiteData } from "@/lib/site-migrations";
 import type { WebsiteData } from "@/lib/types";
+import type { AiColorSchemeId } from "@/lib/ai/wizard-config";
+import type { AiIndustryId } from "@/lib/ai/industries/types";
+import { mockGenerateWebsite } from "@/lib/ai/mock-generate-website";
+import { extractSiteNameFromPrompt } from "@/lib/ai/extract-site-name";
 import { createWebsiteData, createWebsiteFromTemplate } from "./website-factory";
 import { isWebsiteTemplateId } from "@/lib/templates/catalog";
 import { ensureUniqueWebsiteSlug, slugifyWebsiteName, validateWebsiteSlug } from "./website-slugs";
@@ -92,11 +96,25 @@ export async function getWebsiteBySlug(slug: string) {
   return prisma.website.findUnique({ where: { slug } });
 }
 
-export async function createWebsiteForUser(
-  userId: string,
-  input: { name: string; slug?: string; templateId?: string },
-) {
-  const name = input.name.trim() || "Untitled website";
+export interface CreateWebsiteAiConfig {
+  industryId: AiIndustryId;
+  prompt: string;
+  selectedPageIds: string[];
+  colorScheme?: AiColorSchemeId;
+}
+
+export interface CreateWebsiteInput {
+  name?: string;
+  slug?: string;
+  templateId?: string;
+  ai?: CreateWebsiteAiConfig;
+}
+
+export async function createWebsiteForUser(userId: string, input: CreateWebsiteInput) {
+  const name =
+    input.name?.trim() ||
+    (input.ai ? extractSiteNameFromPrompt(input.ai.prompt, input.ai.industryId) : "") ||
+    "Untitled website";
   const baseSlug = slugifyWebsiteName(input.slug?.trim() || name);
   const slugError = validateWebsiteSlug(baseSlug);
   if (slugError) {
@@ -110,10 +128,22 @@ export async function createWebsiteForUser(
 
   const websiteId = crypto.randomUUID();
   const templateId = input.templateId?.trim();
-  const data =
-    templateId && isWebsiteTemplateId(templateId) && templateId !== "blank"
-      ? createWebsiteFromTemplate(websiteId, name, templateId)
-      : createWebsiteData(websiteId, name);
+  let data: WebsiteData;
+
+  if (input.ai) {
+    data = mockGenerateWebsite({
+      websiteId,
+      name,
+      industryId: input.ai.industryId,
+      prompt: input.ai.prompt,
+      selectedPageIds: input.ai.selectedPageIds,
+      colorScheme: input.ai.colorScheme,
+    });
+  } else if (templateId && isWebsiteTemplateId(templateId) && templateId !== "blank") {
+    data = createWebsiteFromTemplate(websiteId, name, templateId);
+  } else {
+    data = createWebsiteData(websiteId, name);
+  }
   const payload = serializeWebsiteData(data);
 
   return prisma.website.create({

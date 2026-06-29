@@ -114,7 +114,7 @@ export interface ThemeConfig {
 
 export interface NavigationConfig {
   variant?: string;
-  logo: { type: "image"; value: string };
+  logo: { type: "text" | "image"; value: string };
   links?: { label: string; link: LinkValue }[];
   menus?: HeaderMenuItem[];
   cta?: { label: string; link: LinkValue; variant?: ButtonVariant };

@@ -26,7 +26,12 @@ type AuthMode = "login" | "signup";
 
 interface AuthModalContextValue {
   openLogin: (next?: string | null, error?: string | null, from?: string | null) => void;
-  openSignup: (prompt?: string | null, error?: string | null, from?: string | null) => void;
+  openSignup: (
+    prompt?: string | null,
+    error?: string | null,
+    from?: string | null,
+    preview?: string | null,
+  ) => void;
   closeAuth: () => void;
 }
 
@@ -131,6 +136,7 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
   const [mode, setMode] = useState<AuthMode>("login");
   const [nextPath, setNextPath] = useState<string | null>(null);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
+  const [initialPromptPreview, setInitialPromptPreview] = useState<string | null>(null);
   const [initialError, setInitialError] = useState<string | null>(null);
 
   const openLogin = useCallback((next?: string | null, error?: string | null, from?: string | null) => {
@@ -139,24 +145,30 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
     setMode("login");
     setNextPath(next?.startsWith("/") ? next : null);
     setInitialPrompt(null);
+    setInitialPromptPreview(null);
     setInitialError(error ?? null);
     setOpen(true);
   }, []);
 
-  const openSignup = useCallback((prompt?: string | null, error?: string | null, from?: string | null) => {
-    returnPathRef.current = sanitizeAuthReturnPath(from) ?? captureAuthReturnPath();
+  const openSignup = useCallback(
+    (prompt?: string | null, error?: string | null, from?: string | null, preview?: string | null) => {
+      returnPathRef.current = sanitizeAuthReturnPath(from) ?? captureAuthReturnPath();
 
-    setMode("signup");
-    setNextPath(null);
-    setInitialPrompt(prompt?.trim() ? prompt : null);
-    setInitialError(error ?? null);
-    setOpen(true);
-  }, []);
+      setMode("signup");
+      setNextPath(null);
+      setInitialPrompt(prompt?.trim() ? prompt : null);
+      setInitialPromptPreview(preview?.trim() ? preview : null);
+      setInitialError(error ?? null);
+      setOpen(true);
+    },
+    [],
+  );
 
   const closeAuth = useCallback(() => {
     setOpen(false);
     setInitialError(null);
     setInitialPrompt(null);
+    setInitialPromptPreview(null);
 
     const target = returnPathRef.current;
     returnPathRef.current = null;
@@ -242,12 +254,15 @@ export default function AuthModalProvider({ children }: AuthModalProviderProps) 
                   <LoginForm
                     initialError={initialError}
                     nextPath={nextPath}
-                    onOpenSignup={() => openSignup(initialPrompt, null, returnPathRef.current)}
+                    onOpenSignup={() =>
+                      openSignup(initialPrompt, null, returnPathRef.current, initialPromptPreview)
+                    }
                   />
                 ) : (
                   <SignupForm
                     initialError={initialError}
                     initialPrompt={initialPrompt}
+                    initialPromptPreview={initialPromptPreview}
                     onOpenLogin={() => openLogin(nextPath, null, returnPathRef.current)}
                   />
                 )}

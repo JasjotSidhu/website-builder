@@ -24,10 +24,11 @@ export default function BuildWebsiteModalProvider({ children }: { children: Reac
   const router = useRouter();
 
   const openBuildWebsite = useCallback(
-    (initialStep: BuildStep = "options", options?: { prompt?: string }) => {
+    (initialStep: BuildStep | "ai" = "options", options?: { prompt?: string }) => {
       const params = new URLSearchParams();
-      if (initialStep !== "options") {
-        params.set("step", initialStep);
+      const step = initialStep === "ai" ? "ai-industry" : initialStep;
+      if (step !== "options") {
+        params.set("step", step);
       }
       const prompt = options?.prompt?.trim();
       if (prompt) {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { normalizeSelectedPages, type AiColorSchemeId, type AiIndustryId } from "@/lib/ai/wizard-config";
 import { createWebsiteForUser, listWebsitesForUser } from "@/lib/website-store";
 
 export async function GET() {
@@ -33,12 +34,27 @@ export async function POST(req: Request) {
       prompt?: string;
       migrateUrl?: string;
       marketingTemplate?: string;
+      aiIndustry?: AiIndustryId;
+      aiPages?: string[];
+      aiColorScheme?: AiColorSchemeId;
     };
-    const name = body.name?.trim() || body.marketingTemplate?.trim() || "Untitled website";
+    const name = body.name?.trim() || body.marketingTemplate?.trim() || undefined;
+    const isAiMode = body.creationMode === "ai" && body.aiIndustry;
+    const ai =
+      isAiMode && body.aiIndustry
+        ? {
+            industryId: body.aiIndustry,
+            prompt: body.prompt?.trim() ?? "",
+            selectedPageIds: normalizeSelectedPages(body.aiPages ?? [], body.aiIndustry),
+            colorScheme: body.aiColorScheme,
+          }
+        : undefined;
+
     const website = await createWebsiteForUser(user.id, {
       name,
       slug: body.slug,
-      templateId: body.templateId,
+      templateId: isAiMode ? "blank" : body.templateId,
+      ai,
     });
 
     return NextResponse.json({

@@ -39,7 +39,7 @@ export default function MarketingHomeIntro() {
   function startBuilding(nextPrompt?: string) {
     const value = (nextPrompt ?? prompt).trim() || "Create a modern website for my dental clinic";
     setPrompt(value);
-    openBuildWebsite("ai", { prompt: value });
+    openBuildWebsite("ai-industry", { prompt: value });
   }
 
   return (

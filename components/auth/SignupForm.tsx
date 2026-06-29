@@ -8,12 +8,14 @@ import GoogleSignInButton from "./GoogleSignInButton";
 interface SignupFormProps {
   initialError?: string | null;
   initialPrompt?: string | null;
+  initialPromptPreview?: string | null;
   onOpenLogin?: () => void;
 }
 
 export default function SignupForm({
   initialError = null,
   initialPrompt = null,
+  initialPromptPreview = null,
   onOpenLogin,
 }: SignupFormProps) {
   const [name, setName] = useState("");
@@ -61,7 +63,9 @@ export default function SignupForm({
 
   return (
     <div className="platform-auth__form">
-      {initialPrompt ? (
+      {initialPromptPreview ? (
+        <p className="platform-auth__prompt-preview">{initialPromptPreview}</p>
+      ) : initialPrompt ? (
         <p className="platform-auth__prompt-preview">
           Starting with: <span>{initialPrompt}</span>
         </p>

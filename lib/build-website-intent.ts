@@ -10,10 +10,15 @@ export interface BuildWebsiteIntent {
   migrateUrl?: string;
   templateId?: WebsiteTemplateId;
   name?: string;
+  aiIndustry?: string;
+  aiPages?: string[];
+  aiFeatures?: string[];
+  aiColorScheme?: string;
 }
 
 const STORAGE_KEY = "webeix-build-intent";
 const AI_PROMPT_KEY = "webeix-ai-prompt";
+const AI_WIZARD_KEY = "webeix-ai-wizard";
 const MIGRATE_URL_KEY = "webeix-migrate-url";
 
 export function saveBuildWebsiteIntent(intent: BuildWebsiteIntent): void {
@@ -44,6 +49,17 @@ export function clearBuildWebsiteIntent(): void {
 export function stashBuilderContext(intent: BuildWebsiteIntent): void {
   if (intent.mode === "ai" && intent.prompt) {
     sessionStorage.setItem(AI_PROMPT_KEY, intent.prompt);
+  }
+  if (intent.mode === "ai") {
+    sessionStorage.setItem(
+      AI_WIZARD_KEY,
+      JSON.stringify({
+        aiIndustry: intent.aiIndustry,
+        aiPages: intent.aiPages,
+        aiFeatures: intent.aiFeatures,
+        aiColorScheme: intent.aiColorScheme,
+      }),
+    );
   }
   if (intent.mode === "migrate" && intent.migrateUrl) {
     sessionStorage.setItem(MIGRATE_URL_KEY, intent.migrateUrl);
@@ -98,6 +114,10 @@ export async function executeBuildWebsiteIntent(intent: BuildWebsiteIntent): Pro
       prompt: intent.prompt,
       migrateUrl: intent.migrateUrl,
       marketingTemplate: intent.marketingTemplate,
+      aiIndustry: intent.aiIndustry,
+      aiPages: intent.aiPages,
+      aiFeatures: intent.aiFeatures,
+      aiColorScheme: intent.aiColorScheme,
     }),
   });
 
